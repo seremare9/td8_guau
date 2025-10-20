@@ -1,20 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import MobileFrame from "./mobile-frame"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff, User } from "lucide-react"
+import { useState } from "react";
+import MobileFrame from "./mobile-frame";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, User } from "lucide-react";
 
 interface LoginScreenProps {
-  onCreateAccount: () => void
-  onBack: () => void
+  onCreateAccount: () => void;
+  onBack: () => void;
 }
 
-export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProps) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+export default function LoginScreen({
+  onCreateAccount,
+  onBack,
+}: LoginScreenProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <MobileFrame>
@@ -25,8 +28,12 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-blue-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Iniciar sesión</h1>
-            <p className="text-gray-500 text-center text-sm">¡Bienvenido! Completá tus datos a continuación y empezá</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Iniciar sesión
+            </h1>
+            <p className="text-gray-500 text-center text-sm">
+              ¡Bienvenido! Completá tus datos a continuación y empezá
+            </p>
           </div>
 
           {/* Form */}
@@ -53,7 +60,11 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -72,7 +83,9 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
                     d="M12 2.247c-5.52 0-10 4.48-10 10 0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12.247h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.988C18.343 21.375 22 17.238 22 12.247c0-5.52-4.48-10-10-10z"
                   />
                 </svg>
-                <span className="text-gray-700 font-medium">Continuar con Apple</span>
+                <span className="text-gray-700 font-medium">
+                  Continuar con Apple
+                </span>
               </Button>
 
               <Button
@@ -97,17 +110,25 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span className="text-gray-700 font-medium">Continuar con Google</span>
+                <span className="text-gray-700 font-medium">
+                  Continuar con Google
+                </span>
               </Button>
 
               <Button
                 variant="outline"
                 className="w-full py-3 border border-gray-200 rounded-lg flex items-center justify-center gap-3 bg-transparent"
               >
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
-                <span className="text-gray-700 font-medium">Continuar con Facebook</span>
+                <span className="text-gray-700 font-medium">
+                  Continuar con Facebook
+                </span>
               </Button>
             </div>
           </div>
@@ -116,7 +137,10 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
           <div className="text-center">
             <p className="text-gray-500 text-sm">
               ¿No tienes una cuenta?{" "}
-              <button onClick={onCreateAccount} className="text-blue-600 font-medium">
+              <button
+                onClick={onCreateAccount}
+                className="text-blue-600 font-medium"
+              >
                 Crear cuenta
               </button>
             </p>
@@ -124,5 +148,5 @@ export default function LoginScreen({ onCreateAccount, onBack }: LoginScreenProp
         </div>
       </div>
     </MobileFrame>
-  )
+  );
 }
