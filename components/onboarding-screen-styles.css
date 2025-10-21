@@ -1,0 +1,98 @@
+.onboarding-screen {
+  align-items: center;
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  border-radius: 26px;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+  position: relative;
+  width: 375px;
+}
+
+.onboarding-screen .status-bar-nav {
+  height: 812px;
+  position: relative;
+  width: 375px;
+}
+
+.onboarding-screen .logo-guau {
+  aspect-ratio: 1.05;
+  height: 138px;
+  left: calc(50% - 72px);
+  position: absolute;
+  top: calc(50% - 89px);
+  width: 144px;
+}
+
+.onboarding-screen .status-bar-IOS {
+  height: 44px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 375px;
+}
+
+.onboarding-screen .status-icons {
+  height: 12px;
+  position: absolute;
+  right: 12px;
+  top: 16px;
+  width: 66px;
+}
+
+.onboarding-screen .time {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  left: 10px;
+  position: absolute;
+  top: 13px;
+  width: 75px;
+}
+
+.onboarding-screen .text-wrapper {
+  align-items: center;
+  color: var(--greygrey-1000);
+  display: flex;
+  font-family: "SF Pro Text-Semibold", Helvetica;
+  font-size: 15px;
+  font-weight: 400;
+  justify-content: center;
+  letter-spacing: -0.17px;
+  line-height: normal;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.onboarding-screen .notch {
+  height: 29px;
+  left: 112px;
+  position: absolute;
+  top: 0;
+  width: 150px;
+}
+
+.onboarding-screen .div {
+  align-items: flex-end;
+  color: #ea6431;
+  display: flex;
+  font-family: "Catamaran-Bold", Helvetica;
+  font-size: 18px;
+  font-weight: 700;
+  height: 20px;
+  justify-content: center;
+  left: calc(50% - 146px);
+  letter-spacing: 0;
+  line-height: 20px;
+  position: absolute;
+  top: 506px;
+  white-space: nowrap;
+}

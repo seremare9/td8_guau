@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
-import MobileFrame from "./mobile-frame"
-import { Button } from "@/components/ui/button"
+import MobileFrame from "./mobile-frame";
+import { Button } from "@/components/ui/button";
 
 interface OnboardingScreenProps {
-  onGetStarted: () => void
+  onGetStarted: () => void;
 }
 
-export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps) {
+export default function OnboardingScreen({
+  onGetStarted,
+}: OnboardingScreenProps) {
   return (
     <MobileFrame>
       <div className="flex flex-col items-center justify-center h-full px-8 pt-20">
@@ -15,7 +17,11 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
           <div className="w-32 h-32 mb-8">
             <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
               <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                <svg className="w-12 h-12 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-12 h-12 text-orange-500"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
               </div>
@@ -35,5 +41,5 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
         </Button>
       </div>
     </MobileFrame>
-  )
+  );
 }
