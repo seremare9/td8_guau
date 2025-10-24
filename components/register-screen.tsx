@@ -30,10 +30,10 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
 
   return (
     <MobileFrame>
-      <div className="px-6 pt-8 pb-6 h-full">
+      <div className="px-6 pt-20 pb-6 h-full">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-15">
             <button onClick={onBack} className="mr-4">
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
@@ -80,7 +80,6 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
                   }
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg pr-12"
                 />
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               </div>
 
               <Input
@@ -132,7 +131,8 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
             {/* Create Account Button */}
             <Button
               disabled={!acceptTerms}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl text-lg font-medium mb-6"
+              // Ya no necesitas style ni la mayoría de las clases de color:
+              className="w-full py-3 rounded-lg text-base font-medium mb-6"
             >
               Crear cuenta
             </Button>
