@@ -117,6 +117,9 @@
   font-weight: 500;
   z-index: 2;
 }
+.login-button:hover:not(:disabled) {
+  background-color: #1c4ebf !important;
+}
 
 /* separador O */
 .login-separator {

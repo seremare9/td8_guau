@@ -121,12 +121,19 @@
 }
 
 .register-submit-button {
-  width: 100%;
-  padding: 24px;
+  background-color: #2563eb !important;
+  color: white !important;
   border-radius: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 24px 0;
   font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 0.75rem;
+  z-index: 2;
+}
+
+.register-submit-button:hover:not(:disabled) {
+  background-color: #1c4ebf !important;
 }
 
 .register-divider {
@@ -173,4 +180,3 @@
   font-weight: 500;
   font-size: 1rem;
 }
-

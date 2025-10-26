@@ -134,10 +134,7 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
             </div>
 
             {/* Create Account Button */}
-            <Button
-              disabled={!acceptTerms}
-              className="register-submit-button"
-            >
+            <Button disabled={!acceptTerms} className="w-full mb-3">
               Crear cuenta
             </Button>
 
@@ -147,31 +144,27 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
 
             {/* Social Login Buttons */}
             <div className="register-social-buttons">
-              <Button
-                variant="outline"
-                className="register-social-button"
-              >
+              <Button variant="outline" className="register-social-button">
                 <Image src={appleLogo} alt="apple" width={18} height={18} />
                 <span className="register-social-text">
                   Continuar con Apple
                 </span>
               </Button>
 
-              <Button
-                variant="outline"
-                className="register-social-button"
-              >
+              <Button variant="outline" className="register-social-button">
                 <Image src={googleLogo} alt="google" width={18} height={18} />
                 <span className="register-social-text">
                   Continuar con Google
                 </span>
               </Button>
 
-              <Button
-                variant="outline"
-                className="register-social-button"
-              >
-                <Image src={facebookLogo} alt="facebook" width={18} height={18} />
+              <Button variant="outline" className="register-social-button">
+                <Image
+                  src={facebookLogo}
+                  alt="facebook"
+                  width={18}
+                  height={18}
+                />
                 <span className="register-social-text">
                   Continuar con Facebook
                 </span>
