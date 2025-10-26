@@ -8,6 +8,10 @@ import UserTypeScreen from "@/components/user-type-screen";
 import PetOnboardingFlow from "@/components/pet-onboarding-flow";
 import PetExperienceScreen from "@/components/pet-experience-screen";
 
+// Las importaciones de componentes deben usar mayúscula inicial para JSX
+import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
+import VacunaInfoScreen from "@/components/Preguntas/vacunaInfo-screen";
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<
     | "onboarding"
@@ -16,16 +20,23 @@ export default function App() {
     | "userType"
     | "petExperience"
     | "petOnboarding"
+    | "vacunaInfo"
+    | "medicinaInfo"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
+
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
   const navigateToUserType = () => setCurrentScreen("userType");
 
+  const navigateToVacunaInfo = () => setCurrentScreen("vacunaInfo");
+  const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
+  const navigateToHome = () => setCurrentScreen("petOnboarding");
+
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
-    if (type === "future") {
+    if (type === "future" || type === "adopted") {
       setCurrentScreen("petExperience");
     } else {
       setCurrentScreen("petOnboarding");
@@ -34,7 +45,13 @@ export default function App() {
 
   const handlePetExperience = (hasExperience: boolean) => {
     console.log("[v0] Pet experience:", hasExperience);
-    setCurrentScreen("petOnboarding");
+    if (hasExperience) {
+      // Si tiene experiencia (Sí), va directo al flujo de mascota
+      setCurrentScreen("petOnboarding");
+    } else {
+      // Si NO tiene experiencia (No), va a la primera pantalla de información
+      setCurrentScreen("vacunaInfo");
+    }
   };
 
   const navigateBack = () => {
@@ -46,10 +63,16 @@ export default function App() {
       setCurrentScreen("login");
     } else if (currentScreen === "petExperience") {
       setCurrentScreen("userType");
+    } else if (currentScreen === "vacunaInfo") {
+      setCurrentScreen("petExperience"); // Regresa de vacunas a experiencia
+    } else if (currentScreen === "medicinaInfo") {
+      setCurrentScreen("vacunaInfo"); // Regresa de medicinas a vacunas
     } else if (currentScreen === "petOnboarding") {
-      if (userType === "future") {
+      if (userType === "future" || userType === "adopted") {
+        // Si viene de Adopted/Future, regresa a petExperience
         setCurrentScreen("petExperience");
       } else {
+        // Si viene de 'Tutor actual' regresa a userType
         setCurrentScreen("userType");
       }
     }
@@ -81,6 +104,20 @@ export default function App() {
       )}
       {currentScreen === "petOnboarding" && (
         <PetOnboardingFlow userType={userType} onBack={navigateBack} />
+      )}
+      {currentScreen === "vacunaInfo" && (
+        <VacunaInfoScreen
+          onNext={navigateToMedicinaInfo}
+          onSkip={navigateToHome}
+          onBack={navigateBack}
+        />
+      )}
+      {currentScreen === "medicinaInfo" && (
+        <MedicinaInfoScreen
+          onNext={navigateToHome}
+          onSkip={navigateToHome}
+          onBack={navigateBack}
+        />
       )}
     </div>
   );

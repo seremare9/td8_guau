@@ -1,0 +1,136 @@
+/* Archivo: info-screen-styles.css */
+
+.info-container {
+  /* pt-12: Baja el contenido visiblemente para centrarlo */
+  padding: 15rem 1.5rem 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* --- Botón de Regreso (Back Button) --- */
+.info-back-button {
+  position: absolute;
+  top: 3.5rem;
+  left: 1.5rem;
+  color: #4b5563; /* gray-600 */
+}
+
+.info-back-icon {
+  width: 1.5rem; /* w-6 */
+  height: 1.5rem; /* h-6 */
+}
+
+/* --- Contenido (Título e Ícono) --- */
+.info-content {
+  flex: 1; /* Ocupa el espacio central */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Centrar verticalmente */
+  text-align: center;
+}
+
+/* --- Wrapper del Ícono --- */
+.info-icon-wrapper {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1.5rem; /* rounded-xl */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem; /* mb-10 */
+}
+
+/* Colores de Vacunas (Verde) */
+.info-icon-vaccine-bg {
+  background-color: #d1fae5; /* green-100 */
+}
+.info-icon-vaccine-fg {
+  color: #10b981; /* emerald-500 */
+  width: 2.5rem; /* w-10 */
+  height: 2.5rem; /* h-10 */
+}
+
+/* Colores de Medicinas (Rosa) */
+.info-icon-medicine-bg {
+  background-color: #fce7f3; /* pink-100 */
+}
+.info-icon-medicine-fg {
+  color: #ec4899; /* pink-500 */
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.info-title {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  color: #1f2937; /* gray-800 */
+  margin-bottom: 5rem; /* Empuja las acciones hacia abajo */
+}
+
+/* --- Botones de Acción (Bottom) --- */
+.info-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space-y-2 */
+}
+
+/* Estilo Gris/Blanco/Borde (Similar a outline) - Base de Button */
+.info-main-button {
+  width: 100%;
+  padding: 1rem 0; /* py-4 */
+  border-radius: 0.75rem; /* rounded-xl */
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+
+  background-color: white;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  color: #1f2937; /* gray-800 */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.info-main-button:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+}
+
+/* 🛑 Estilo Azul (Botón Pulsado) 🛑 */
+.info-main-button-blue {
+  background-color: #2563eb !important;
+  color: white !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.info-main-button-blue:hover {
+  background-color: #1c4ebf !important; /* Tono más oscuro para hover */
+}
+
+/* --- Botón Omitir (Estilo Base de Texto) --- */
+.info-skip-button {
+  width: 100%;
+  padding: 0.5rem 0; /* py-2 */
+  font-size: 0.875rem; /* text-sm */
+  color: #6b7280; /* gray-500 */
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+/* 🛑 Estilo Azul para OMITIR (Convierte el botón de texto en azul principal) 🛑 */
+.info-skip-button-blue {
+  background-color: #2563eb !important;
+  color: white !important;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0 !important; /* py-4, lo hace grande */
+  font-weight: 500;
+  font-size: 1rem;
+}
+.info-skip-button-blue:hover {
+  background-color: #1c4ebf !important;
+}
