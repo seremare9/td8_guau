@@ -134,7 +134,7 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
             </div>
 
             {/* Create Account Button */}
-            <Button disabled={!acceptTerms} className="w-full mb-3">
+            <Button disabled={!acceptTerms} className="login-button">
               Crear cuenta
             </Button>
 
