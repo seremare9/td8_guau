@@ -15,9 +15,13 @@ import "./register-screen-styles.css";
 
 interface RegisterScreenProps {
   onBack: () => void;
+  onRegister: () => void;
 }
 
-export default function RegisterScreen({ onBack }: RegisterScreenProps) {
+export default function RegisterScreen({
+  onBack,
+  onRegister,
+}: RegisterScreenProps) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,6 +35,14 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Función de registro que podemos usar en el onClick
+  const handleRegister = () => {
+    // Aquí puedes agregar validación de datos antes de navegar
+    if (acceptTerms) {
+      onRegister();
+    }
   };
 
   return (
@@ -134,7 +146,11 @@ export default function RegisterScreen({ onBack }: RegisterScreenProps) {
             </div>
 
             {/* Create Account Button */}
-            <Button disabled={!acceptTerms} className="login-button">
+            <Button
+              disabled={!acceptTerms}
+              onClick={handleRegister}
+              className="login-button"
+            >
               Crear cuenta
             </Button>
 

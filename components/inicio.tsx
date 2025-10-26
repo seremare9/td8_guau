@@ -17,9 +17,13 @@ import "./inicio-styles.css";
 interface LoginScreenProps {
   onCreateAccount: () => void;
   onBack?: () => void;
+  onLogin: () => void;
 }
 
-export default function LoginScreen({ onCreateAccount }: LoginScreenProps) {
+export default function LoginScreen({
+  onCreateAccount,
+  onLogin,
+}: LoginScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -68,7 +72,9 @@ export default function LoginScreen({ onCreateAccount }: LoginScreenProps) {
         </div>
 
         {/* Botón principal */}
-        <Button className="login-button">Iniciar sesión</Button>
+        <Button onClick={onLogin} className="login-button">
+          Iniciar sesión
+        </Button>
 
         {/* Separador */}
         <div className="login-separator">
