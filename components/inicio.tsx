@@ -12,7 +12,7 @@ import appleLogo from "./images/apple.png";
 import googleLogo from "./images/google.png";
 import facebookLogo from "./images/facebook.png";
 import actionSheetBg from "./images/action-sheet-background.svg";
-import "./inicio-styles.css";
+import "./styles/inicio-styles.css";
 
 interface LoginScreenProps {
   onCreateAccount: () => void;

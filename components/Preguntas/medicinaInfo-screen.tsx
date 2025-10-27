@@ -1,9 +1,10 @@
 "use client";
 
-// 🛑 RUTA CORREGIDA: Accede a mobile-frame fuera de la carpeta Preguntas 🛑
 import MobileFrame from "../mobile-frame";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Pill } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import logoPastilla from "../images/logo_pastilla.png";
 import "./info-screen-styles.css";
 
 interface InfoScreenProps {
@@ -36,9 +37,14 @@ export default function MedicinaInfoScreen({
         </button>
 
         <div className="info-content">
-          {/* Icono de Medicina (Rosa) */}
-          <div className="info-icon-wrapper info-icon-medicine-bg">
-            <Pill className="info-icon info-icon-medicine-fg" />
+          {/* Icono de Medicina */}
+          <div style={{ marginBottom: '2.5rem' }}>
+            <Image 
+              src={logoPastilla} 
+              alt="Medicina" 
+              width={112}
+              height={112}
+            />
           </div>
 
           <h2 className="info-title">

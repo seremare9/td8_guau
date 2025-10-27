@@ -11,7 +11,7 @@ import { ArrowLeft, Eye, EyeOff, Calendar } from "lucide-react";
 import appleLogo from "./images/apple.png";
 import googleLogo from "./images/google.png";
 import facebookLogo from "./images/facebook.png";
-import "./register-screen-styles.css";
+import "./styles/register-screen-styles.css";
 
 interface RegisterScreenProps {
   onBack: () => void;

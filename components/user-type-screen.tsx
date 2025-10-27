@@ -4,7 +4,7 @@ import MobileFrame from "./mobile-frame";
 import { useState } from "react";
 import Image from "next/image";
 import personaPerro from "./images/persona_perro.png";
-import "./user-type-screen-styles.css"; // 🛑 Importamos el archivo de estilos 🛑
+import "./styles/user-type-screen-styles.css";
 
 interface UserTypeScreenProps {
   onSelectType: (type: string) => void;

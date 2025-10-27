@@ -4,8 +4,7 @@ import MobileFrame from "./mobile-frame";
 import { useState } from "react";
 import Image from "next/image";
 import personaPerro2 from "./images/persona_perro-2.png";
-// 🛑 Importamos el archivo de estilos
-import "./pet-experience-screen-styles.css";
+import "./styles/pet-experience-screen-styles.css";
 
 interface PetExperienceScreenProps {
   onBack: () => void;

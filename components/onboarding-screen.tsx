@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import imgLogoGuau from "./images/logo_guau.png";
 import MobileFrame from "./mobile-frame";
-import "./onboarding-screen-styles.css";
+import "./styles/onboarding-screen-styles.css";
 
 interface OnboardingScreenProps {
   onGetStarted: () => void;
