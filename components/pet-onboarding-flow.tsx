@@ -31,6 +31,7 @@ export default function PetOnboardingFlow({
   const [selectedMonth, setSelectedMonth] = useState(1); // Enero por defecto
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedYear, setSelectedYear] = useState(2024);
+  const [approximateAge, setApproximateAge] = useState("");
 
   // Función para calcular el número de días en un mes
   const getDaysInMonth = (month: number, year: number) => {
@@ -68,27 +69,27 @@ export default function PetOnboardingFlow({
 
   // Para esta parte hay que sacar la lista completa de razas de algun sitio
   const breeds = [
-    "Mestizo",
+    "Beagle",
+    "Bóxer",
     "Bulldog Francés",
     "Bulldog Inglés",
     "Caniche",
     "Chihuahua",
+    "Cocker Spaniel",
     "Dálmata",
     "Doberman",
     "Dogo Argentino",
     "Galgo",
     "Golden Retriever",
     "Labrador Retriever",
+    "Mestizo",
     "Pastor Alemán",
     "Pug",
     "Rottweiler",
     "Schnauzer",
     "Shih Tzu",
-    "Yorkshire Terrier",
-    "Beagle",
-    "Bóxer",
-    "Cocker Spaniel"
-  ];
+    "Yorkshire Terrier"
+  ].sort((a, b) => a.localeCompare(b, 'es'));
   // ============================================
   // 🔧 CONFIGURACIÓN DE TAMAÑOS DE MASCOTAS
   // ============================================
@@ -142,7 +143,12 @@ export default function PetOnboardingFlow({
   };
 
   const handleSkip = () => {
-    setStep(totalSteps);
+    if (step === 5) {
+      // Si está en la pantalla de cumpleaños, ir a edad aproximada
+      setStep(6);
+    } else {
+      setStep(totalSteps);
+    }
   };
 
   // Empty state screen
@@ -561,25 +567,131 @@ export default function PetOnboardingFlow({
   }
 
   // Step 5: Birthday input
+  if (step === 5) {
+    return (
+      <MobileFrame>
+        <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+          {/* Header with progress */}
+          <div className="mb-6">
+            <div className="flex items-start justify-between mb-3">
+              <button onClick={() => setStep(step - 1)} className="mt-1">
+                <ArrowLeft className="w-6 h-6 text-gray-600" />
+              </button>
+              <div className="text-center flex-1 mt-4">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Agregar mascota
+                </h2>
+                <p className="text-gray-400 text-sm">Cumpleaños</p>
+              </div>
+              <div className="text-xs text-right mt-1 flex flex-col items-end">
+                <span className="text-gray-800 font-semibold">Paso</span>
+                <span>
+                  <span className="text-gray-800 font-bold">{step}</span>
+                  <span className="text-gray-400">/{totalSteps}</span>
+                </span>
+              </div>
+            </div>
+            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full transition-all duration-300"
+                style={{ width: "100%", backgroundColor: '#31AA7A' }}
+              />
+            </div>
+          </div>
+
+          {/* Dog image placeholder */}
+          <div className="flex justify-center mb-8">
+            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
+              <img
+                src="/cute-brown-and-white-dog-portrait.jpg"
+                alt="Dog"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <label className="block text-gray-700 font-medium mb-4 text-center">
+              ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
+            </label>
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div>
+                <label className="block text-xs text-gray-500 mb-2">Mes</label>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                >
+                  {months.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-2">Día</label>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(Number(e.target.value))}
+                >
+                  {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-2">Año</label>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                >
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <option key={2024 - i} value={2024 - i}>{2024 - i}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 mt-auto pt-4">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium">
+              Finalizar
+            </Button>
+            <button
+              onClick={handleSkip}
+              className="w-full text-gray-500 text-sm py-2"
+            >
+              No lo sé
+            </button>
+          </div>
+        </div>
+      </MobileFrame>
+    );
+  }
+
+  // Step 6: Approximate age (when user doesn't know birthday)
   return (
     <MobileFrame>
       <div className="px-6 pt-8 pb-6 h-full flex flex-col">
         {/* Header with progress */}
         <div className="mb-6">
           <div className="flex items-start justify-between mb-3">
-            <button onClick={() => setStep(step - 1)} className="mt-1">
+            <button onClick={() => setStep(5)} className="mt-1">
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
             <div className="text-center flex-1 mt-4">
               <h2 className="text-lg font-bold text-gray-800">
                 Agregar mascota
               </h2>
-              <p className="text-gray-400 text-sm">Cumpleaños</p>
+              <p className="text-gray-400 text-sm">Edad aproximada</p>
             </div>
             <div className="text-xs text-right mt-1 flex flex-col items-end">
               <span className="text-gray-800 font-semibold">Paso</span>
               <span>
-                <span className="text-gray-800 font-bold">{step}</span>
+                <span className="text-gray-800 font-bold">5</span>
                 <span className="text-gray-400">/{totalSteps}</span>
               </span>
             </div>
@@ -604,61 +716,61 @@ export default function PetOnboardingFlow({
         </div>
 
         <div className="flex-1">
-          <label className="block text-gray-700 font-medium mb-4 text-center">
-            ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
+          <label className="block text-gray-700 font-medium mb-6 text-center">
+            ¿Cuál es la edad aproximada de {petData.name || "Maxi"}?
           </label>
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div>
-              <label className="block text-xs text-gray-500 mb-2">Mes</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              >
-                {months.map((month) => (
-                  <option key={month.value} value={month.value}>
-                    {month.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-2">Día</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                value={selectedDay}
-                onChange={(e) => setSelectedDay(Number(e.target.value))}
-              >
-                {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-2">Año</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-              >
-                {Array.from({ length: 20 }, (_, i) => (
-                  <option key={2024 - i} value={2024 - i}>{2024 - i}</option>
-                ))}
-              </select>
-            </div>
+          <div className="space-y-3">
+            <button
+              onClick={() => setApproximateAge("6 meses")}
+              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+                approximateAge === "6 meses"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+              }`}
+            >
+              <span className="text-gray-700 font-medium">6 meses</span>
+            </button>
+            <button
+              onClick={() => setApproximateAge("entre 6 meses y 2 años")}
+              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+                approximateAge === "entre 6 meses y 2 años"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+              }`}
+            >
+              <span className="text-gray-700 font-medium">Entre 6 meses y 2 años</span>
+            </button>
+            <button
+              onClick={() => setApproximateAge("entre 3 años y 6 años")}
+              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+                approximateAge === "entre 3 años y 6 años"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+              }`}
+            >
+              <span className="text-gray-700 font-medium">Entre 3 años y 6 años</span>
+            </button>
+            <button
+              onClick={() => setApproximateAge("más de 6 años")}
+              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+                approximateAge === "más de 6 años"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+              }`}
+            >
+              <span className="text-gray-700 font-medium">Más de 6 años</span>
+            </button>
           </div>
         </div>
 
         <div className="space-y-3 mt-auto pt-4">
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium">
+          <Button
+            onClick={() => {/* Finalizar */}}
+            disabled={!approximateAge}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
+          >
             Finalizar
           </Button>
-          <button
-            onClick={handleSkip}
-            className="w-full text-gray-500 text-sm py-2"
-          >
-            No lo sé
-          </button>
         </div>
       </div>
     </MobileFrame>
