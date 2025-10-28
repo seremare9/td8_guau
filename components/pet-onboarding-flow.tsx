@@ -28,6 +28,43 @@ export default function PetOnboardingFlow({
     weight: "0,0",
     birthday: "",
   });
+  const [selectedMonth, setSelectedMonth] = useState(1); // Enero por defecto
+  const [selectedDay, setSelectedDay] = useState(1);
+  const [selectedYear, setSelectedYear] = useState(2024);
+
+  // Función para calcular el número de días en un mes
+  const getDaysInMonth = (month: number, year: number) => {
+    // Meses con 31 días: 1, 3, 5, 7, 8, 10, 12
+    if ([1, 3, 5, 7, 8, 10, 12].includes(month)) {
+      return 31;
+    }
+    // Meses con 30 días: 4, 6, 9, 11
+    if ([4, 6, 9, 11].includes(month)) {
+      return 30;
+    }
+    // Febrero (mes 2)
+    if (month === 2) {
+      // Año bisiesto si es divisible por 4, excepto los años divisibles por 100 (a menos que también sean divisibles por 400)
+      const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+      return isLeapYear ? 29 : 28;
+    }
+    return 31; // Por defecto
+  };
+
+  const months = [
+    { name: "Enero", value: 1 },
+    { name: "Febrero", value: 2 },
+    { name: "Marzo", value: 3 },
+    { name: "Abril", value: 4 },
+    { name: "Mayo", value: 5 },
+    { name: "Junio", value: 6 },
+    { name: "Julio", value: 7 },
+    { name: "Agosto", value: 8 },
+    { name: "Septiembre", value: 9 },
+    { name: "Octubre", value: 10 },
+    { name: "Noviembre", value: 11 },
+    { name: "Diciembre", value: 12 },
+  ];
 
   // Para esta parte hay que sacar la lista completa de razas de algun sitio
   const breeds = [
@@ -90,6 +127,14 @@ export default function PetOnboardingFlow({
   }, [step]);
   // ============================================
 
+  // Ajustar el día seleccionado si excede el número de días del mes
+  useEffect(() => {
+    const maxDays = getDaysInMonth(selectedMonth, selectedYear);
+    if (selectedDay > maxDays) {
+      setSelectedDay(maxDays);
+    }
+  }, [selectedMonth, selectedYear, selectedDay]);
+
   const handleNext = () => {
     if (step < totalSteps) {
       setStep(step + 1);
@@ -141,29 +186,35 @@ export default function PetOnboardingFlow({
       <MobileFrame>
         <div className="h-full flex flex-col">
           {/* Header with progress */}
-          <div className="px-6 pt-6 pb-4 flex-shrink-0">
-            <div className="flex items-center justify-between mb-3">
-              <button onClick={userType === "future" ? () => setStep(0) : onBack}>
+          <div className="px-6 pt-6 pb-3 flex-shrink-0">
+            <div className="flex items-start justify-between mb-3">
+              <button onClick={userType === "future" ? () => setStep(0) : onBack} className="mt-1">
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <span className="text-sm text-gray-500">
-                Paso {step}/{totalSteps}
-              </span>
+              <div className="text-center flex-1 mt-4">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Agregar mascota
+                </h2>
+                <p className="text-gray-400 text-sm">Raza</p>
+              </div>
+              <div className="text-xs text-right mt-1 flex flex-col items-end">
+                <span className="text-gray-800 font-semibold">Paso</span>
+                <span>
+                  <span className="text-gray-800 font-bold">{step}</span>
+                  <span className="text-gray-400">/{totalSteps}</span>
+                </span>
+              </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden mb-6">
+            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-300"
+                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
               />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 text-center mb-1">
-              Agregar mascota
-            </h2>
-            <p className="text-gray-500 text-center text-sm">Raza</p>
           </div>
 
           {/* Breed list */}
-          <div className="px-6 overflow-y-auto space-y-3" style={{ maxHeight: '340px' }}>
+          <div className="px-6 py-4 overflow-y-auto space-y-3" style={{ height: '380px', minHeight: '380px', maxHeight: '380px' }}>
             {filteredBreeds.length > 0 ? (
               filteredBreeds.map((breed) => (
                 <button
@@ -186,14 +237,14 @@ export default function PetOnboardingFlow({
           </div>
 
           {/* Search bar and button */}
-          <div className="px-6 pt-4 pb-6 flex-shrink-0 bg-white">
-            <div className="relative mb-3">
+          <div className="px-6 pt-6 pb-6 flex-shrink-0 bg-white border-t border-gray-100">
+            <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 placeholder="Buscar por raza"
                 value={searchBreed}
                 onChange={(e) => setSearchBreed(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg"
+                className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl"
               />
             </div>
 
@@ -220,26 +271,31 @@ export default function PetOnboardingFlow({
         <div className="px-6 pt-8 pb-6 h-full flex flex-col">
           {/* Header with progress */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setStep(step - 1)}>
+            <div className="flex items-start justify-between mb-3">
+              <button onClick={() => setStep(step - 1)} className="mt-1">
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <span className="text-sm text-gray-500">
-                Paso {step}/{totalSteps}
-              </span>
+              <div className="text-center flex-1 mt-4">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Agregar mascota
+                </h2>
+                <p className="text-gray-400 text-sm">Nombre</p>
+              </div>
+              <div className="text-xs text-right mt-1 flex flex-col items-end">
+                <span className="text-gray-800 font-semibold">Paso</span>
+                <span>
+                  <span className="text-gray-800 font-bold">{step}</span>
+                  <span className="text-gray-400">/{totalSteps}</span>
+                </span>
+              </div>
             </div>
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-300"
+                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
               />
             </div>
           </div>
-
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Agregar mascota
-          </h2>
-          <p className="text-gray-500 mb-8">Tu mascota es...</p>
 
           {/* Dog image placeholder */}
           <div className="flex flex-col items-center mb-8">
@@ -261,7 +317,7 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-3">
+            <label className="block text-gray-700 font-medium mb-3 text-center">
               ¿Cómo se llama tu mascota?
             </label>
             <Input
@@ -272,7 +328,7 @@ export default function PetOnboardingFlow({
             />
           </div>
 
-          <div className="space-y-3 mt-4">
+          <div className="space-y-3 mt-auto pt-4">
             <Button
               onClick={handleNext}
               disabled={!petData.name}
@@ -293,26 +349,31 @@ export default function PetOnboardingFlow({
         <div className="px-6 pt-8 pb-6 h-full flex flex-col">
           {/* Header with progress */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setStep(step - 1)}>
+            <div className="flex items-start justify-between mb-3">
+              <button onClick={() => setStep(step - 1)} className="mt-1">
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <span className="text-sm text-gray-500">
-                Paso {step}/{totalSteps}
-              </span>
+              <div className="text-center flex-1 mt-4">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Agregar mascota
+                </h2>
+                <p className="text-gray-400 text-sm">Tamaño</p>
+              </div>
+              <div className="text-xs text-right mt-1 flex flex-col items-end">
+                <span className="text-gray-800 font-semibold">Paso</span>
+                <span>
+                  <span className="text-gray-800 font-bold">{step}</span>
+                  <span className="text-gray-400">/{totalSteps}</span>
+                </span>
+              </div>
             </div>
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-300"
+                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
               />
             </div>
           </div>
-
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Agregar mascota
-          </h2>
-          <p className="text-gray-500 mb-8">Tu mascota es...</p>
 
           {/* Dog image placeholder */}
           <div className="flex justify-center mb-8">
@@ -326,7 +387,7 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-4">
+            <label className="block text-gray-700 font-medium mb-4 text-center">
               ¿Cuál es el tamaño de {petData.name || "Maxi"}?
             </label>
             <div className="grid grid-cols-3 gap-3 mb-6">
@@ -365,7 +426,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 mt-4">
+          <div className="space-y-3 mt-auto pt-4">
             <Button
               onClick={handleNext}
               disabled={!petData.gender}
@@ -409,26 +470,31 @@ export default function PetOnboardingFlow({
         <div className="px-6 pt-8 pb-6 h-full flex flex-col">
           {/* Header with progress */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setStep(step - 1)}>
+            <div className="flex items-start justify-between mb-3">
+              <button onClick={() => setStep(step - 1)} className="mt-1">
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <span className="text-sm text-gray-500">
-                Paso {step}/{totalSteps}
-              </span>
+              <div className="text-center flex-1 mt-4">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Agregar mascota
+                </h2>
+                <p className="text-gray-400 text-sm">Peso</p>
+              </div>
+              <div className="text-xs text-right mt-1 flex flex-col items-end">
+                <span className="text-gray-800 font-semibold">Paso</span>
+                <span>
+                  <span className="text-gray-800 font-bold">{step}</span>
+                  <span className="text-gray-400">/{totalSteps}</span>
+                </span>
+              </div>
             </div>
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-300"
+                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
               />
             </div>
           </div>
-
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Agregar mascota
-          </h2>
-          <p className="text-gray-500 mb-8">Tu mascota es...</p>
 
           {/* Dog image placeholder */}
           <div className="flex justify-center mb-8">
@@ -442,7 +508,7 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-4">
+            <label className="block text-gray-700 font-medium mb-4 text-center">
               ¿Cuál es el peso de {petData.name || "Maxi"}?
             </label>
             
@@ -475,7 +541,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 mt-4">
+          <div className="space-y-3 mt-auto pt-4">
             <Button
               onClick={handleNext}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium"
@@ -500,26 +566,31 @@ export default function PetOnboardingFlow({
       <div className="px-6 pt-8 pb-6 h-full flex flex-col">
         {/* Header with progress */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={() => setStep(step - 1)}>
+          <div className="flex items-start justify-between mb-3">
+            <button onClick={() => setStep(step - 1)} className="mt-1">
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
-            <span className="text-sm text-gray-500">
-              Paso {step}/{totalSteps}
-            </span>
+            <div className="text-center flex-1 mt-4">
+              <h2 className="text-lg font-bold text-gray-800">
+                Agregar mascota
+              </h2>
+              <p className="text-gray-400 text-sm">Cumpleaños</p>
+            </div>
+            <div className="text-xs text-right mt-1 flex flex-col items-end">
+              <span className="text-gray-800 font-semibold">Paso</span>
+              <span>
+                <span className="text-gray-800 font-bold">{step}</span>
+                <span className="text-gray-400">/{totalSteps}</span>
+              </span>
+            </div>
           </div>
           <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-teal-500 transition-all duration-300"
-              style={{ width: "100%" }}
+              className="h-full transition-all duration-300"
+              style={{ width: "100%", backgroundColor: '#31AA7A' }}
             />
           </div>
         </div>
-
-        <h2 className="text-xl font-bold text-gray-800 mb-2">
-          Agregar mascota
-        </h2>
-        <p className="text-gray-500 mb-8">Tu mascota es...</p>
 
         {/* Dog image placeholder */}
         <div className="flex justify-center mb-8">
@@ -533,38 +604,52 @@ export default function PetOnboardingFlow({
         </div>
 
         <div className="flex-1">
-          <label className="block text-gray-700 font-medium mb-4">
+          <label className="block text-gray-700 font-medium mb-4 text-center">
             ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
           </label>
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div>
               <label className="block text-xs text-gray-500 mb-2">Mes</label>
-              <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                <option>Enero</option>
-                <option>Febrero</option>
-                <option>Marzo</option>
+              <select 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              >
+                {months.map((month) => (
+                  <option key={month.value} value={month.value}>
+                    {month.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-2">Día</label>
-              <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1}>{i + 1}</option>
+              <select 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(Number(e.target.value))}
+              >
+                {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-2">Año</label>
-              <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+              <select 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+              >
                 {Array.from({ length: 20 }, (_, i) => (
-                  <option key={2024 - i}>{2024 - i}</option>
+                  <option key={2024 - i} value={2024 - i}>{2024 - i}</option>
                 ))}
               </select>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3 mt-4">
+        <div className="space-y-3 mt-auto pt-4">
           <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium">
             Finalizar
           </Button>
