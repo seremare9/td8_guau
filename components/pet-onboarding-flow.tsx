@@ -4,11 +4,19 @@ import { useState, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Plus, Dog } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Search,
+  Plus,
+  Dog,
+  Bell,
+  Menu,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import imgIcon from "./images/img-icon.svg";
-
-/*import iconUser from "./images/Icon.png"; */
+import perritos from "./images/dos-perros.png";
 
 interface PetOnboardingFlowProps {
   userType: string;
@@ -46,7 +54,8 @@ export default function PetOnboardingFlow({
     // Febrero (mes 2)
     if (month === 2) {
       // Año bisiesto si es divisible por 4, excepto los años divisibles por 100 (a menos que también sean divisibles por 400)
-      const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+      const isLeapYear =
+        (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
       return isLeapYear ? 29 : 28;
     }
     return 31; // Por defecto
@@ -88,8 +97,8 @@ export default function PetOnboardingFlow({
     "Rottweiler",
     "Schnauzer",
     "Shih Tzu",
-    "Yorkshire Terrier"
-  ].sort((a, b) => a.localeCompare(b, 'es'));
+    "Yorkshire Terrier",
+  ].sort((a, b) => a.localeCompare(b, "es"));
   // ============================================
   // 🔧 CONFIGURACIÓN DE TAMAÑOS DE MASCOTAS
   // ============================================
@@ -97,8 +106,18 @@ export default function PetOnboardingFlow({
   // Puedes modificar los rangos de peso y el tamaño de los íconos:
   const genders = [
     { label: "Chico", value: "small", weight: "0 - 14kg", iconSize: "w-8 h-8" },
-    { label: "Mediano", value: "medium", weight: "15 - 25kg", iconSize: "w-10 h-10" },
-    { label: "Grande", value: "large", weight: "Más de 25kg", iconSize: "w-12 h-12" },
+    {
+      label: "Mediano",
+      value: "medium",
+      weight: "15 - 25kg",
+      iconSize: "w-10 h-10",
+    },
+    {
+      label: "Grande",
+      value: "large",
+      weight: "Más de 25kg",
+      iconSize: "w-12 h-12",
+    },
   ];
   // ============================================
 
@@ -117,13 +136,13 @@ export default function PetOnboardingFlow({
     if (step === 4 && petData.gender && petData.weight === "0,0") {
       let defaultWeight = "0,0";
       if (petData.gender === "small") {
-        defaultWeight = "0,0";  // Peso inicial para Chico
+        defaultWeight = "0,0"; // Peso inicial para Chico
       } else if (petData.gender === "medium") {
         defaultWeight = "15,0"; // Peso inicial para Mediano
       } else if (petData.gender === "large") {
         defaultWeight = "26,0"; // Peso inicial para Grande
       }
-      setPetData(prev => ({ ...prev, weight: defaultWeight }));
+      setPetData((prev) => ({ ...prev, weight: defaultWeight }));
     }
   }, [step]);
   // ============================================
@@ -151,31 +170,89 @@ export default function PetOnboardingFlow({
     }
   };
 
-  // Empty state screen
-  if (step === 0 && userType === "future") {
+  // Empty state screen (Uh Oh!)
+  if (step === 0) {
     return (
       <MobileFrame>
-        <div className="px-6 pt-12 pb-6 h-full flex flex-col items-center justify-center">
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-48 h-48 mb-8">
-              <img
-                src="/cute-cartoon-dogs-silhouettes-in-gray.jpg"
+        <div className="relative h-full flex flex-col bg-white">
+          {/* Header Superior */}
+          <div className="px-6 pt-14 pb-6 flex justify-between items-center z-10">
+            {/* Botón de regreso */}
+            <button
+              onClick={onBack}
+              className="absolute left-6 top-14 text-gray-600 hover:bg-gray-100 p-1 rounded-full"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+
+            {/* Centro (Logo + Hola, Nombre) */}
+            <div className="flex items-center gap-3 mt-15">
+              <Image
+                src={imgIcon}
+                alt="Logo"
+                width={34}
+                height={34}
+                className="rounded-full"
+              />
+              <span className="text-xl font-semibold text-gray-800">
+                Hola, Juan
+              </span>
+            </div>
+
+            {/* Íconos de Notificación y Menú */}
+            <div className="flex items-center gap-4 text-gray-600 absolute right-6 mt-14">
+              <Bell className="w-5 h-5 cursor-pointer" />
+              <Menu className="w-5 h-5 cursor-pointer" />
+            </div>
+          </div>
+
+          {/* Contenido Central */}
+          <div className="flex-1 flex flex-col items-center justify-center px-6 pt-10 pb-28">
+            {/* Imagen */}
+            <div className="w-full max-w-xs mb-10 opacity-100">
+              <Image
+                src={perritos}
                 alt="Dogs illustration"
-                className="w-full h-full object-contain opacity-30"
+                width={300}
+                height={200}
+                layout="responsive"
+                objectFit="contain"
               />
             </div>
+
+            {/* Texto */}
             <h2 className="text-2xl font-bold text-gray-800 mb-3">Uh Oh!</h2>
-            <p className="text-gray-500 text-center mb-8 px-4">
-              Parece que no tienes mascotas registradas hasta el momento
+            <p className="text-gray-500 text-center mb-12 px-6">
+              Parece que no tenés mascotas registradas hasta el momento.
             </p>
           </div>
-          <Button
-            onClick={() => setStep(1)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium flex items-center justify-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            ¡Empieza para agregar a tu mascota!
-          </Button>
+
+          {/* Botón Flotante Inferior */}
+          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-[88%]">
+            <div className="relative bg-[#2563EB] text-white rounded-full py-2.5 shadow-lg overflow-hidden">
+              <motion.div
+                className="absolute top-0 left-0 h-full bg-[#1C4EBF]"
+                style={{ width: "0%" }}
+              />
+              <div className="flex items-center justify-center gap-2 pointer-events-none select-none">
+                <span className="text-sm font-semibold">
+                  ¡Deslizá para agregar a tu mascota!
+                </span>
+              </div>
+
+              {/* Círculo deslizable */}
+              <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 250 }}
+                onDragEnd={(event, info) => {
+                  if (info.offset.x > 180) setStep(1);
+                }}
+                className="absolute top-1/2 left-1.5 transform -translate-y-1/2 bg-white/30 p-2.5 rounded-full cursor-grab active:cursor-grabbing"
+              >
+                <ArrowRight className="w-4 h-4 text-white" />
+              </motion.div>
+            </div>
+          </div>
         </div>
       </MobileFrame>
     );
@@ -184,7 +261,7 @@ export default function PetOnboardingFlow({
   // Step 1: Breed selection
   if (step === 1) {
     // Filtrar razas según la búsqueda
-    const filteredBreeds = breeds.filter(breed =>
+    const filteredBreeds = breeds.filter((breed) =>
       breed.toLowerCase().includes(searchBreed.toLowerCase())
     );
 
@@ -194,7 +271,10 @@ export default function PetOnboardingFlow({
           {/* Header with progress */}
           <div className="px-6 pt-6 pb-3 flex-shrink-0">
             <div className="flex items-start justify-between mb-3">
-              <button onClick={userType === "future" ? () => setStep(0) : onBack} className="mt-1">
+              <button
+                onClick={userType === "future" ? () => setStep(0) : onBack}
+                className="mt-1"
+              >
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
               <div className="text-center flex-1 mt-4">
@@ -214,13 +294,16 @@ export default function PetOnboardingFlow({
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
+                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
               />
             </div>
           </div>
 
           {/* Breed list */}
-          <div className="px-6 py-4 overflow-y-auto space-y-3" style={{ height: '380px', minHeight: '380px', maxHeight: '380px' }}>
+          <div
+            className="px-6 py-4 overflow-y-auto space-y-3"
+            style={{ height: "380px", minHeight: "380px", maxHeight: "380px" }}
+          >
             {filteredBreeds.length > 0 ? (
               filteredBreeds.map((breed) => (
                 <button
@@ -238,7 +321,9 @@ export default function PetOnboardingFlow({
                 </button>
               ))
             ) : (
-              <p className="text-center text-gray-400 py-8">No se encontraron razas</p>
+              <p className="text-center text-gray-400 py-8">
+                No se encontraron razas
+              </p>
             )}
           </div>
 
@@ -298,7 +383,7 @@ export default function PetOnboardingFlow({
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
+                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
               />
             </div>
           </div>
@@ -313,10 +398,10 @@ export default function PetOnboardingFlow({
               />
             </div>
             <button className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition-colors shadow-md">
-              <Image 
-                src={imgIcon} 
-                alt="Agregar imagen" 
-                width={20} 
+              <Image
+                src={imgIcon}
+                alt="Agregar imagen"
+                width={20}
                 height={20}
               />
             </button>
@@ -376,7 +461,7 @@ export default function PetOnboardingFlow({
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
+                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
               />
             </div>
           </div>
@@ -401,7 +486,11 @@ export default function PetOnboardingFlow({
                 <button
                   key={gender.value}
                   onClick={() => {
-                    setPetData({ ...petData, gender: gender.value, weight: "0,0" });
+                    setPetData({
+                      ...petData,
+                      gender: gender.value,
+                      weight: "0,0",
+                    });
                   }}
                   className={`py-6 px-3 rounded-2xl text-center transition-all ${
                     petData.gender === gender.value
@@ -411,11 +500,15 @@ export default function PetOnboardingFlow({
                 >
                   <div className="flex flex-col items-center">
                     {/* Círculo con ícono de perro */}
-                    <div className={`mb-3 rounded-full bg-gray-200 flex items-center justify-center ${
-                      gender.value === "small" ? "w-16 h-16" : 
-                      gender.value === "medium" ? "w-16 h-16" : 
-                      "w-16 h-16"
-                    }`}>
+                    <div
+                      className={`mb-3 rounded-full bg-gray-200 flex items-center justify-center ${
+                        gender.value === "small"
+                          ? "w-16 h-16"
+                          : gender.value === "medium"
+                          ? "w-16 h-16"
+                          : "w-16 h-16"
+                      }`}
+                    >
                       <Dog className={`text-gray-500 ${gender.iconSize}`} />
                     </div>
                     {/* Título */}
@@ -458,7 +551,7 @@ export default function PetOnboardingFlow({
     // - large (Grande): 26 - 50 kg
     let minWeight = 0;
     let maxWeight = 50;
-    
+
     if (petData.gender === "small") {
       minWeight = 0;
       maxWeight = 14;
@@ -470,7 +563,7 @@ export default function PetOnboardingFlow({
       maxWeight = 50;
     }
     // ============================================
-    
+
     return (
       <MobileFrame>
         <div className="px-6 pt-8 pb-6 h-full flex flex-col">
@@ -497,7 +590,7 @@ export default function PetOnboardingFlow({
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: '#31AA7A' }}
+                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
               />
             </div>
           </div>
@@ -517,7 +610,7 @@ export default function PetOnboardingFlow({
             <label className="block text-gray-700 font-medium mb-4 text-center">
               ¿Cuál es el peso de {petData.name || "Maxi"}?
             </label>
-            
+
             {/* Recuadro gris con sombra para el ajuste de peso */}
             <div className="bg-gray-50 rounded-2xl p-6 shadow-md mb-8">
               <div className="text-center mb-6">
@@ -594,7 +687,7 @@ export default function PetOnboardingFlow({
             <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: "100%", backgroundColor: '#31AA7A' }}
+                style={{ width: "100%", backgroundColor: "#31AA7A" }}
               />
             </div>
           </div>
@@ -617,7 +710,7 @@ export default function PetOnboardingFlow({
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Mes</label>
-                <select 
+                <select
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(Number(e.target.value))}
@@ -631,25 +724,32 @@ export default function PetOnboardingFlow({
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Día</label>
-                <select 
+                <select
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(Number(e.target.value))}
                 >
-                  {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
-                  ))}
+                  {Array.from(
+                    { length: getDaysInMonth(selectedMonth, selectedYear) },
+                    (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Año</label>
-                <select 
+                <select
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                 >
                   {Array.from({ length: 20 }, (_, i) => (
-                    <option key={2024 - i} value={2024 - i}>{2024 - i}</option>
+                    <option key={2024 - i} value={2024 - i}>
+                      {2024 - i}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -699,7 +799,7 @@ export default function PetOnboardingFlow({
           <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full transition-all duration-300"
-              style={{ width: "100%", backgroundColor: '#31AA7A' }}
+              style={{ width: "100%", backgroundColor: "#31AA7A" }}
             />
           </div>
         </div>
@@ -738,7 +838,9 @@ export default function PetOnboardingFlow({
                   : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
               }`}
             >
-              <span className="text-gray-700 font-medium">Entre 6 meses y 2 años</span>
+              <span className="text-gray-700 font-medium">
+                Entre 6 meses y 2 años
+              </span>
             </button>
             <button
               onClick={() => setApproximateAge("entre 3 años y 6 años")}
@@ -748,7 +850,9 @@ export default function PetOnboardingFlow({
                   : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
               }`}
             >
-              <span className="text-gray-700 font-medium">Entre 3 años y 6 años</span>
+              <span className="text-gray-700 font-medium">
+                Entre 3 años y 6 años
+              </span>
             </button>
             <button
               onClick={() => setApproximateAge("más de 6 años")}
@@ -765,7 +869,9 @@ export default function PetOnboardingFlow({
 
         <div className="space-y-3 mt-auto pt-4">
           <Button
-            onClick={() => {/* Finalizar */}}
+            onClick={() => {
+              /* Finalizar */
+            }}
             disabled={!approximateAge}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
           >
