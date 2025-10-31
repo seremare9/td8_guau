@@ -218,6 +218,7 @@
   height: 380px;
   min-height: 380px;
   max-height: 380px;
+  margin-top: 2rem;
 }
 
 .breed-item {
@@ -256,12 +257,14 @@
   padding: 1.5rem;
   flex-shrink: 0;
   background-color: white;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1.5px solid #f3f4f6;
+  margin-top: 2rem;
+  
 }
 
 .breed-search-wrapper {
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 4.2rem;
 }
 
 .breed-search-icon {
@@ -347,7 +350,7 @@
 
 .name-content {
   flex: 1;
-  margin-bottom: 6rem;
+  margin-bottom: 5rem;
 }
 
 .name-label {
@@ -362,7 +365,8 @@
   display: block;
   color: #374151;
   font-weight: 500;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
   text-align: center;
 }
 
@@ -414,7 +418,7 @@
 
 .size-content {
   flex: 1;
-  margin-bottom: 6rem;
+  margin-bottom: 3.61rem;
 }
 
 .size-label {
@@ -430,6 +434,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  margin-top: 2rem;
 }
 
 .size-button {
