@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import imgIcon from "./images/img-icon.svg";
 import perritos from "./images/dos-perros.png";
+import perro from "./images/perro.png";
 
 interface PetOnboardingFlowProps {
   userType: string;
@@ -34,7 +35,8 @@ export default function PetOnboardingFlow({
   const [petData, setPetData] = useState({
     breed: "",
     name: "",
-    gender: "",
+    sex: "", // macho/hembra
+    gender: "", // tamaño: small/medium/large
     weight: "0,0",
     birthday: "",
   });
@@ -372,7 +374,7 @@ export default function PetOnboardingFlow({
                 <h2 className="text-lg font-bold text-gray-800">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Nombre</p>
+                <p className="text-gray-400 text-sm">Nombre y descripción</p>
               </div>
               <div className="text-xs text-right mt-1 flex flex-col items-end">
                 <span className="text-gray-800 font-semibold">Paso</span>
@@ -392,39 +394,73 @@ export default function PetOnboardingFlow({
 
           {/* Dog image placeholder */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 mb-3">
-              <img
-                src="/cute-brown-and-white-dog-portrait.jpg"
-                alt="Dog"
-                className="w-full h-full object-cover"
-              />
+            <div className="relative mb-3">
+              <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+                <Image
+                  src={perro}
+                  alt="Dog"
+                  width={192}
+                  height={192}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <button className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -mb-5 w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-md border border-gray-200 z-20">
+                <Image
+                  src={imgIcon}
+                  alt="Agregar imagen"
+                  width={20}
+                  height={20}
+                />
+              </button>
             </div>
-            <button className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition-colors shadow-md">
-              <Image
-                src={imgIcon}
-                alt="Agregar imagen"
-                width={20}
-                height={20}
-              />
-            </button>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 mb-24">
             <label className="block text-gray-700 font-medium mb-3 text-center">
               ¿Cómo se llama tu mascota?
             </label>
             <Input
-              placeholder="[Maxi]"
+              placeholder="Maxi"
               value={petData.name}
               onChange={(e) => setPetData({ ...petData, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg mb-6"
             />
+            
+            <label className="block text-gray-700 font-medium mb-3 text-center">
+              Tu mascota es...
+            </label>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                onClick={() => {
+                  setPetData({ ...petData, sex: "macho" });
+                }}
+                className={`py-4 px-4 rounded-xl text-center transition-all border-2 ${
+                  petData.sex === "macho"
+                    ? "bg-white border-blue-500 text-blue-600 font-semibold"
+                    : "bg-white border-gray-200 text-gray-700 hover:border-blue-300"
+                }`}
+              >
+                Macho
+              </button>
+              <button
+                onClick={() => {
+                  setPetData({ ...petData, sex: "hembra" });
+                }}
+                className={`py-4 px-4 rounded-xl text-center transition-all border-2 ${
+                  petData.sex === "hembra"
+                    ? "bg-white border-blue-500 text-blue-600 font-semibold"
+                    : "bg-white border-gray-200 text-gray-700 hover:border-blue-300"
+                }`}
+              >
+                Hembra
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-3 mt-auto pt-4">
+          <div className="space-y-3 pt-4">
             <Button
               onClick={handleNext}
-              disabled={!petData.name}
+              disabled={!petData.name || !petData.sex}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
             >
               Continuar
@@ -470,16 +506,18 @@ export default function PetOnboardingFlow({
 
           {/* Dog image placeholder */}
           <div className="flex justify-center mb-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-              <img
-                src="/cute-brown-and-white-dog-portrait.jpg"
+            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+              <Image
+                src={perro}
                 alt="Dog"
+                width={192}
+                height={192}
                 className="w-full h-full object-cover"
               />
             </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 mb-24">
             <label className="block text-gray-700 font-medium mb-4 text-center">
               ¿Cuál es el tamaño de {petData.name || "Maxi"}?
             </label>
@@ -527,7 +565,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 mt-auto pt-4">
+          <div className="space-y-3 pt-4">
             <Button
               onClick={handleNext}
               disabled={!petData.gender}
@@ -599,10 +637,12 @@ export default function PetOnboardingFlow({
 
           {/* Dog image placeholder */}
           <div className="flex justify-center mb-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-              <img
-                src="/cute-brown-and-white-dog-portrait.jpg"
+            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+              <Image
+                src={perro}
                 alt="Dog"
+                width={192}
+                height={192}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -696,16 +736,18 @@ export default function PetOnboardingFlow({
 
           {/* Dog image placeholder */}
           <div className="flex justify-center mb-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-              <img
-                src="/cute-brown-and-white-dog-portrait.jpg"
+            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+              <Image
+                src={perro}
                 alt="Dog"
+                width={192}
+                height={192}
                 className="w-full h-full object-cover"
               />
             </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 mb-24">
             <label className="block text-gray-700 font-medium mb-4 text-center">
               ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
             </label>
@@ -758,7 +800,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 mt-auto pt-4">
+          <div className="space-y-3 pt-4">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium">
               Finalizar
             </Button>
@@ -808,16 +850,18 @@ export default function PetOnboardingFlow({
 
         {/* Dog image placeholder */}
         <div className="flex justify-center mb-8">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-            <img
-              src="/cute-brown-and-white-dog-portrait.jpg"
+          <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+            <Image
+              src={perro}
               alt="Dog"
+              width={192}
+              height={192}
               className="w-full h-full object-cover"
             />
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 mb-24">
           <label className="block text-gray-700 font-medium mb-6 text-center">
             ¿Cuál es la edad aproximada de {petData.name || "Maxi"}?
           </label>
@@ -869,7 +913,7 @@ export default function PetOnboardingFlow({
           </div>
         </div>
 
-        <div className="space-y-3 mt-auto pt-4">
+        <div className="space-y-3 pt-4">
           <Button
             onClick={() => {
               /* Finalizar */
