@@ -7,6 +7,7 @@ import RegisterScreen from "@/components/register-screen";
 import UserTypeScreen from "@/components/user-type-screen";
 import PetOnboardingFlow from "@/components/pet-onboarding-flow";
 import PetExperienceScreen from "@/components/pet-experience-screen";
+import HomeScreen from "@/components/home-screen";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -22,6 +23,7 @@ export default function App() {
     | "petOnboarding"
     | "vacunaInfo"
     | "medicinaInfo"
+    | "home"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -33,7 +35,7 @@ export default function App() {
 
   const navigateToVacunaInfo = () => setCurrentScreen("vacunaInfo");
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
-  const navigateToHome = () => setCurrentScreen("petOnboarding");
+  const navigateToHome = () => setCurrentScreen("home");
 
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
@@ -117,7 +119,11 @@ export default function App() {
           userType={userType}
           userName={userName}
           onBack={navigateBack}
+          onFinish={navigateToHome}
         />
+      )}
+      {currentScreen === "home" && (
+        <HomeScreen userName={userName} />
       )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen

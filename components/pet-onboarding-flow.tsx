@@ -24,12 +24,14 @@ interface PetOnboardingFlowProps {
   userType: string;
   userName?: string;
   onBack: () => void;
+  onFinish?: () => void;
 }
 
 export default function PetOnboardingFlow({
   userType,
   userName = "User",
   onBack,
+  onFinish,
 }: PetOnboardingFlowProps) {
   const [step, setStep] = useState(userType === "future" ? 0 : 1);
   const [searchBreed, setSearchBreed] = useState("");
@@ -818,7 +820,12 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="primary-button-section">
-            <Button className="primary-button">
+            <Button 
+              className="primary-button"
+              onClick={() => {
+                if (onFinish) onFinish();
+              }}
+            >
               Finalizar
             </Button>
             <button
@@ -933,7 +940,7 @@ export default function PetOnboardingFlow({
         <div className="primary-button-section">
           <Button
             onClick={() => {
-              /* Finalizar */
+              if (onFinish) onFinish();
             }}
             disabled={!approximateAge}
             className="primary-button"
