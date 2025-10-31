@@ -43,7 +43,7 @@ export default function PetOnboardingFlow({
   });
   const [selectedMonth, setSelectedMonth] = useState(1); // Enero por defecto
   const [selectedDay, setSelectedDay] = useState(1);
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedYear, setSelectedYear] = useState(2025);
   const [approximateAge, setApproximateAge] = useState("");
 
   // Función para calcular el número de días en un mes
@@ -596,9 +596,9 @@ export default function PetOnboardingFlow({
 
     return (
       <MobileFrame>
-        <div className="page-container">
+        <div className="page-container" style={{ paddingBottom: "1rem" }}>
           {/* Header with progress */}
-          <div className="page-header">
+          <div className="page-header" style={{ marginBottom: "1rem" }}>
             <div className="page-header-top">
               <button onClick={() => setStep(step - 1)} className="page-back-button">
                 <ArrowLeft className="icon-arrow" />
@@ -780,14 +780,41 @@ export default function PetOnboardingFlow({
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                 >
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <option key={2024 - i} value={2024 - i}>
-                      {2024 - i}
-                    </option>
-                  ))}
+                  {Array.from({ length: 21 }, (_, i) => {
+                    const year = 2025 - i;
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
+
+            {/* Selected Date Display */}
+            <div className="birthday-selected-date-container">
+              <label className="birthday-selected-date-label">
+                Fecha seleccionada
+              </label>
+              <div className="birthday-selected-date-display">
+                {selectedMonth && selectedDay && selectedYear
+                  ? `${selectedDay} de ${months.find((m) => m.value === selectedMonth)?.name || ""} de ${selectedYear}`
+                  : "Seleccioná una fecha"}
+              </div>
+            </div>
+
+            {/* Clear Selection */}
+            <button
+              onClick={() => {
+                setSelectedMonth(1);
+                setSelectedDay(1);
+                setSelectedYear(2025);
+              }}
+              className="birthday-clear-button"
+            >
+              Limpiar selección
+            </button>
           </div>
 
           <div className="primary-button-section">
