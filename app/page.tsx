@@ -25,6 +25,7 @@ export default function App() {
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
+  const [userName, setUserName] = useState<string>("User");
 
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
@@ -87,11 +88,20 @@ export default function App() {
         <LoginScreen
           onCreateAccount={navigateToRegister}
           onBack={navigateBack}
-          onLogin={navigateToUserType}
+          onLogin={() => {
+            setUserName("User");
+            navigateToUserType();
+          }}
         />
       )}
       {currentScreen === "register" && (
-        <RegisterScreen onBack={navigateBack} onRegister={navigateToUserType} />
+        <RegisterScreen
+          onBack={navigateBack}
+          onRegister={(name: string) => {
+            setUserName(name || "User");
+            navigateToUserType();
+          }}
+        />
       )}
       {currentScreen === "userType" && (
         <UserTypeScreen onSelectType={navigateToPetOnboarding} />
@@ -103,7 +113,11 @@ export default function App() {
         />
       )}
       {currentScreen === "petOnboarding" && (
-        <PetOnboardingFlow userType={userType} onBack={navigateBack} />
+        <PetOnboardingFlow
+          userType={userType}
+          userName={userName}
+          onBack={navigateBack}
+        />
       )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen

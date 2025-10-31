@@ -20,11 +20,13 @@ import perritos from "./images/dos-perros.png";
 
 interface PetOnboardingFlowProps {
   userType: string;
+  userName?: string;
   onBack: () => void;
 }
 
 export default function PetOnboardingFlow({
   userType,
+  userName = "User",
   onBack,
 }: PetOnboardingFlowProps) {
   const [step, setStep] = useState(userType === "future" ? 0 : 1);
@@ -195,7 +197,7 @@ export default function PetOnboardingFlow({
                 className="rounded-full"
               />
               <span className="text-xl font-semibold text-gray-800">
-                Hola, Juan
+                Hola, {userName}
               </span>
             </div>
 

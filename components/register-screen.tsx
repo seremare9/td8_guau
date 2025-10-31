@@ -15,7 +15,7 @@ import "./styles/register-screen-styles.css";
 
 interface RegisterScreenProps {
   onBack: () => void;
-  onRegister: () => void;
+  onRegister: (name: string) => void;
 }
 
 export default function RegisterScreen({
@@ -41,7 +41,7 @@ export default function RegisterScreen({
   const handleRegister = () => {
     // Aquí puedes agregar validación de datos antes de navegar
     if (acceptTerms) {
-      onRegister();
+      onRegister(formData.firstName);
     }
   };
 
