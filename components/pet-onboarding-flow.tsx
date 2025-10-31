@@ -18,6 +18,7 @@ import Image from "next/image";
 import imgIcon from "./images/img-icon.svg";
 import perritos from "./images/dos-perros.png";
 import perro from "./images/perro.png";
+import "./styles/onboarding-flow-styles.css";
 
 interface PetOnboardingFlowProps {
   userType: string;
@@ -178,19 +179,19 @@ export default function PetOnboardingFlow({
   if (step === 0) {
     return (
       <MobileFrame>
-        <div className="relative h-full flex flex-col bg-white">
+        <div className="empty-state-container">
           {/* Header Superior */}
-          <div className="px-6 pt-14 pb-6 flex justify-between items-center z-10">
+          <div className="empty-state-header">
             {/* Botón de regreso */}
             <button
               onClick={onBack}
-              className="absolute left-6 top-14 text-gray-600 hover:bg-gray-100 p-1 rounded-full"
+              className="empty-state-back-button"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="icon-arrow" />
             </button>
 
             {/* Centro (Logo + Hola, Nombre) */}
-            <div className="flex items-center gap-3 mt-15">
+            <div className="empty-state-logo-section">
               <Image
                 src={imgIcon}
                 alt="Logo"
@@ -198,22 +199,22 @@ export default function PetOnboardingFlow({
                 height={34}
                 className="rounded-full"
               />
-              <span className="text-xl font-semibold text-gray-800">
+              <span className="empty-state-greeting">
                 Hola, {userName}
               </span>
             </div>
 
             {/* Íconos de Notificación y Menú */}
-            <div className="flex items-center gap-4 text-gray-600 absolute right-6 mt-14">
-              <Bell className="w-5 h-5 cursor-pointer" />
-              <Menu className="w-5 h-5 cursor-pointer" />
+            <div className="empty-state-icons">
+              <Bell className="icon-notification" />
+              <Menu className="icon-menu" />
             </div>
           </div>
 
           {/* Contenido Central */}
-          <div className="flex-1 flex flex-col items-center justify-center px-6 pt-10 pb-28">
+          <div className="empty-state-content">
             {/* Imagen */}
-            <div className="w-full max-w-xs mb-10 opacity-100">
+            <div className="empty-state-image-wrapper">
               <Image
                 src={perritos}
                 alt="Dogs illustration"
@@ -225,21 +226,21 @@ export default function PetOnboardingFlow({
             </div>
 
             {/* Texto */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Uh Oh!</h2>
-            <p className="text-gray-500 text-center mb-12 px-6">
+            <h2 className="empty-state-title">Uh Oh!</h2>
+            <p className="empty-state-text">
               Parece que no tenés mascotas registradas hasta el momento.
             </p>
           </div>
 
           {/* Botón Flotante Inferior */}
-          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-[88%]">
-            <div className="relative bg-[#2563EB] text-white rounded-full py-2.5 shadow-lg overflow-hidden">
+          <div className="empty-state-button-wrapper">
+            <div className="empty-state-slide-button">
               <motion.div
                 className="absolute top-0 left-0 h-full bg-[#1C4EBF]"
                 style={{ width: "0%" }}
               />
-              <div className="flex items-center justify-center gap-2 pointer-events-none select-none">
-                <span className="text-sm font-semibold">
+              <div className="empty-state-slide-button-inner">
+                <span className="empty-state-slide-button-text">
                   ¡Deslizá para agregar a tu mascota!
                 </span>
               </div>
@@ -251,9 +252,9 @@ export default function PetOnboardingFlow({
                 onDragEnd={(event, info) => {
                   if (info.offset.x > 180) setStep(1);
                 }}
-                className="absolute top-1/2 left-1.5 transform -translate-y-1/2 bg-white/30 p-2.5 rounded-full cursor-grab active:cursor-grabbing"
+                className="empty-state-drag-handle"
               >
-                <ArrowRight className="w-4 h-4 text-white" />
+                <ArrowRight className="icon-arrow-small" />
               </motion.div>
             </div>
           </div>
@@ -271,43 +272,40 @@ export default function PetOnboardingFlow({
 
     return (
       <MobileFrame>
-        <div className="h-full flex flex-col">
+        <div className="breed-container">
           {/* Header with progress */}
-          <div className="px-6 pt-6 pb-3 flex-shrink-0">
-            <div className="flex items-start justify-between mb-3">
+          <div className="breed-header">
+            <div className="breed-header-top">
               <button
                 onClick={userType === "future" ? () => setStep(0) : onBack}
-                className="mt-1"
+                className="breed-back-button"
               >
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
+                <ArrowLeft className="icon-arrow" />
               </button>
-              <div className="text-center flex-1 mt-4">
-                <h2 className="text-lg font-bold text-gray-800">
+              <div className="breed-header-center">
+                <h2 className="breed-header-title">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Raza</p>
+                <p className="breed-header-subtitle">Raza</p>
               </div>
-              <div className="text-xs text-right mt-1 flex flex-col items-end">
-                <span className="text-gray-800 font-semibold">Paso</span>
+              <div className="breed-step-indicator">
+                <span className="breed-step-label">Paso</span>
                 <span>
-                  <span className="text-gray-800 font-bold">{step}</span>
-                  <span className="text-gray-400">/{totalSteps}</span>
+                  <span className="breed-step-number">{step}</span>
+                  <span className="breed-step-total">/{totalSteps}</span>
                 </span>
               </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="breed-progress-bar">
               <div
-                className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
+                className="breed-progress-fill"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* Breed list */}
-          <div
-            className="px-6 py-4 overflow-y-auto space-y-3"
-            style={{ height: "380px", minHeight: "380px", maxHeight: "380px" }}
-          >
+          <div className="breed-list">
             {filteredBreeds.length > 0 ? (
               filteredBreeds.map((breed) => (
                 <button
@@ -315,26 +313,26 @@ export default function PetOnboardingFlow({
                   onClick={() => {
                     setPetData({ ...petData, breed });
                   }}
-                  className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+                  className={`breed-item ${
                     petData.breed === breed
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                      ? "breed-item-selected"
+                      : ""
                   }`}
                 >
-                  <span className="text-gray-700 font-medium">{breed}</span>
+                  <span className="breed-item-text">{breed}</span>
                 </button>
               ))
             ) : (
-              <p className="text-center text-gray-400 py-8">
+              <p className="breed-no-results">
                 No se encontraron razas
               </p>
             )}
           </div>
 
           {/* Search bar and button */}
-          <div className="px-6 pt-6 pb-6 flex-shrink-0 bg-white border-t border-gray-100">
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="breed-search-section">
+            <div className="breed-search-wrapper">
+              <Search className="breed-search-icon" />
               <Input
                 placeholder="Buscar por raza"
                 value={searchBreed}
@@ -349,7 +347,7 @@ export default function PetOnboardingFlow({
                 handleNext();
               }}
               disabled={!petData.breed}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
+              className="breed-continue-button"
             >
               Continuar
             </Button>
@@ -363,39 +361,39 @@ export default function PetOnboardingFlow({
   if (step === 2) {
     return (
       <MobileFrame>
-        <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+        <div className="name-container">
           {/* Header with progress */}
-          <div className="mb-6">
-            <div className="flex items-start justify-between mb-3">
-              <button onClick={() => setStep(step - 1)} className="mt-1">
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
+          <div className="name-header">
+            <div className="page-header-top">
+              <button onClick={() => setStep(step - 1)} className="page-back-button">
+                <ArrowLeft className="icon-arrow" />
               </button>
-              <div className="text-center flex-1 mt-4">
-                <h2 className="text-lg font-bold text-gray-800">
+              <div className="page-header-center">
+                <h2 className="page-header-title">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Nombre y descripción</p>
+                <p className="page-header-subtitle">Nombre y descripción</p>
               </div>
-              <div className="text-xs text-right mt-1 flex flex-col items-end">
-                <span className="text-gray-800 font-semibold">Paso</span>
+              <div className="page-step-indicator">
+                <span className="breed-step-label">Paso</span>
                 <span>
-                  <span className="text-gray-800 font-bold">{step}</span>
-                  <span className="text-gray-400">/{totalSteps}</span>
+                  <span className="breed-step-number">{step}</span>
+                  <span className="breed-step-total">/{totalSteps}</span>
                 </span>
               </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="page-progress-bar">
               <div
-                className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
+                className="page-progress-fill"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* Dog image placeholder */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative mb-3">
-              <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+          <div className="name-dog-image-wrapper">
+            <div className="name-dog-image-container">
+              <div className="name-dog-image-circle">
                 <Image
                   src={perro}
                   alt="Dog"
@@ -404,7 +402,7 @@ export default function PetOnboardingFlow({
                   className="w-full h-full object-cover"
                 />
               </div>
-              <button className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -mb-5 w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-md border border-gray-200 z-20">
+              <button className="name-add-image-button">
                 <Image
                   src={imgIcon}
                   alt="Agregar imagen"
@@ -415,8 +413,8 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="flex-1 mb-24">
-            <label className="block text-gray-700 font-medium mb-3 text-center">
+          <div className="name-content">
+            <label className="name-label">
               ¿Cómo se llama tu mascota?
             </label>
             <Input
@@ -426,18 +424,18 @@ export default function PetOnboardingFlow({
               className="w-full px-4 py-3 border border-gray-200 rounded-lg mb-6"
             />
             
-            <label className="block text-gray-700 font-medium mb-3 text-center">
+            <label className="name-sex-label">
               Tu mascota es...
             </label>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="name-sex-buttons">
               <button
                 onClick={() => {
                   setPetData({ ...petData, sex: "macho" });
                 }}
-                className={`py-4 px-4 rounded-xl text-center transition-all border-2 ${
+                className={`name-sex-button ${
                   petData.sex === "macho"
-                    ? "bg-white border-blue-500 text-blue-600 font-semibold"
-                    : "bg-white border-gray-200 text-gray-700 hover:border-blue-300"
+                    ? "name-sex-button-selected"
+                    : "name-sex-button-unselected"
                 }`}
               >
                 Macho
@@ -446,10 +444,10 @@ export default function PetOnboardingFlow({
                 onClick={() => {
                   setPetData({ ...petData, sex: "hembra" });
                 }}
-                className={`py-4 px-4 rounded-xl text-center transition-all border-2 ${
+                className={`name-sex-button ${
                   petData.sex === "hembra"
-                    ? "bg-white border-blue-500 text-blue-600 font-semibold"
-                    : "bg-white border-gray-200 text-gray-700 hover:border-blue-300"
+                    ? "name-sex-button-selected"
+                    : "name-sex-button-unselected"
                 }`}
               >
                 Hembra
@@ -457,11 +455,11 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 pt-4">
+          <div className="name-button-section">
             <Button
               onClick={handleNext}
               disabled={!petData.name || !petData.sex}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
+              className="primary-button"
             >
               Continuar
             </Button>
@@ -475,38 +473,38 @@ export default function PetOnboardingFlow({
   if (step === 3) {
     return (
       <MobileFrame>
-        <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+        <div className="page-container">
           {/* Header with progress */}
-          <div className="mb-6">
-            <div className="flex items-start justify-between mb-3">
-              <button onClick={() => setStep(step - 1)} className="mt-1">
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
+          <div className="page-header">
+            <div className="page-header-top">
+              <button onClick={() => setStep(step - 1)} className="page-back-button">
+                <ArrowLeft className="icon-arrow" />
               </button>
-              <div className="text-center flex-1 mt-4">
-                <h2 className="text-lg font-bold text-gray-800">
+              <div className="page-header-center">
+                <h2 className="page-header-title">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Tamaño</p>
+                <p className="page-header-subtitle">Tamaño</p>
               </div>
-              <div className="text-xs text-right mt-1 flex flex-col items-end">
-                <span className="text-gray-800 font-semibold">Paso</span>
+              <div className="page-step-indicator">
+                <span className="breed-step-label">Paso</span>
                 <span>
-                  <span className="text-gray-800 font-bold">{step}</span>
-                  <span className="text-gray-400">/{totalSteps}</span>
+                  <span className="breed-step-number">{step}</span>
+                  <span className="breed-step-total">/{totalSteps}</span>
                 </span>
               </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="page-progress-bar">
               <div
-                className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
+                className="page-progress-fill"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* Dog image placeholder */}
-          <div className="flex justify-center mb-8">
-            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+          <div className="dog-image-wrapper">
+            <div className="dog-image-circle">
               <Image
                 src={perro}
                 alt="Dog"
@@ -517,11 +515,11 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="flex-1 mb-24">
-            <label className="block text-gray-700 font-medium mb-4 text-center">
+          <div className="size-content">
+            <label className="size-label">
               ¿Cuál es el tamaño de {petData.name || "Maxi"}?
             </label>
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="size-buttons">
               {genders.map((gender) => (
                 <button
                   key={gender.value}
@@ -532,31 +530,23 @@ export default function PetOnboardingFlow({
                       weight: "0,0",
                     });
                   }}
-                  className={`py-6 px-3 rounded-2xl text-center transition-all ${
+                  className={`size-button ${
                     petData.gender === gender.value
-                      ? "bg-white border-2 border-blue-500 shadow-lg shadow-blue-200"
-                      : "bg-gray-50 border-2 border-gray-200 hover:border-blue-300 hover:shadow-md"
+                      ? "size-button-selected"
+                      : "size-button-unselected"
                   }`}
                 >
-                  <div className="flex flex-col items-center">
+                  <div className="size-button-content">
                     {/* Círculo con ícono de perro */}
-                    <div
-                      className={`mb-3 rounded-full bg-gray-200 flex items-center justify-center ${
-                        gender.value === "small"
-                          ? "w-16 h-16"
-                          : gender.value === "medium"
-                          ? "w-16 h-16"
-                          : "w-16 h-16"
-                      }`}
-                    >
+                    <div className="size-button-icon-circle">
                       <Dog className={`text-gray-500 ${gender.iconSize}`} />
                     </div>
                     {/* Título */}
-                    <span className="text-gray-700 font-semibold text-base mb-1">
+                    <span className="size-button-label">
                       {gender.label}
                     </span>
                     {/* Rango de peso */}
-                    <span className="text-gray-400 text-xs">
+                    <span className="size-button-weight">
                       {gender.weight}
                     </span>
                   </div>
@@ -565,11 +555,11 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 pt-4">
+          <div className="primary-button-section">
             <Button
               onClick={handleNext}
               disabled={!petData.gender}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
+              className="primary-button"
             >
               Continuar
             </Button>
@@ -606,38 +596,38 @@ export default function PetOnboardingFlow({
 
     return (
       <MobileFrame>
-        <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+        <div className="page-container">
           {/* Header with progress */}
-          <div className="mb-6">
-            <div className="flex items-start justify-between mb-3">
-              <button onClick={() => setStep(step - 1)} className="mt-1">
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
+          <div className="page-header">
+            <div className="page-header-top">
+              <button onClick={() => setStep(step - 1)} className="page-back-button">
+                <ArrowLeft className="icon-arrow" />
               </button>
-              <div className="text-center flex-1 mt-4">
-                <h2 className="text-lg font-bold text-gray-800">
+              <div className="page-header-center">
+                <h2 className="page-header-title">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Peso</p>
+                <p className="page-header-subtitle">Peso</p>
               </div>
-              <div className="text-xs text-right mt-1 flex flex-col items-end">
-                <span className="text-gray-800 font-semibold">Paso</span>
+              <div className="page-step-indicator">
+                <span className="breed-step-label">Paso</span>
                 <span>
-                  <span className="text-gray-800 font-bold">{step}</span>
-                  <span className="text-gray-400">/{totalSteps}</span>
+                  <span className="breed-step-number">{step}</span>
+                  <span className="breed-step-total">/{totalSteps}</span>
                 </span>
               </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="page-progress-bar">
               <div
-                className="h-full transition-all duration-300"
-                style={{ width: `${progress}%`, backgroundColor: "#31AA7A" }}
+                className="page-progress-fill"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* Dog image placeholder */}
-          <div className="flex justify-center mb-8">
-            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+          <div className="dog-image-wrapper">
+            <div className="dog-image-circle">
               <Image
                 src={perro}
                 alt="Dog"
@@ -648,20 +638,20 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-4 text-center">
+          <div className="weight-content">
+            <label className="weight-label">
               ¿Cuál es el peso de {petData.name || "Maxi"}?
             </label>
 
             {/* Recuadro gris con sombra para el ajuste de peso */}
-            <div className="bg-gray-50 rounded-2xl p-6 shadow-md mb-8">
-              <div className="text-center mb-6">
-                <div className="text-5xl font-bold text-blue-600 mb-2">
+            <div className="weight-container">
+              <div className="weight-display">
+                <div className="weight-value">
                   {petData.weight}
                 </div>
-                <div className="text-gray-500">kg</div>
+                <div className="weight-unit">kg</div>
               </div>
-              <p className="text-center text-gray-400 text-sm mb-4">
+              <p className="weight-instruction">
                 Ajustá el peso con la barra debajo
               </p>
               {/* Slider de peso con rangos dinámicos según el tamaño */}
@@ -677,21 +667,21 @@ export default function PetOnboardingFlow({
                     weight: e.target.value.replace(".", ","),
                   })
                 }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                className="weight-slider"
               />
             </div>
           </div>
 
-          <div className="space-y-3 mt-auto pt-4">
+          <div className="weight-button-section">
             <Button
               onClick={handleNext}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium"
+              className="primary-button"
             >
               Continuar
             </Button>
             <button
               onClick={handleSkip}
-              className="w-full text-gray-500 text-sm py-2"
+              className="weight-skip-button"
             >
               No lo sé
             </button>
@@ -705,38 +695,38 @@ export default function PetOnboardingFlow({
   if (step === 5) {
     return (
       <MobileFrame>
-        <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+        <div className="page-container">
           {/* Header with progress */}
-          <div className="mb-6">
-            <div className="flex items-start justify-between mb-3">
-              <button onClick={() => setStep(step - 1)} className="mt-1">
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
+          <div className="page-header">
+            <div className="page-header-top">
+              <button onClick={() => setStep(step - 1)} className="page-back-button">
+                <ArrowLeft className="icon-arrow" />
               </button>
-              <div className="text-center flex-1 mt-4">
-                <h2 className="text-lg font-bold text-gray-800">
+              <div className="page-header-center">
+                <h2 className="page-header-title">
                   Agregar mascota
                 </h2>
-                <p className="text-gray-400 text-sm">Cumpleaños</p>
+                <p className="page-header-subtitle">Cumpleaños</p>
               </div>
-              <div className="text-xs text-right mt-1 flex flex-col items-end">
-                <span className="text-gray-800 font-semibold">Paso</span>
+              <div className="page-step-indicator">
+                <span className="breed-step-label">Paso</span>
                 <span>
-                  <span className="text-gray-800 font-bold">{step}</span>
-                  <span className="text-gray-400">/{totalSteps}</span>
+                  <span className="breed-step-number">{step}</span>
+                  <span className="breed-step-total">/{totalSteps}</span>
                 </span>
               </div>
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="page-progress-bar">
               <div
-                className="h-full transition-all duration-300"
-                style={{ width: "100%", backgroundColor: "#31AA7A" }}
+                className="page-progress-fill"
+                style={{ width: "100%" }}
               />
             </div>
           </div>
 
           {/* Dog image placeholder */}
-          <div className="flex justify-center mb-8">
-            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+          <div className="dog-image-wrapper">
+            <div className="dog-image-circle">
               <Image
                 src={perro}
                 alt="Dog"
@@ -747,15 +737,15 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="flex-1 mb-24">
-            <label className="block text-gray-700 font-medium mb-4 text-center">
+          <div className="birthday-content">
+            <label className="birthday-label">
               ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
             </label>
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div>
-                <label className="block text-xs text-gray-500 mb-2">Mes</label>
+            <div className="birthday-selects">
+              <div className="birthday-select-wrapper">
+                <label className="birthday-select-label">Mes</label>
                 <select
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  className="birthday-select"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(Number(e.target.value))}
                 >
@@ -766,10 +756,10 @@ export default function PetOnboardingFlow({
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-2">Día</label>
+              <div className="birthday-select-wrapper">
+                <label className="birthday-select-label">Día</label>
                 <select
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  className="birthday-select"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(Number(e.target.value))}
                 >
@@ -783,10 +773,10 @@ export default function PetOnboardingFlow({
                   )}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-2">Año</label>
+              <div className="birthday-select-wrapper">
+                <label className="birthday-select-label">Año</label>
                 <select
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  className="birthday-select"
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                 >
@@ -800,13 +790,13 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          <div className="space-y-3 pt-4">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-medium">
+          <div className="primary-button-section">
+            <Button className="primary-button">
               Finalizar
             </Button>
             <button
               onClick={handleSkip}
-              className="w-full text-gray-500 text-sm py-2"
+              className="secondary-button"
             >
               No lo sé
             </button>
@@ -819,38 +809,38 @@ export default function PetOnboardingFlow({
   // Step 6: Approximate age (when user doesn't know birthday)
   return (
     <MobileFrame>
-      <div className="px-6 pt-8 pb-6 h-full flex flex-col">
+      <div className="page-container">
         {/* Header with progress */}
-        <div className="mb-6">
-          <div className="flex items-start justify-between mb-3">
-            <button onClick={() => setStep(5)} className="mt-1">
-              <ArrowLeft className="w-6 h-6 text-gray-600" />
+        <div className="page-header">
+          <div className="page-header-top">
+            <button onClick={() => setStep(5)} className="page-back-button">
+              <ArrowLeft className="icon-arrow" />
             </button>
-            <div className="text-center flex-1 mt-4">
-              <h2 className="text-lg font-bold text-gray-800">
+            <div className="page-header-center">
+              <h2 className="page-header-title">
                 Agregar mascota
               </h2>
-              <p className="text-gray-400 text-sm">Edad aproximada</p>
+              <p className="page-header-subtitle">Edad aproximada</p>
             </div>
-            <div className="text-xs text-right mt-1 flex flex-col items-end">
-              <span className="text-gray-800 font-semibold">Paso</span>
+            <div className="page-step-indicator">
+              <span className="breed-step-label">Paso</span>
               <span>
-                <span className="text-gray-800 font-bold">5</span>
-                <span className="text-gray-400">/{totalSteps}</span>
+                <span className="breed-step-number">5</span>
+                <span className="breed-step-total">/{totalSteps}</span>
               </span>
             </div>
           </div>
-          <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="page-progress-bar">
             <div
-              className="h-full transition-all duration-300"
-              style={{ width: "100%", backgroundColor: "#31AA7A" }}
+              className="page-progress-fill"
+              style={{ width: "100%" }}
             />
           </div>
         </div>
 
         {/* Dog image placeholder */}
-        <div className="flex justify-center mb-8">
-          <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100">
+        <div className="dog-image-wrapper">
+          <div className="dog-image-circle">
             <Image
               src={perro}
               alt="Dog"
@@ -861,65 +851,65 @@ export default function PetOnboardingFlow({
           </div>
         </div>
 
-        <div className="flex-1 mb-24">
-          <label className="block text-gray-700 font-medium mb-6 text-center">
+        <div className="age-content">
+          <label className="age-label">
             ¿Cuál es la edad aproximada de {petData.name || "Maxi"}?
           </label>
-          <div className="space-y-3">
+          <div className="age-buttons">
             <button
               onClick={() => setApproximateAge("6 meses")}
-              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+              className={`age-button ${
                 approximateAge === "6 meses"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                  ? "age-button-selected"
+                  : "age-button-unselected"
               }`}
             >
-              <span className="text-gray-700 font-medium">6 meses</span>
+              <span className="age-button-text">6 meses</span>
             </button>
             <button
               onClick={() => setApproximateAge("entre 6 meses y 2 años")}
-              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+              className={`age-button ${
                 approximateAge === "entre 6 meses y 2 años"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                  ? "age-button-selected"
+                  : "age-button-unselected"
               }`}
             >
-              <span className="text-gray-700 font-medium">
+              <span className="age-button-text">
                 Entre 6 meses y 2 años
               </span>
             </button>
             <button
               onClick={() => setApproximateAge("entre 3 años y 6 años")}
-              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+              className={`age-button ${
                 approximateAge === "entre 3 años y 6 años"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                  ? "age-button-selected"
+                  : "age-button-unselected"
               }`}
             >
-              <span className="text-gray-700 font-medium">
+              <span className="age-button-text">
                 Entre 3 años y 6 años
               </span>
             </button>
             <button
               onClick={() => setApproximateAge("más de 6 años")}
-              className={`w-full py-4 px-4 bg-white border-2 rounded-xl text-center transition-colors shadow-sm ${
+              className={`age-button ${
                 approximateAge === "más de 6 años"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                  ? "age-button-selected"
+                  : "age-button-unselected"
               }`}
             >
-              <span className="text-gray-700 font-medium">Más de 6 años</span>
+              <span className="age-button-text">Más de 6 años</span>
             </button>
           </div>
         </div>
 
-        <div className="space-y-3 pt-4">
+        <div className="primary-button-section">
           <Button
             onClick={() => {
               /* Finalizar */
             }}
             disabled={!approximateAge}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-4 rounded-xl font-medium"
+            className="primary-button"
           >
             Finalizar
           </Button>

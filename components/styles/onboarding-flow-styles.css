@@ -1,0 +1,814 @@
+/* ============================================
+   PET ONBOARDING FLOW STYLES
+   ============================================ */
+
+/* Step 0 - Empty State Screen */
+.empty-state-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.empty-state-header {
+  padding: 3.5rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.empty-state-back-button {
+  position: absolute;
+  left: 1.5rem;
+  top: 3.5rem;
+  color: #4b5563;
+}
+
+.empty-state-back-button:hover {
+  background-color: #f3f4f6;
+  padding: 0.25rem;
+  border-radius: 9999px;
+}
+
+.empty-state-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 3.75rem;
+}
+
+.empty-state-greeting {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.empty-state-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #4b5563;
+  position: absolute;
+  right: 1.5rem;
+  margin-top: 3.5rem;
+}
+
+.empty-state-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem 7rem;
+}
+
+.empty-state-image-wrapper {
+  width: 100%;
+  max-width: 20rem;
+  margin-bottom: 2.5rem;
+  opacity: 1;
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state-text {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 1.5rem;
+}
+
+.empty-state-button-wrapper {
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88%;
+}
+
+.empty-state-slide-button {
+  position: relative;
+  background-color: #2563EB;
+  color: white;
+  border-radius: 9999px;
+  padding: 0.625rem 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.empty-state-slide-button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  user-select: none;
+}
+
+.empty-state-slide-button-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.empty-state-drag-handle {
+  position: absolute;
+  top: 50%;
+  left: 0.375rem;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 0.625rem;
+  border-radius: 9999px;
+  cursor: grab;
+}
+
+.empty-state-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Step 1 - Breed Selection */
+.breed-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.breed-header {
+  padding: 1.5rem 1.5rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.breed-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.breed-back-button {
+  margin-top: 0.25rem;
+}
+
+.breed-header-center {
+  text-align: center;
+  flex: 1;
+  margin-top: 1rem;
+}
+
+.breed-header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.breed-header-subtitle {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.breed-step-indicator {
+  font-size: 0.75rem;
+  text-align: right;
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.breed-step-label {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.breed-step-number {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.breed-step-total {
+  color: #9ca3af;
+}
+
+.breed-progress-bar {
+  width: 100%;
+  height: 0.25rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.breed-progress-fill {
+  height: 100%;
+  transition: all 0.3s;
+  background-color: #31AA7A;
+}
+
+.breed-list {
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 380px;
+  min-height: 380px;
+  max-height: 380px;
+}
+
+.breed-item {
+  width: 100%;
+  padding: 1rem;
+  background-color: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.breed-item:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.breed-item-selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.breed-item-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+.breed-no-results {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem 0;
+}
+
+.breed-search-section {
+  padding: 1.5rem;
+  flex-shrink: 0;
+  background-color: white;
+  border-top: 1px solid #f3f4f6;
+}
+
+.breed-search-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.breed-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.breed-continue-button {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 1rem 0;
+  border-radius: 0.75rem;
+  font-weight: 500;
+}
+
+.breed-continue-button:hover {
+  background-color: #1d4ed8;
+}
+
+.breed-continue-button:disabled {
+  background-color: #d1d5db;
+}
+
+/* Step 2 - Name Input */
+.name-container {
+  padding: 2rem 1.5rem 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.name-header {
+  margin-bottom: 1.5rem;
+}
+
+.name-dog-image-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.name-dog-image-container {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.name-dog-image-circle {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.name-add-image-button {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(1.25rem);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  z-index: 20;
+}
+
+.name-add-image-button:hover {
+  background-color: #f3f4f6;
+}
+
+.name-content {
+  flex: 1;
+  margin-bottom: 6rem;
+}
+
+.name-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.name-sex-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.name-sex-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.name-sex-button {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: all 0.2s;
+  border: 2px solid;
+}
+
+.name-sex-button-selected {
+  background-color: white;
+  border-color: #3b82f6;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.name-sex-button-unselected {
+  background-color: white;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.name-sex-button-unselected:hover {
+  border-color: #93c5fd;
+}
+
+.name-button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+/* Step 3 - Size Selection */
+.size-dog-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.size-content {
+  flex: 1;
+  margin-bottom: 6rem;
+}
+
+.size-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.size-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.size-button {
+  padding: 1.5rem 0.75rem;
+  border-radius: 1rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.size-button-selected {
+  background-color: white;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+}
+
+.size-button-unselected {
+  background-color: #f9fafb;
+  border: 2px solid #e5e7eb;
+}
+
+.size-button-unselected:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.size-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.size-button-icon-circle {
+  margin-bottom: 0.75rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+}
+
+.size-button-label {
+  color: #374151;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.size-button-weight {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+/* Step 4 - Weight Input */
+.weight-content {
+  flex: 1;
+}
+
+.weight-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.weight-container {
+  background-color: #f9fafb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.weight-display {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.weight-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+}
+
+.weight-unit {
+  color: #6b7280;
+}
+
+.weight-instruction {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.weight-slider {
+  width: 100%;
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 0.5rem;
+  appearance: none;
+  cursor: pointer;
+  accent-color: #2563eb;
+}
+
+.weight-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: #2563eb;
+  cursor: pointer;
+}
+
+.weight-slider::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: #2563eb;
+  cursor: pointer;
+  border: none;
+}
+
+.weight-button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.weight-skip-button {
+  width: 100%;
+  color: #6b7280;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+/* Step 5 - Birthday Input */
+.birthday-content {
+  flex: 1;
+  margin-bottom: 6rem;
+}
+
+.birthday-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.birthday-selects {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+
+
+.birthday-select-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.birthday-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Step 6 - Approximate Age */
+.age-content {
+  flex: 1;
+  margin-bottom: 6rem;
+}
+
+.age-label {
+  display: block;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.age-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.age-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: white;
+  border: 2px solid;
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.age-button-selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.age-button-unselected {
+  border-color: #e5e7eb;
+}
+
+.age-button-unselected:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.age-button-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Common Styles */
+.page-container {
+  padding: 2rem 1.5rem 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.page-back-button {
+  margin-top: 0.25rem;
+}
+
+.page-header-center {
+  text-align: center;
+  flex: 1;
+  margin-top: 1rem;
+}
+
+.page-header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.page-header-subtitle {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.page-step-indicator {
+  font-size: 0.75rem;
+  text-align: right;
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.page-progress-bar {
+  width: 100%;
+  height: 0.25rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.page-progress-fill {
+  height: 100%;
+  transition: all 0.3s;
+  background-color: #31AA7A;
+}
+
+.dog-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.dog-image-circle {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.primary-button {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 1rem 0;
+  border-radius: 0.75rem;
+  font-weight: 500;
+}
+
+.primary-button:hover {
+  background-color: #1d4ed8;
+}
+
+.primary-button:disabled {
+  background-color: #d1d5db;
+}
+
+.primary-button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.secondary-button {
+  width: 100%;
+  color: #6b7280;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+/* Icon sizes */
+.icon-small {
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon-medium {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-large {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Arrow icons */
+.icon-arrow {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #4b5563;
+}
+
+.icon-arrow-small {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+/* Notification and menu icons */
+.icon-notification,
+.icon-menu {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+/* Search icon */
+.icon-search {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+}
+
