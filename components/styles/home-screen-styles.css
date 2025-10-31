@@ -14,7 +14,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .home-header-left {
@@ -24,6 +25,10 @@
 }
 
 .home-logo-container {
+  background-image: url("../images/logo_guau.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   width: 2.5rem;
   height: 2.5rem;
   background-color: #fef3e2;
@@ -41,6 +46,7 @@
 .home-greeting {
   display: flex;
   align-items: center;
+  gap: 0.25rem;
 }
 
 .home-greeting-text {
@@ -57,20 +63,34 @@
 .home-header-icons {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .home-icon-divider {
-  width: 1px;
+  width: auto;
   height: 1.25rem;
-  background-color: #e5e7eb;
+  object-fit: contain;
 }
 
 .home-icon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #4b5563;
   cursor: pointer;
+  object-fit: contain;
+}
+
+/* Header Line Separator */
+.home-header-line {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.home-line-image {
+  width: 100%;
+  max-width: 336px;
+  height: auto;
 }
 
 /* Section */
@@ -96,7 +116,7 @@
   width: 1.5rem;
   height: 1.5rem;
   background-color: #f3f4f6;
-  border-radius: 50%;
+  border-radius: 30%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,12 +131,21 @@
 }
 
 .home-pet-card {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  border-radius: 1rem;
+  /* background-image: url("../images/pet-card.svg"); */
+  background-color: #EE7232;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 0.875rem;
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 336px;
+  height: 130px;
+  align-items: center;
+  /* min-height: 157px; */
 }
 
 .home-pet-card-content {
@@ -125,6 +154,22 @@
   align-items: center;
   position: relative;
   z-index: 2;
+  height: 100%;
+}
+
+.home-pet-image-elipses {
+  position: absolute;
+  right: -3.1rem;
+  /* left: 2.5rem; */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .home-pet-info {
@@ -147,23 +192,37 @@
 
 .home-pet-image-wrapper {
   position: relative;
-  z-index: 3;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .home-pet-image-circle {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
   background-color: white;
-  border: 3px solid white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-elipses-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .home-pet-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
 }
 
 .home-pet-pattern {
@@ -197,8 +256,12 @@
 
 .home-pagination-dot.active {
   background-color: #f97316;
-  width: 1.5rem;
-  border-radius: 9999px;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  /* background-color: #e5e7eb; */
+  transition: background-color 0.2s;
+ 
 }
 
 /* Events Section */
@@ -232,11 +295,12 @@
 /* Useful Info Section */
 .home-info-container {
   display: flex;
-  gap: 0.75rem;
+  gap: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 0.5rem;
+  scroll-padding: 1.5rem;
 }
 
 .home-info-container::-webkit-scrollbar {
@@ -251,13 +315,17 @@
 .home-info-card {
   background-color: white;
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  min-width: 280px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  scroll-snap-align: start;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  flex-shrink: 0;
+  width: calc(100% - 1.5rem);
+  min-width: calc(100% - 1.5rem);
+  margin-right: 0.75rem;
 }
 
 .home-info-image-wrapper {
@@ -275,15 +343,29 @@
   flex: 1;
 }
 
+
+/* Configuración de fuente personalizable para info cards */
+.home-info-card {
+  --info-card-title-font-size: 1rem;
+  --info-card-subtitle-font-size: 0.75rem;
+  --info-card-font-family: inherit;
+  --info-card-title-font-weight: 600;
+  --info-card-subtitle-font-weight: 400;
+}
+
 .home-info-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--info-card-font-family);
+  font-weight: var(--info-card-title-font-weight);
   color: #1f2937;
+  line-height: 1.2;
   margin: 0 0 0.25rem 0;
 }
 
 .home-info-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  font-family: var(--info-card-font-family);
+  font-weight: var(--info-card-subtitle-font-weight);
   color: #9ca3af;
   margin: 0;
 }

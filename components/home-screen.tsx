@@ -3,16 +3,27 @@
 import { useState } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
-import { Search, Bell, Menu } from "lucide-react";
 import imgIcon from "./images/img-icon.svg";
 import perro from "./images/perro.png";
+import petCardSvg from "./images/pet-card.svg";
+import imgInfoCardBasic2 from "./images/info-cards/img-info-card-basic-2.png";
+import imgInfoCardBasic3 from "./images/info-cards/img-info-card-basic-3.png";
+import imgInfoCardBasic1 from "./images/info-cards/img-info-card-basic-1.png";
+import lineSvg from "./images/line.svg";
+import lupaSvg from "./images/lupa.svg";
+import campanaSvg from "./images/campana.svg";
+import menuSvg from "./images/menu.svg";
+import dividerSvg from "./images/divider.svg";
+import elipsesSvg from "./images/elipses.svg";
 import "./styles/home-screen-styles.css";
 
 interface HomeScreenProps {
   userName?: string;
 }
 
-export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
+export default function HomeScreen({ 
+  userName = "User",
+}: HomeScreenProps) {
   const [pets] = useState([
     {
       id: 1,
@@ -29,7 +40,19 @@ export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
       id: 1,
       title: "Cuidados básicos",
       subtitle: "Click para leer",
-      image: perro,
+      image: imgInfoCardBasic1,
+    },
+    {
+      id: 2,
+      title: "Juguetes ideales para cachorros",
+      subtitle: "Click para leer",
+      image: imgInfoCardBasic2,
+    },
+    {
+      id: 3,
+      title: "Tips para la hora del paseo",
+      subtitle: "Click para leer",
+      image: imgInfoCardBasic3,
     },
   ]);
 
@@ -40,13 +63,6 @@ export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
         <div className="home-header">
           <div className="home-header-left">
             <div className="home-logo-container">
-              <Image
-                src={imgIcon}
-                alt="Logo"
-                width={34}
-                height={34}
-                className="home-logo-image"
-              />
             </div>
             <div className="home-greeting">
               <span className="home-greeting-text">Hola, </span>
@@ -54,13 +70,53 @@ export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
             </div>
           </div>
           <div className="home-header-icons">
-            <div className="home-icon-divider"></div>
-            <Search className="home-icon" />
-            <div className="home-icon-divider"></div>
-            <Bell className="home-icon" />
-            <div className="home-icon-divider"></div>
-            <Menu className="home-icon" />
+            <Image
+              src={lupaSvg}
+              alt="Buscar"
+              width={20}
+              height={20}
+              className="home-icon"
+            />
+            <Image
+              src={dividerSvg}
+              alt=""
+              width={1}
+              height={20}
+              className="home-icon-divider"
+            />
+            <Image
+              src={campanaSvg}
+              alt="Notificaciones"
+              width={20}
+              height={20}
+              className="home-icon"
+            />
+            <Image
+              src={dividerSvg}
+              alt=""
+              width={1}
+              height={20}
+              className="home-icon-divider"
+            />
+            <Image
+              src={menuSvg}
+              alt="Menú"
+              width={20}
+              height={20}
+              className="home-icon"
+            />
           </div>
+        </div>
+
+        {/* Line separator */}
+        <div className="home-header-line">
+          <Image
+            src={lineSvg}
+            alt="Line separator"
+            width={336}
+            height={2}
+            className="home-line-image"
+          />
         </div>
 
         {/* Mis mascotas */}
@@ -89,6 +145,15 @@ export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
                         className="home-pet-image"
                       />
                     </div>
+                  </div>
+                  <div className="home-pet-image-elipses">
+                    <Image
+                      src={elipsesSvg}
+                      alt=""
+                      width={120}
+                      height={120}
+                      className="home-elipses-image"
+                    />
                   </div>
                 </div>
                 <div className="home-pet-pattern"></div>
@@ -143,8 +208,12 @@ export default function HomeScreen({ userName = "User" }: HomeScreenProps) {
                   />
                 </div>
                 <div className="home-info-content">
-                  <h4 className="home-info-title">{info.title}</h4>
-                  <p className="home-info-subtitle">{info.subtitle}</p>
+                  <h4 className="home-info-title">
+                    {info.title}
+                  </h4>
+                  <p className="home-info-subtitle">
+                    {info.subtitle}
+                  </p>
                 </div>
               </div>
             ))}
