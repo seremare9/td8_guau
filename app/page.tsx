@@ -8,6 +8,7 @@ import UserTypeScreen from "@/components/user-type-screen";
 import PetOnboardingFlow from "@/components/pet-onboarding-flow";
 import PetExperienceScreen from "@/components/pet-experience-screen";
 import HomeScreen from "@/components/home-screen";
+import MenuScreen from "@/components/menu";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -24,10 +25,12 @@ export default function App() {
     | "vacunaInfo"
     | "medicinaInfo"
     | "home"
+    | "menu"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
   const [userName, setUserName] = useState<string>("User");
+  const [petData, setPetData] = useState<{ name: string; breed: string } | null>(null);
 
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
@@ -36,6 +39,8 @@ export default function App() {
   const navigateToVacunaInfo = () => setCurrentScreen("vacunaInfo");
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
+  const navigateToMenu = () => setCurrentScreen("menu");
+  const navigateBackFromMenu = () => setCurrentScreen("home");
 
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
@@ -119,11 +124,25 @@ export default function App() {
           userType={userType}
           userName={userName}
           onBack={navigateBack}
-          onFinish={navigateToHome}
+          onFinish={(data) => {
+            setPetData(data);
+            navigateToHome();
+          }}
         />
       )}
       {currentScreen === "home" && (
-        <HomeScreen userName={userName} />
+        <HomeScreen 
+          userName={userName} 
+          onOpenMenu={navigateToMenu}
+          petData={petData}
+        />
+      )}
+      {currentScreen === "menu" && (
+        <MenuScreen 
+          userName={userName} 
+          onClose={navigateBackFromMenu}
+          petData={petData}
+        />
       )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen
