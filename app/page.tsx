@@ -9,6 +9,7 @@ import PetOnboardingFlow from "@/components/pet-onboarding-flow";
 import PetExperienceScreen from "@/components/pet-experience-screen";
 import HomeScreen from "@/components/home-screen";
 import MenuScreen from "@/components/menu";
+import PetProfile from "@/components/pet-profile";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -26,6 +27,7 @@ export default function App() {
     | "medicinaInfo"
     | "home"
     | "menu"
+    | "petProfile"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -35,7 +37,16 @@ export default function App() {
     number | undefined
   >(undefined);
   // Estado para guardar los datos de la mascota (incluyendo la imagen)
-  const [petData, setPetData] = useState<{ name: string; breed: string; imageURL?: string } | null>(null);
+  const [petData, setPetData] = useState<{ 
+    name: string; 
+    breed: string; 
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+  } | null>(null);
 
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
@@ -45,6 +56,7 @@ export default function App() {
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
   const navigateToMenu = () => setCurrentScreen("menu");
+  const navigateToPetProfile = () => setCurrentScreen("petProfile");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -98,6 +110,9 @@ export default function App() {
         setCurrentScreen("userType");
       }
       setPetOnboardingStartStep(undefined); // Limpiar el estado al retroceder
+    } else if (currentScreen === "petProfile") {
+      // Regresar a home (puedes mejorar esto guardando la pantalla anterior)
+      setCurrentScreen("home");
     }
   };
 
@@ -148,10 +163,13 @@ export default function App() {
         />
       )}
       {currentScreen === "home" && (
-        <HomeScreen userName={userName} onOpenMenu={navigateToMenu} petData={petData} />
+        <HomeScreen userName={userName} onOpenMenu={navigateToMenu} petData={petData} onOpenPetProfile={navigateToPetProfile} />
       )}
       {currentScreen === "menu" && (
-        <MenuScreen userName={userName} onClose={navigateToHome} petData={petData} />
+        <MenuScreen userName={userName} onClose={navigateToHome} petData={petData} onOpenPetProfile={navigateToPetProfile} />
+      )}
+      {currentScreen === "petProfile" && (
+        <PetProfile userName={userName} petData={petData} onBack={navigateBack} />
       )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen
