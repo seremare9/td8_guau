@@ -8,6 +8,7 @@ import UserTypeScreen from "@/components/user-type-screen";
 import PetOnboardingFlow from "@/components/pet-onboarding-flow";
 import PetExperienceScreen from "@/components/pet-experience-screen";
 import HomeScreen from "@/components/home-screen";
+import MenuScreen from "@/components/menu";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -24,6 +25,7 @@ export default function App() {
     | "vacunaInfo"
     | "medicinaInfo"
     | "home"
+    | "menu"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -135,6 +137,7 @@ export default function App() {
           userName={userName}
           onBack={navigateBack}
           onFinish={navigateToHome}
+          // Pasar el paso inicial solo si está definido
           initialStep={petOnboardingStartStep}
         />
       )}

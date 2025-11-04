@@ -5,6 +5,7 @@ import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import imgIcon from "./images/img-icon.svg";
 import perro from "./images/perro.png";
+import logoGuau from "./images/logo_guau.png";
 import petCardSvg from "./images/pet-card.svg";
 import imgInfoCardBasic2 from "./images/info-cards/img-info-card-basic-2.png";
 import imgInfoCardBasic3 from "./images/info-cards/img-info-card-basic-3.png";
@@ -19,19 +20,23 @@ import "./styles/home-screen-styles.css";
 
 interface HomeScreenProps {
   userName?: string;
+  onOpenMenu?: () => void;
+  petData?: { name: string; breed: string } | null;
 }
 
 export default function HomeScreen({ 
   userName = "User",
+  onOpenMenu,
+  petData,
 }: HomeScreenProps) {
-  const [pets] = useState([
+  const pets = [
     {
       id: 1,
-      name: "Maxi",
-      breed: "Border Collie",
+      name: petData?.name || "Maxi",
+      breed: petData?.breed || "Border Collie",
       image: perro,
     },
-  ]);
+  ];
 
   const [events] = useState<Array<any>>([]);
 
@@ -63,6 +68,7 @@ export default function HomeScreen({
         <div className="home-header">
           <div className="home-header-left">
             <div className="home-logo-container">
+              <Image src={logoGuau} alt="logo guau" width={24} height={24} className="home-logo-image" />
             </div>
             <div className="home-greeting">
               <span className="home-greeting-text">Hola, </span>
@@ -98,13 +104,20 @@ export default function HomeScreen({
               height={20}
               className="home-icon-divider"
             />
-            <Image
-              src={menuSvg}
-              alt="Menú"
-              width={20}
-              height={20}
-              className="home-icon"
-            />
+            <button
+              onClick={onOpenMenu}
+              className="home-icon-button"
+              aria-label="Abrir menú"
+              disabled={!onOpenMenu}
+            >
+              <Image
+                src={menuSvg}
+                alt="Menú"
+                width={20}
+                height={20}
+                className="home-icon"
+              />
+            </button>
           </div>
         </div>
 
@@ -115,7 +128,6 @@ export default function HomeScreen({
             alt="Line separator"
             width={336}
             height={2}
-            className="home-line-image"
           />
         </div>
 

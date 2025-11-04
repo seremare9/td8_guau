@@ -1,0 +1,224 @@
+@import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap&subset=latin');
+
+body {
+  font-family: "Noto Sans", sans-serif;
+}
+
+/* Contenedor principal */
+.menu-container {
+  background-color: #FAFAFA;
+  min-height: 100vh;
+  padding: 1rem 1.5rem;
+  padding-top: 3rem;
+}
+
+/* Header */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.menu-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.menu-dog-icon {
+  background-image: url("../images/logo_guau.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  background-color: #fef3e2;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* .menu-dog-icon img {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(94%) saturate(1895%) hue-rotate(347deg) brightness(98%) contrast(91%);
+} */
+
+/* .menu-greeting {
+  font-family: "Noto Sans", sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 1rem;
+  color: #1c1c1e;
+} */
+.menu-greeting {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+.menu-greeting-text {
+    font-size: 1rem;
+    color: #808B9A;
+}
+
+.menu-greeting-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #39434F;
+  }
+
+.menu-close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.menu-close-button:hover {
+  color: #6b7280;
+}
+
+.menu-close-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Sección Mis mascotas */
+.menu-section {
+  margin-bottom: 32px;
+}
+
+.menu-section-title {
+  /* font-family: "Catamaran", sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #1c1c1e;
+  margin-bottom: 16px; */
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #39434F;
+  margin-bottom: 1rem;
+}
+
+.menu-pets-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.menu-pet-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.menu-pet-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #1B85F3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.menu-pet-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.menu-pet-new {
+  border: 2px solid #808B9A;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-pet-plus-icon {
+  width: 24px;
+  height: 24px;
+  color: #808B9A;
+}
+
+.menu-pet-name {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1rem;
+  color: #1B85F3;
+  text-align: center;
+  font-weight: 600;
+}
+
+.menu-pet-name-new {
+  color: #808B9A;
+}
+
+/* Menu Items */
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.menu-item-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.menu-item-text {
+  flex: 1;
+}
+
+/* Separator */
+.menu-separator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 16px 0;
+}
+

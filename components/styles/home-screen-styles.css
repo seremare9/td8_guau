@@ -1,11 +1,10 @@
-/* ============================================
-   HOME SCREEN STYLES
-   ============================================ */
+@import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 .home-container {
   padding: 1rem 1.5rem;
   padding-top: 3rem;
-  background-color: white;
+  background-color: #FAFAFA;
   min-height: 100vh;
 }
 
@@ -51,13 +50,13 @@
 
 .home-greeting-text {
   font-size: 1rem;
-  color: #1f2937;
+  color: #808B9A;
 }
 
 .home-greeting-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #39434F;
 }
 
 .home-header-icons {
@@ -77,6 +76,16 @@
   height: 1.25rem;
   cursor: pointer;
   object-fit: contain;
+}
+
+.home-icon-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Header Line Separator */
@@ -106,23 +115,24 @@
 }
 
 .home-section-title {
+  font-family: "Noto Sans", sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #39434F;
   margin: 0;
 }
 
 .home-section-badge {
   width: 1.5rem;
   height: 1.5rem;
-  background-color: #f3f4f6;
+  background-color: #ECEFF2;
   border-radius: 30%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #606873;
 }
 
 /* Pets Section */
@@ -294,6 +304,7 @@
 
 /* Useful Info Section */
 .home-info-container {
+  color: #808B9A;
   display: flex;
   gap: 0;
   overflow-x: auto;
@@ -357,7 +368,7 @@
   font-size: 1rem;
   font-family: var(--info-card-font-family);
   font-weight: var(--info-card-title-font-weight);
-  color: #1f2937;
+ 
   line-height: 1.2;
   margin: 0 0 0.25rem 0;
 }
@@ -366,7 +377,7 @@
   font-size: 0.85rem;
   font-family: var(--info-card-font-family);
   font-weight: var(--info-card-subtitle-font-weight);
-  color: #9ca3af;
+  /* color: #9ca3af; */
   margin: 0;
 }
 
