@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,11 +50,29 @@ export default function PetOnboardingFlow({
     gender: "", // tamaño: small/medium/large
     weight: "0,0",
     birthday: "",
+    imageURL: "",
   });
   const [selectedMonth, setSelectedMonth] = useState(1); // Enero por defecto
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedYear, setSelectedYear] = useState(2025);
   const [approximateAge, setApproximateAge] = useState("");
+
+  // Referencia para el input de archivo (NECESARIO PARA EL SELECTOR DE IMAGEN)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Función para manejar la selección de imagen
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Almacena la imagen como Base64 string
+        setPetData((prev) => ({ ...prev, imageURL: reader.result as string }));
+      };
+      // Convierte el archivo a Base64
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Función para calcular el número de días en un mes
   const getDaysInMonth = (month: number, year: number) => {
@@ -367,27 +385,63 @@ export default function PetOnboardingFlow({
           </div>
 
           {/* Dog image placeholder */}
+          {/* Content: Image Selector (PARTE MODIFICADA) */}
           <div className="name-dog-image-wrapper">
+            {/* 1. Input de archivo oculto: Esta línea hace que funcione el selector del teléfono/computadora */}
+            <input
+              type="file"
+              ref={fileInputRef} // <-- Referencia clave
+              accept="image/*"
+              onChange={handleImageChange} // <-- Llama a la función que guarda la imagen
+              style={{ display: "none" }}
+            />
+
+            {/* 2. Contenedor de la imagen/placeholder */}
             <div className="name-dog-image-container">
               <div className="name-dog-image-circle">
-                <Image
-                  src={perro}
-                  alt="Dog"
-                  width={192}
-                  height={192}
-                  className="w-full h-full object-cover"
-                />
+                {petData.imageURL ? (
+                  // Muestra la imagen seleccionada
+                  <Image
+                    src={petData.imageURL} // <-- Fuente de la imagen (Base64)
+                    alt="Foto de la mascota"
+                    width={200}
+                    height={200}
+                    // ... estilos
+                  />
+                ) : (
+                  // Muestra el placeholder (perro por defecto)
+                  <Image
+                    src={perro}
+                    alt="Perro de ejemplo"
+                    width={200}
+                    height={200}
+                    // ... estilos
+                  />
+                )}
               </div>
-              <button className="name-add-image-button">
+
+              {/* 3. Botón que se toca para abrir el selector de archivos */}
+              <button
+                // Al hacer clic, activa el input de archivo oculto
+                onClick={() => fileInputRef.current?.click()}
+                className="name-add-image-button"
+                aria-label="Seleccionar foto de tu mascota"
+                title="Toca para subir una foto"
+              >
                 <Image
                   src={imgIcon}
-                  alt="Agregar imagen"
-                  width={20}
-                  height={20}
+                  alt="Icono de cámara"
+                  width={24}
+                  height={24}
                 />
               </button>
             </div>
+
+            <p className="name-add-image-text">
+              {petData.imageURL ? "Cambiar Foto" : "Agregar Foto"}
+            </p>
           </div>
+          {/* FIN PARTE MODIFICADA */}
 
           <div className="name-content">
             <label className="name-label">¿Cómo se llama tu mascota?</label>
@@ -479,7 +533,7 @@ export default function PetOnboardingFlow({
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={perro}
+                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
                 alt="Dog"
                 width={192}
                 height={192}
@@ -599,7 +653,7 @@ export default function PetOnboardingFlow({
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={perro}
+                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
                 alt="Dog"
                 width={192}
                 height={192}
@@ -688,7 +742,7 @@ export default function PetOnboardingFlow({
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={perro}
+                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
                 alt="Dog"
                 width={192}
                 height={192}
@@ -829,7 +883,7 @@ export default function PetOnboardingFlow({
         <div className="dog-image-wrapper">
           <div className="dog-image-circle">
             <Image
-              src={perro}
+              src={petData.imageURL || perro} // <-- CAMBIO CLAVE
               alt="Dog"
               width={192}
               height={192}
