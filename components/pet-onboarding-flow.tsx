@@ -19,6 +19,8 @@ import imgIcon from "./images/img-icon.svg";
 import perritos from "./images/dos-perros.png";
 import perro from "./images/perro.png";
 import "./styles/onboarding-flow-styles.css";
+// Importamos el HomeHeader desde el componente de Home
+import { HomeHeader } from "@/components/home-screen";
 
 interface PetOnboardingFlowProps {
   userType: string;
@@ -188,30 +190,19 @@ export default function PetOnboardingFlow({
     return (
       <MobileFrame>
         <div className="empty-state-container">
-          {/* Header Superior */}
-          <div className="empty-state-header">
-            {/* Botón de regreso */}
-            <button onClick={onBack} className="empty-state-back-button">
+          {/* Contenedor del encabezado con el padding de HOME */}
+          {/* Usamos 'empty-state-header-wrapper' para dar el padding de la Home y establecer la posición relativa */}
+          <div className="empty-state-header-wrapper">
+            {/* Botón de regreso, posicionado de forma absoluta sobre el HomeHeader */}
+            <button
+              onClick={onBack}
+              className="empty-state-back-button"
+              aria-label="Volver atrás"
+            >
               <ArrowLeft className="icon-arrow" />
             </button>
-
-            {/* Centro (Logo + Hola, Nombre) */}
-            <div className="empty-state-logo-section">
-              <Image
-                src={imgIcon}
-                alt="Logo"
-                width={34}
-                height={34}
-                className="rounded-full"
-              />
-              <span className="empty-state-greeting">Hola, {userName}</span>
-            </div>
-
-            {/* Íconos de Notificación y Menú */}
-            <div className="empty-state-icons">
-              <Bell className="icon-notification" />
-              <Menu className="icon-menu" />
-            </div>
+            {/* Componente de Encabezado de la Home */}
+            <HomeHeader userName={userName} />
           </div>
 
           {/* Contenido Central */}
@@ -235,31 +226,18 @@ export default function PetOnboardingFlow({
             </p>
           </div>
 
-          {/* Botón Flotante Inferior */}
+          {/* Botón Inferior */}
           <div className="empty-state-button-wrapper">
-            <div className="empty-state-slide-button">
-              <motion.div
-                className="absolute top-0 left-0 h-full bg-[#1C4EBF]"
-                style={{ width: "0%" }}
-              />
-              <div className="empty-state-slide-button-inner">
-                <span className="empty-state-slide-button-text">
-                  ¡Deslizá para agregar a tu mascota!
-                </span>
-              </div>
-
-              {/* Círculo deslizable */}
-              <motion.div
-                drag="x"
-                dragConstraints={{ left: 0, right: 250 }}
-                onDragEnd={(event, info) => {
-                  if (info.offset.x > 180) setStep(1);
-                }}
-                className="empty-state-drag-handle"
-              >
-                <ArrowRight className="icon-arrow-small" />
-              </motion.div>
-            </div>
+            <Button
+              onClick={() => setStep(1)} // Al hacer clic, avanza al paso 1 (Registro de Raza)
+              className="empty-state-fixed-button"
+              aria-label="Toca para agregar a tu mascota"
+            >
+              <span className="empty-state-fixed-button-text">
+                ¡Toca para agregar a tu mascota!
+              </span>
+              <Plus className="icon-add-small" />
+            </Button>
           </div>
         </div>
       </MobileFrame>

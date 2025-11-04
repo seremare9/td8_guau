@@ -18,13 +18,99 @@ import dividerSvg from "./images/divider.svg";
 import elipsesSvg from "./images/elipses.svg";
 import "./styles/home-screen-styles.css";
 
+interface HomeHeaderProps {
+  userName: string;
+  onOpenMenu?: () => void;
+  onBack?: () => void; // Added for flexibility, though not used in Home
+}
+
+// ===============================================
+// Componente de Encabezado Reutilizable
+// ===============================================
+export const HomeHeader = ({
+  userName,
+  onOpenMenu,
+  onBack,
+}: HomeHeaderProps) => (
+  <>
+    {/* Header */}
+    <div className="home-header">
+      <div className="home-header-left">
+        <div className="home-logo-container">
+          <Image
+            src={logoGuau}
+            alt="logo guau"
+            width={24}
+            height={24}
+            className="home-logo-image"
+          />
+        </div>
+        <div className="home-greeting">
+          <span className="home-greeting-text">Hola, </span>
+          <span className="home-greeting-name">{userName}</span>
+        </div>
+      </div>
+      <div className="home-header-icons">
+        <Image
+          src={lupaSvg}
+          alt="Buscar"
+          width={20}
+          height={20}
+          className="home-icon"
+        />
+        <Image
+          src={dividerSvg}
+          alt=""
+          width={1}
+          height={20}
+          className="home-icon-divider"
+        />
+        <Image
+          src={campanaSvg}
+          alt="Notificaciones"
+          width={20}
+          height={20}
+          className="home-icon"
+        />
+        <Image
+          src={dividerSvg}
+          alt=""
+          width={1}
+          height={20}
+          className="home-icon-divider"
+        />
+        <button
+          onClick={onOpenMenu}
+          className="home-icon-button"
+          aria-label="Abrir menú"
+          disabled={!onOpenMenu}
+        >
+          <Image
+            src={menuSvg}
+            alt="Menú"
+            width={20}
+            height={20}
+            className="home-icon"
+          />
+        </button>
+      </div>
+    </div>
+
+    {/* Line separator */}
+    <div className="home-header-line">
+      <Image src={lineSvg} alt="Line separator" width={336} height={2} />
+    </div>
+  </>
+);
+// ===============================================
+
 interface HomeScreenProps {
   userName?: string;
   onOpenMenu?: () => void;
   petData?: { name: string; breed: string } | null;
 }
 
-export default function HomeScreen({ 
+export default function HomeScreen({
   userName = "User",
   onOpenMenu,
   petData,
@@ -64,72 +150,8 @@ export default function HomeScreen({
   return (
     <MobileFrame>
       <div className="home-container">
-        {/* Header */}
-        <div className="home-header">
-          <div className="home-header-left">
-            <div className="home-logo-container">
-              <Image src={logoGuau} alt="logo guau" width={24} height={24} className="home-logo-image" />
-            </div>
-            <div className="home-greeting">
-              <span className="home-greeting-text">Hola, </span>
-              <span className="home-greeting-name">{userName}</span>
-            </div>
-          </div>
-          <div className="home-header-icons">
-            <Image
-              src={lupaSvg}
-              alt="Buscar"
-              width={20}
-              height={20}
-              className="home-icon"
-            />
-            <Image
-              src={dividerSvg}
-              alt=""
-              width={1}
-              height={20}
-              className="home-icon-divider"
-            />
-            <Image
-              src={campanaSvg}
-              alt="Notificaciones"
-              width={20}
-              height={20}
-              className="home-icon"
-            />
-            <Image
-              src={dividerSvg}
-              alt=""
-              width={1}
-              height={20}
-              className="home-icon-divider"
-            />
-            <button
-              onClick={onOpenMenu}
-              className="home-icon-button"
-              aria-label="Abrir menú"
-              disabled={!onOpenMenu}
-            >
-              <Image
-                src={menuSvg}
-                alt="Menú"
-                width={20}
-                height={20}
-                className="home-icon"
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Line separator */}
-        <div className="home-header-line">
-          <Image
-            src={lineSvg}
-            alt="Line separator"
-            width={336}
-            height={2}
-          />
-        </div>
+        {/* Usamos el nuevo componente de encabezado */}
+        <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
 
         {/* Mis mascotas */}
         <div className="home-section">
@@ -188,9 +210,7 @@ export default function HomeScreen({
           <div className="home-events-container">
             {events.length === 0 ? (
               <div className="home-empty-card">
-                <p className="home-empty-text">
-                  No tenés eventos registrados
-                </p>
+                <p className="home-empty-text">No tenés eventos registrados</p>
               </div>
             ) : (
               events.map((event) => (
@@ -220,12 +240,8 @@ export default function HomeScreen({
                   />
                 </div>
                 <div className="home-info-content">
-                  <h4 className="home-info-title">
-                    {info.title}
-                  </h4>
-                  <p className="home-info-subtitle">
-                    {info.subtitle}
-                  </p>
+                  <h4 className="home-info-title">{info.title}</h4>
+                  <p className="home-info-subtitle">{info.subtitle}</p>
                 </div>
               </div>
             ))}
@@ -235,4 +251,3 @@ export default function HomeScreen({
     </MobileFrame>
   );
 }
-
