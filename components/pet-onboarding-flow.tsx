@@ -28,7 +28,16 @@ interface PetOnboardingFlowProps {
   onBack: () => void;
   // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
   initialStep?: number;
-  onFinish?: (petData: { name: string; breed: string; imageURL?: string }) => void;
+  onFinish?: (petData: { 
+    name: string; 
+    breed: string; 
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+  }) => void;
 }
 
 export default function PetOnboardingFlow({
@@ -837,8 +846,20 @@ export default function PetOnboardingFlow({
             <Button
               className="primary-button"
               onClick={() => {
-                if (onFinish)
-                  onFinish({ name: petData.name, breed: petData.breed, imageURL: petData.imageURL });
+                if (onFinish) {
+                  const birthdayString = selectedMonth && selectedDay && selectedYear
+                    ? `${selectedDay} de ${months.find((m) => m.value === selectedMonth)?.name || ""} de ${selectedYear}`
+                    : "";
+                  onFinish({ 
+                    name: petData.name, 
+                    breed: petData.breed, 
+                    imageURL: petData.imageURL,
+                    sex: petData.sex,
+                    gender: petData.gender,
+                    weight: petData.weight,
+                    birthday: birthdayString,
+                  });
+                }
               }}
             >
               Finalizar
@@ -944,7 +965,15 @@ export default function PetOnboardingFlow({
           <Button
             onClick={() => {
               if (onFinish)
-                onFinish({ name: petData.name, breed: petData.breed, imageURL: petData.imageURL });
+                onFinish({ 
+                  name: petData.name, 
+                  breed: petData.breed, 
+                  imageURL: petData.imageURL,
+                  sex: petData.sex,
+                  gender: petData.gender,
+                  weight: petData.weight,
+                  approximateAge: approximateAge,
+                });
             }}
             disabled={!approximateAge}
             className="primary-button"

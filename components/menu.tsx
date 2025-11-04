@@ -12,13 +12,24 @@ import lineSvg from "./images/line.svg";
 interface MenuScreenProps {
   userName?: string;
   onClose: () => void;
-  petData?: { name: string; breed: string; imageURL?: string } | null;
+  petData?: { 
+    name: string; 
+    breed: string; 
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+  } | null;
+  onOpenPetProfile?: () => void;
 }
 
 export default function MenuScreen({
   userName = "User",
   onClose,
   petData,
+  onOpenPetProfile,
 }: MenuScreenProps) {
   const pets = [
     {
@@ -67,7 +78,12 @@ export default function MenuScreen({
           <h2 className="menu-section-title">Mis mascotas</h2>
           <div className="menu-pets-container">
             {pets.map((pet) => (
-              <div key={pet.id} className="menu-pet-item">
+              <div 
+                key={pet.id} 
+                className="menu-pet-item"
+                onClick={onOpenPetProfile}
+                style={{ cursor: onOpenPetProfile ? 'pointer' : 'default' }}
+              >
                 <div className="menu-pet-circle">
                   {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
                     // Si es base64, usar img normal

@@ -108,13 +108,24 @@ export const HomeHeader = ({
 interface HomeScreenProps {
   userName?: string;
   onOpenMenu?: () => void;
-  petData?: { name: string; breed: string; imageURL?: string } | null;
+  petData?: { 
+    name: string; 
+    breed: string; 
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+  } | null;
+  onOpenPetProfile?: () => void;
 }
 
 export default function HomeScreen({
   userName = "User",
   onOpenMenu,
   petData,
+  onOpenPetProfile,
 }: HomeScreenProps) {
   const pets = [
     {
@@ -164,7 +175,12 @@ export default function HomeScreen({
           </div>
           <div className="home-pets-container">
             {pets.map((pet, index) => (
-              <div key={pet.id} className="home-pet-card">
+              <div 
+                key={pet.id} 
+                className="home-pet-card"
+                onClick={onOpenPetProfile}
+                style={{ cursor: onOpenPetProfile ? 'pointer' : 'default' }}
+              >
                 <div className="home-pet-card-content">
                   <div className="home-pet-info">
                     <h3 className="home-pet-name">{pet.name}</h3>
