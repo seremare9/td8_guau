@@ -28,6 +28,10 @@ export default function App() {
 
   const [userType, setUserType] = useState<string>("");
   const [userName, setUserName] = useState<string>("User");
+  // Nuevo estado para controlar el paso inicial de PetOnboardingFlow
+  const [petOnboardingStartStep, setPetOnboardingStartStep] = useState<
+    number | undefined
+  >(undefined);
 
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
@@ -37,11 +41,21 @@ export default function App() {
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
 
+  // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
+  const navigateToEmptyPetList = () => {
+    // Forzamos el paso 0 para mostrar la pantalla "Oh Oh!"
+    setPetOnboardingStartStep(0);
+    setCurrentScreen("petOnboarding");
+  };
+
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
+    setPetOnboardingStartStep(undefined); // Limpiar el estado
     if (type === "future" || type === "adopted") {
       setCurrentScreen("petExperience");
     } else {
+      // Tutor actual siempre debe empezar en el paso 1 (Registro)
+      setPetOnboardingStartStep(1);
       setCurrentScreen("petOnboarding");
     }
   };
@@ -71,13 +85,14 @@ export default function App() {
     } else if (currentScreen === "medicinaInfo") {
       setCurrentScreen("vacunaInfo"); // Regresa de medicinas a vacunas
     } else if (currentScreen === "petOnboarding") {
+      // Si el paso inicial fue 0 (Oh Oh!) significa que vino de info screens o directamente como future.
+      // Regresar a la pantalla de experiencia si es future/adopted, o userType si es Tutor actual.
       if (userType === "future" || userType === "adopted") {
-        // Si viene de Adopted/Future, regresa a petExperience
         setCurrentScreen("petExperience");
       } else {
-        // Si viene de 'Tutor actual' regresa a userType
         setCurrentScreen("userType");
       }
+      setPetOnboardingStartStep(undefined); // Limpiar el estado al retroceder
     }
   };
 
@@ -120,11 +135,10 @@ export default function App() {
           userName={userName}
           onBack={navigateBack}
           onFinish={navigateToHome}
+          initialStep={petOnboardingStartStep}
         />
       )}
-      {currentScreen === "home" && (
-        <HomeScreen userName={userName} />
-      )}
+      {currentScreen === "home" && <HomeScreen userName={userName} />}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen
           onNext={navigateToMedicinaInfo}
@@ -134,8 +148,8 @@ export default function App() {
       )}
       {currentScreen === "medicinaInfo" && (
         <MedicinaInfoScreen
-          onNext={navigateToHome}
-          onSkip={navigateToHome}
+          onNext={navigateToEmptyPetList}
+          onSkip={navigateToEmptyPetList}
           onBack={navigateBack}
         />
       )}

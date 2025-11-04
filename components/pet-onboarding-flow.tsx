@@ -25,6 +25,8 @@ interface PetOnboardingFlowProps {
   userName?: string;
   onBack: () => void;
   onFinish?: () => void;
+  // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
+  initialStep?: number;
 }
 
 export default function PetOnboardingFlow({
@@ -32,8 +34,12 @@ export default function PetOnboardingFlow({
   userName = "User",
   onBack,
   onFinish,
+  initialStep, // Recibimos la prop aquí
 }: PetOnboardingFlowProps) {
-  const [step, setStep] = useState(userType === "future" ? 0 : 1);
+  const defaultInitialStep = userType === "future" ? 0 : 1;
+  const [step, setStep] = useState(
+    initialStep !== undefined ? initialStep : defaultInitialStep
+  );
   const [searchBreed, setSearchBreed] = useState("");
   const [petData, setPetData] = useState({
     breed: "",
@@ -177,7 +183,7 @@ export default function PetOnboardingFlow({
     }
   };
 
-  // Empty state screen (Uh Oh!)
+  // Empty state screen (Oh Oh!)
   if (step === 0) {
     return (
       <MobileFrame>
@@ -185,10 +191,7 @@ export default function PetOnboardingFlow({
           {/* Header Superior */}
           <div className="empty-state-header">
             {/* Botón de regreso */}
-            <button
-              onClick={onBack}
-              className="empty-state-back-button"
-            >
+            <button onClick={onBack} className="empty-state-back-button">
               <ArrowLeft className="icon-arrow" />
             </button>
 
@@ -201,9 +204,7 @@ export default function PetOnboardingFlow({
                 height={34}
                 className="rounded-full"
               />
-              <span className="empty-state-greeting">
-                Hola, {userName}
-              </span>
+              <span className="empty-state-greeting">Hola, {userName}</span>
             </div>
 
             {/* Íconos de Notificación y Menú */}
@@ -228,9 +229,9 @@ export default function PetOnboardingFlow({
             </div>
 
             {/* Texto */}
-            <h2 className="empty-state-title">Uh Oh!</h2>
+            <h2 className="empty-state-title">Oh Oh!</h2>
             <p className="empty-state-text">
-              Parece que no tenés mascotas registradas hasta el momento.
+              Parece que no tenés mascotas registradas hasta el momento
             </p>
           </div>
 
@@ -285,9 +286,7 @@ export default function PetOnboardingFlow({
                 <ArrowLeft className="icon-arrow" />
               </button>
               <div className="breed-header-center">
-                <h2 className="breed-header-title">
-                  Agregar mascota
-                </h2>
+                <h2 className="breed-header-title">Agregar mascota</h2>
                 <p className="breed-header-subtitle">Raza</p>
               </div>
               <div className="breed-step-indicator">
@@ -316,18 +315,14 @@ export default function PetOnboardingFlow({
                     setPetData({ ...petData, breed });
                   }}
                   className={`breed-item ${
-                    petData.breed === breed
-                      ? "breed-item-selected"
-                      : ""
+                    petData.breed === breed ? "breed-item-selected" : ""
                   }`}
                 >
                   <span className="breed-item-text">{breed}</span>
                 </button>
               ))
             ) : (
-              <p className="breed-no-results">
-                No se encontraron razas
-              </p>
+              <p className="breed-no-results">No se encontraron razas</p>
             )}
           </div>
 
@@ -367,13 +362,14 @@ export default function PetOnboardingFlow({
           {/* Header with progress */}
           <div className="name-header">
             <div className="page-header-top">
-              <button onClick={() => setStep(step - 1)} className="page-back-button">
+              <button
+                onClick={() => setStep(step - 1)}
+                className="page-back-button"
+              >
                 <ArrowLeft className="icon-arrow" />
               </button>
               <div className="page-header-center">
-                <h2 className="page-header-title">
-                  Agregar mascota
-                </h2>
+                <h2 className="page-header-title">Agregar mascota</h2>
                 <p className="page-header-subtitle">Nombre y descripción</p>
               </div>
               <div className="page-step-indicator">
@@ -416,19 +412,15 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="name-content">
-            <label className="name-label">
-              ¿Cómo se llama tu mascota?
-            </label>
+            <label className="name-label">¿Cómo se llama tu mascota?</label>
             <Input
               placeholder="Maxi"
               value={petData.name}
               onChange={(e) => setPetData({ ...petData, name: e.target.value })}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg mb-6"
             />
-            
-            <label className="name-sex-label">
-              Tu mascota es...
-            </label>
+
+            <label className="name-sex-label">Tu mascota es...</label>
             <div className="name-sex-buttons">
               <button
                 onClick={() => {
@@ -479,13 +471,14 @@ export default function PetOnboardingFlow({
           {/* Header with progress */}
           <div className="page-header">
             <div className="page-header-top">
-              <button onClick={() => setStep(step - 1)} className="page-back-button">
+              <button
+                onClick={() => setStep(step - 1)}
+                className="page-back-button"
+              >
                 <ArrowLeft className="icon-arrow" />
               </button>
               <div className="page-header-center">
-                <h2 className="page-header-title">
-                  Agregar mascota
-                </h2>
+                <h2 className="page-header-title">Agregar mascota</h2>
                 <p className="page-header-subtitle">Tamaño</p>
               </div>
               <div className="page-step-indicator">
@@ -544,13 +537,9 @@ export default function PetOnboardingFlow({
                       <Dog className={`text-gray-500 ${gender.iconSize}`} />
                     </div>
                     {/* Título */}
-                    <span className="size-button-label">
-                      {gender.label}
-                    </span>
+                    <span className="size-button-label">{gender.label}</span>
                     {/* Rango de peso */}
-                    <span className="size-button-weight">
-                      {gender.weight}
-                    </span>
+                    <span className="size-button-weight">{gender.weight}</span>
                   </div>
                 </button>
               ))}
@@ -602,13 +591,14 @@ export default function PetOnboardingFlow({
           {/* Header with progress */}
           <div className="page-header" style={{ marginBottom: "1rem" }}>
             <div className="page-header-top">
-              <button onClick={() => setStep(step - 1)} className="page-back-button">
+              <button
+                onClick={() => setStep(step - 1)}
+                className="page-back-button"
+              >
                 <ArrowLeft className="icon-arrow" />
               </button>
               <div className="page-header-center">
-                <h2 className="page-header-title">
-                  Agregar mascota
-                </h2>
+                <h2 className="page-header-title">Agregar mascota</h2>
                 <p className="page-header-subtitle">Peso</p>
               </div>
               <div className="page-step-indicator">
@@ -648,9 +638,7 @@ export default function PetOnboardingFlow({
             {/* Recuadro gris con sombra para el ajuste de peso */}
             <div className="weight-container">
               <div className="weight-display">
-                <div className="weight-value">
-                  {petData.weight}
-                </div>
+                <div className="weight-value">{petData.weight}</div>
                 <div className="weight-unit">kg</div>
               </div>
               <p className="weight-instruction">
@@ -675,16 +663,10 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="weight-button-section">
-            <Button
-              onClick={handleNext}
-              className="primary-button"
-            >
+            <Button onClick={handleNext} className="primary-button">
               Continuar
             </Button>
-            <button
-              onClick={handleSkip}
-              className="weight-skip-button"
-            >
+            <button onClick={handleSkip} className="weight-skip-button">
               No lo sé
             </button>
           </div>
@@ -701,13 +683,14 @@ export default function PetOnboardingFlow({
           {/* Header with progress */}
           <div className="page-header">
             <div className="page-header-top">
-              <button onClick={() => setStep(step - 1)} className="page-back-button">
+              <button
+                onClick={() => setStep(step - 1)}
+                className="page-back-button"
+              >
                 <ArrowLeft className="icon-arrow" />
               </button>
               <div className="page-header-center">
-                <h2 className="page-header-title">
-                  Agregar mascota
-                </h2>
+                <h2 className="page-header-title">Agregar mascota</h2>
                 <p className="page-header-subtitle">Cumpleaños</p>
               </div>
               <div className="page-step-indicator">
@@ -719,10 +702,7 @@ export default function PetOnboardingFlow({
               </div>
             </div>
             <div className="page-progress-bar">
-              <div
-                className="page-progress-fill"
-                style={{ width: "100%" }}
-              />
+              <div className="page-progress-fill" style={{ width: "100%" }} />
             </div>
           </div>
 
@@ -801,7 +781,9 @@ export default function PetOnboardingFlow({
               </label>
               <div className="birthday-selected-date-display">
                 {selectedMonth && selectedDay && selectedYear
-                  ? `${selectedDay} de ${months.find((m) => m.value === selectedMonth)?.name || ""} de ${selectedYear}`
+                  ? `${selectedDay} de ${
+                      months.find((m) => m.value === selectedMonth)?.name || ""
+                    } de ${selectedYear}`
                   : "Seleccioná una fecha"}
               </div>
             </div>
@@ -820,7 +802,7 @@ export default function PetOnboardingFlow({
           </div>
 
           <div className="primary-button-section">
-            <Button 
+            <Button
               className="primary-button"
               onClick={() => {
                 if (onFinish) onFinish();
@@ -828,10 +810,7 @@ export default function PetOnboardingFlow({
             >
               Finalizar
             </Button>
-            <button
-              onClick={handleSkip}
-              className="secondary-button"
-            >
+            <button onClick={handleSkip} className="secondary-button">
               No lo sé
             </button>
           </div>
@@ -851,9 +830,7 @@ export default function PetOnboardingFlow({
               <ArrowLeft className="icon-arrow" />
             </button>
             <div className="page-header-center">
-              <h2 className="page-header-title">
-                Agregar mascota
-              </h2>
+              <h2 className="page-header-title">Agregar mascota</h2>
               <p className="page-header-subtitle">Edad aproximada</p>
             </div>
             <div className="page-step-indicator">
@@ -865,10 +842,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
           <div className="page-progress-bar">
-            <div
-              className="page-progress-fill"
-              style={{ width: "100%" }}
-            />
+            <div className="page-progress-fill" style={{ width: "100%" }} />
           </div>
         </div>
 
@@ -908,9 +882,7 @@ export default function PetOnboardingFlow({
                   : "age-button-unselected"
               }`}
             >
-              <span className="age-button-text">
-                Entre 6 meses y 2 años
-              </span>
+              <span className="age-button-text">Entre 6 meses y 2 años</span>
             </button>
             <button
               onClick={() => setApproximateAge("entre 3 años y 6 años")}
@@ -920,9 +892,7 @@ export default function PetOnboardingFlow({
                   : "age-button-unselected"
               }`}
             >
-              <span className="age-button-text">
-                Entre 3 años y 6 años
-              </span>
+              <span className="age-button-text">Entre 3 años y 6 años</span>
             </button>
             <button
               onClick={() => setApproximateAge("más de 6 años")}
