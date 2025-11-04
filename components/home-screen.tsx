@@ -40,9 +40,10 @@ export const HomeHeader = ({
           <Image
             src={logoGuau}
             alt="logo guau"
-            width={24}
-            height={24}
+            width={40}
+            height={40}
             className="home-logo-image"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }}
           />
         </div>
         <div className="home-greeting">
@@ -107,7 +108,7 @@ export const HomeHeader = ({
 interface HomeScreenProps {
   userName?: string;
   onOpenMenu?: () => void;
-  petData?: { name: string; breed: string } | null;
+  petData?: { name: string; breed: string; imageURL?: string } | null;
 }
 
 export default function HomeScreen({
@@ -120,7 +121,7 @@ export default function HomeScreen({
       id: 1,
       name: petData?.name || "Maxi",
       breed: petData?.breed || "Border Collie",
-      image: perro,
+      image: petData?.imageURL || perro,
     },
   ];
 
@@ -171,13 +172,25 @@ export default function HomeScreen({
                   </div>
                   <div className="home-pet-image-wrapper">
                     <div className="home-pet-image-circle">
-                      <Image
-                        src={pet.image}
-                        alt={pet.name}
-                        width={120}
-                        height={120}
-                        className="home-pet-image"
-                      />
+                      {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
+                        // Si es base64, usar img normal
+                        <img
+                          src={pet.image}
+                          alt={pet.name}
+                          width={120}
+                          height={120}
+                          className="home-pet-image"
+                        />
+                      ) : (
+                        // Si es una URL normal, usar Image de Next.js
+                        <Image
+                          src={pet.image}
+                          alt={pet.name}
+                          width={120}
+                          height={120}
+                          className="home-pet-image"
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="home-pet-image-elipses">

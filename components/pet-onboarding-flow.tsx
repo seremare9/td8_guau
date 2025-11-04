@@ -28,7 +28,7 @@ interface PetOnboardingFlowProps {
   onBack: () => void;
   // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
   initialStep?: number;
-  onFinish?: (petData: { name: string; breed: string }) => void;
+  onFinish?: (petData: { name: string; breed: string; imageURL?: string }) => void;
 }
 
 export default function PetOnboardingFlow({
@@ -212,13 +212,13 @@ export default function PetOnboardingFlow({
           {/* Usamos 'empty-state-header-wrapper' para dar el padding de la Home y establecer la posición relativa */}
           <div className="empty-state-header-wrapper">
             {/* Botón de regreso, posicionado de forma absoluta sobre el HomeHeader */}
-            <button
+            {/* <button
               onClick={onBack}
               className="empty-state-back-button"
               aria-label="Volver atrás"
             >
               <ArrowLeft className="icon-arrow" />
-            </button>
+            </button> */}
             {/* Componente de Encabezado de la Home */}
             <HomeHeader userName={userName} />
           </div>
@@ -838,7 +838,7 @@ export default function PetOnboardingFlow({
               className="primary-button"
               onClick={() => {
                 if (onFinish)
-                  onFinish({ name: petData.name, breed: petData.breed });
+                  onFinish({ name: petData.name, breed: petData.breed, imageURL: petData.imageURL });
               }}
             >
               Finalizar
@@ -944,7 +944,7 @@ export default function PetOnboardingFlow({
           <Button
             onClick={() => {
               if (onFinish)
-                onFinish({ name: petData.name, breed: petData.breed });
+                onFinish({ name: petData.name, breed: petData.breed, imageURL: petData.imageURL });
             }}
             disabled={!approximateAge}
             className="primary-button"

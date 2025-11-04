@@ -24,22 +24,19 @@
 }
 
 .home-logo-container {
-  background-image: url("../images/logo_guau.png");
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
   width: 2.5rem;
   height: 2.5rem;
-  background-color: #fef3e2;
   border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .home-logo-image {
-  border-radius: 50%;
+  border-radius: 0.75rem;
 }
 
 .home-greeting {

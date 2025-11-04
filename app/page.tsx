@@ -34,6 +34,8 @@ export default function App() {
   const [petOnboardingStartStep, setPetOnboardingStartStep] = useState<
     number | undefined
   >(undefined);
+  // Estado para guardar los datos de la mascota (incluyendo la imagen)
+  const [petData, setPetData] = useState<{ name: string; breed: string; imageURL?: string } | null>(null);
 
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
@@ -42,6 +44,7 @@ export default function App() {
   const navigateToVacunaInfo = () => setCurrentScreen("vacunaInfo");
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
+  const navigateToMenu = () => setCurrentScreen("menu");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -136,12 +139,20 @@ export default function App() {
           userType={userType}
           userName={userName}
           onBack={navigateBack}
-          onFinish={navigateToHome}
+          onFinish={(data) => {
+            setPetData(data);
+            navigateToHome();
+          }}
           // Pasar el paso inicial solo si está definido
           initialStep={petOnboardingStartStep}
         />
       )}
-      {currentScreen === "home" && <HomeScreen userName={userName} />}
+      {currentScreen === "home" && (
+        <HomeScreen userName={userName} onOpenMenu={navigateToMenu} petData={petData} />
+      )}
+      {currentScreen === "menu" && (
+        <MenuScreen userName={userName} onClose={navigateToHome} petData={petData} />
+      )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen
           onNext={navigateToMedicinaInfo}
