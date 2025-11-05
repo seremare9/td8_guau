@@ -10,6 +10,7 @@ import PetExperienceScreen from "@/components/pet-experience-screen";
 import HomeScreen from "@/components/home-screen";
 import MenuScreen from "@/components/menu";
 import PetProfile from "@/components/pet-profile";
+import Vaccines from "@/components/vaccines";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -28,6 +29,7 @@ export default function App() {
     | "home"
     | "menu"
     | "petProfile"
+    | "vaccines"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -59,6 +61,7 @@ export default function App() {
   const navigateToHome = () => setCurrentScreen("home");
   const navigateToMenu = () => setCurrentScreen("menu");
   const navigateToPetProfile = () => setCurrentScreen("petProfile");
+  const navigateToVaccines = () => setCurrentScreen("vaccines");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -115,6 +118,8 @@ export default function App() {
     } else if (currentScreen === "petProfile") {
       // Regresar a home (puedes mejorar esto guardando la pantalla anterior)
       setCurrentScreen("home");
+    } else if (currentScreen === "vaccines") {
+      setCurrentScreen("petProfile");
     }
   };
 
@@ -174,6 +179,15 @@ export default function App() {
         <PetProfile 
           userName={userName} 
           petData={petData} 
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+          onOpenVaccines={navigateToVaccines}
+        />
+      )}
+      {currentScreen === "vaccines" && (
+        <Vaccines
+          userName={userName}
+          petData={petData}
           onBack={navigateBack}
           onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
         />

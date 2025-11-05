@@ -40,6 +40,7 @@ interface PetProfileProps {
     photos?: string[];
     appearance?: string;
   }) => void;
+  onOpenVaccines?: () => void;
 }
 
 export default function PetProfile({
@@ -47,6 +48,7 @@ export default function PetProfile({
   petData,
   onBack,
   onUpdatePetData,
+  onOpenVaccines,
 }: PetProfileProps) {
   const [activeTab, setActiveTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
   const [photos, setPhotos] = useState<string[]>([]);
@@ -788,7 +790,7 @@ export default function PetProfile({
 
           {activeTab === "salud" && (
             <div className="pet-profile-health-section">
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenVaccines || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-vacuna">
                   <Image src={vacunaIcon} alt="Vacunas" width={54} height={54} />
                 </div>
