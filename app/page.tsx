@@ -47,6 +47,7 @@ export default function App() {
     birthday?: string;
     approximateAge?: string;
     photos?: string[];
+    appearance?: string;
   } | null>(null);
 
   const navigateToLogin = () => setCurrentScreen("login");

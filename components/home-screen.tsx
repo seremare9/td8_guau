@@ -21,19 +21,15 @@ import "./styles/home-screen-styles.css";
 interface HomeHeaderProps {
   userName: string;
   onOpenMenu?: () => void;
-  onBack?: () => void; // Added for flexibility, though not used in Home
+  onBack?: () => void; 
 }
 
-// ===============================================
-// Componente de Encabezado Reutilizable
-// ===============================================
 export const HomeHeader = ({
   userName,
   onOpenMenu,
   onBack,
 }: HomeHeaderProps) => (
   <>
-    {/* Header */}
     <div className="home-header">
       <div className="home-header-left">
         <div className="home-logo-container">
@@ -103,7 +99,6 @@ export const HomeHeader = ({
     </div>
   </>
 );
-// ===============================================
 
 interface HomeScreenProps {
   userName?: string;
@@ -118,6 +113,7 @@ interface HomeScreenProps {
     birthday?: string;
     approximateAge?: string;
     photos?: string[];
+    appearance?: string;
   } | null;
   onOpenPetProfile?: () => void;
 }
@@ -163,10 +159,9 @@ export default function HomeScreen({
   return (
     <MobileFrame>
       <div className="home-container">
-        {/* Usamos el nuevo componente de encabezado */}
+  
         <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
 
-        {/* Mis mascotas */}
         <div className="home-section">
           <div className="home-section-header">
             <h2 className="home-section-title">Mis mascotas</h2>
@@ -190,7 +185,7 @@ export default function HomeScreen({
                   <div className="home-pet-image-wrapper">
                     <div className="home-pet-image-circle">
                       {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
-                        // Si es base64, usar img normal
+                        
                         <img
                           src={pet.image}
                           alt={pet.name}
@@ -199,7 +194,7 @@ export default function HomeScreen({
                           className="home-pet-image"
                         />
                       ) : (
-                        // Si es una URL normal, usar Image de Next.js
+                        
                         <Image
                           src={pet.image}
                           alt={pet.name}

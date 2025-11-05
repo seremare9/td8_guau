@@ -22,6 +22,7 @@ interface MenuScreenProps {
     birthday?: string;
     approximateAge?: string;
     photos?: string[];
+    appearance?: string;
   } | null;
   onOpenPetProfile?: () => void;
 }

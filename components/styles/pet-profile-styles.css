@@ -1,24 +1,41 @@
 @import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Display:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: "Noto Sans", sans-serif;
+  /* font-family: "Comic Sans MS", sans-serif; */
+}
 
 .pet-profile-container {
   background-color: #FAFAFA;
   min-height: 100vh;
   padding: 1rem 1.5rem;
-  padding-top: 1.5rem;
+  padding-top: 3rem;
   padding-bottom: 2rem;
   overflow-y: auto;
   max-height: 100vh;
   box-sizing: border-box;
 }
 
-/* Header */
 .pet-profile-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
   margin-bottom: 1rem;
-  position: relative;
+}
+
+.pet-profile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pet-profile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .pet-profile-back-button {
@@ -38,21 +55,38 @@
 }
 
 .pet-profile-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.125rem;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  font-family: "Catamaran", sans-serif !important;
+  font-size: 1rem;
   color: #39434F;
-  margin: 0;
+}
+
+.pet-profile-header-line {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.pet-profile-selector-wrapper {
+  position: relative;
 }
 
 .pet-profile-selector {
-  background-color: white;
+  background-color: #ECEFF2;
+  border: 1px solid #D9DFE6;
   border-radius: 0.75rem;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.pet-profile-selector:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .pet-profile-selector-content {
@@ -71,7 +105,7 @@
 
 .pet-profile-selector-name {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #39434F;
 }
 
@@ -79,9 +113,72 @@
   width: 16px;
   height: 16px;
   color: #808B9A;
+  transition: transform 0.2s;
 }
 
-/* Tabs */
+.pet-profile-selector-chevron.open {
+  transform: rotate(180deg);
+}
+
+.pet-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  max-width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 0.25rem;
+}
+
+.pet-profile-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.pet-profile-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.pet-profile-dropdown-item:hover {
+  background-color: #F9FAFB;
+}
+
+.pet-profile-dropdown-item.active {
+  background-color: #EFF6FF;
+}
+
+.pet-profile-dropdown-item-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #F3F4F6;
+}
+
+.pet-profile-dropdown-item-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #39434F;
+}
+
+.pet-profile-dropdown-item-check {
+  color: #3B82F6;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
 .pet-profile-tabs {
   display: flex;
   gap: 0.5rem;
@@ -99,9 +196,10 @@
   border: none;
   border-radius: 0.75rem;
   background-color: #E5E7EB;
+  border: 1px solid #D9DFE6;
   color: #808B9A;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -109,25 +207,34 @@
 
 .pet-profile-tab.active {
   background-color: #FCD34D;
+  border: 1px solid #FFD67B;
   color: #39434F;
+  font-weight: 600;
 }
 
 .pet-profile-tab:hover {
   opacity: 0.9;
 }
 
-/* Content */
 .pet-profile-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Pet Image */
 .pet-profile-image-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
   margin-bottom: 0.75rem;
+}
+
+.pet-profile-image-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .pet-profile-image-circle {
@@ -143,7 +250,33 @@
   flex-shrink: 0;
 }
 
-/* Name Section */
+.pet-profile-edit-image-button {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(1.25rem);
+  background-color: white;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  z-index: 10;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pet-profile-edit-image-button:hover {
+  transform: translateX(-50%) translateY(1.25rem) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pet-profile-edit-image-button:active {
+  transform: translateX(-50%) translateY(1.25rem) scale(0.95);
+}
+
 .pet-profile-name-section {
   text-align: center;
   margin-bottom: 0.75rem;
@@ -153,7 +286,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
@@ -186,7 +318,6 @@
   margin: 0;
 }
 
-/* Section */
 .pet-profile-section {
   background-color: white;
   border-radius: 0.75rem;
@@ -194,11 +325,37 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.pet-profile-section-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
 .pet-profile-section-title {
   font-size: 1rem;
   font-weight: 700;
   color: #39434F;
-  margin: 0 0 0.75rem 0;
+  margin: 0;
+}
+
+.pet-profile-edit-appearance-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.pet-profile-edit-appearance-button:hover {
+  transform: scale(1.05);
+}
+
+.pet-profile-edit-appearance-button:active {
+  transform: scale(0.95);
 }
 
 .pet-profile-appearance-text {
@@ -208,7 +365,69 @@
   margin: 0 0 1rem 0;
 }
 
-/* Details List */
+.pet-profile-appearance-edit {
+  margin-bottom: 1rem;
+}
+
+.pet-profile-appearance-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.pet-profile-appearance-textarea:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.pet-profile-appearance-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.pet-profile-save-button {
+  padding: 0.5rem 1.25rem;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pet-profile-save-button:hover {
+  background-color: #2563EB;
+}
+
+.pet-profile-cancel-button {
+  padding: 0.5rem 1.25rem;
+  background-color: #F3F4F6;
+  color: #39434F;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pet-profile-cancel-button:hover {
+  background-color: #E5E7EB;
+}
+
 .pet-profile-details {
   display: flex;
   flex-direction: column;
@@ -223,7 +442,7 @@
 
 .pet-profile-detail-label {
   font-size: 0.875rem;
-  color: #39434F;
+  color: #606873;
   font-weight: 400;
   text-align: left;
 }
@@ -231,7 +450,7 @@
 .pet-profile-detail-value {
   font-size: 0.875rem;
   color: #39434F;
-  font-weight: 400;
+  font-weight: 600;
   text-align: right;
 }
 
@@ -241,7 +460,6 @@
   width: 100%;
 }
 
-/* Photos Section */
 .pet-profile-photos-placeholder {
   border: 2px dashed #E5E7EB;
   border-radius: 0.75rem;
@@ -295,7 +513,6 @@
   background-color: #2563EB;
 }
 
-/* Carrusel de fotos */
 .pet-profile-photos-carousel {
   position: relative;
   width: 100%;
@@ -317,6 +534,7 @@
   align-items: center;
   justify-content: center;
   background-color: #F9FAFB;
+  position: relative;
 }
 
 .pet-profile-photo-image {
@@ -328,7 +546,6 @@
   display: block;
 }
 
-/* Botones de navegación del carrusel */
 .pet-profile-carousel-button {
   position: absolute;
   top: 50%;
@@ -366,7 +583,6 @@
   color: #39434F;
 }
 
-/* Indicadores de puntos */
 .pet-profile-carousel-dots {
   display: flex;
   justify-content: center;
@@ -401,7 +617,6 @@
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* Botón para agregar más fotos */
 .pet-profile-add-more-photos-button {
   width: 100%;
   background-color: white;
@@ -428,5 +643,80 @@
 .pet-profile-add-more-icon {
   width: 18px;
   height: 18px;
+}
+
+.pet-profile-health-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pet-profile-health-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.pet-profile-health-card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.pet-profile-health-card:active {
+  transform: translateY(0);
+}
+
+.pet-profile-health-icon-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-profile-health-text {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #39434F;
+}
+
+.pet-profile-delete-photo-button {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.pet-profile-delete-photo-button:hover {
+  background-color: #FEE2E2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.pet-profile-delete-photo-button:active {
+  transform: scale(0.95);
+}
+
+.pet-profile-delete-icon {
+  width: 20px;
+  height: 20px;
+  color: #DC2626;
 }
 

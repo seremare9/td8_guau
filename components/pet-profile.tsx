@@ -3,9 +3,15 @@
 import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import perro from "./images/perro.png";
 import "./styles/pet-profile-styles.css";
+import lineSvg from "./images/line.svg";
+import petEditInfoIcon from "./images/pet-edit-info.svg";
+import vacunaIcon from "./images/event-icons/vacuna.svg";
+import medicinaIcon from "./images/event-icons/medicina.svg";
+import veterinarioIcon from "./images/event-icons/veterinario.svg";
+import otroIcon from "./images/event-icons/otro.svg";
 
 interface PetProfileProps {
   userName?: string;
@@ -19,6 +25,7 @@ interface PetProfileProps {
     birthday?: string;
     approximateAge?: string;
     photos?: string[];
+    appearance?: string;
   } | null;
   onBack: () => void;
   onUpdatePetData?: (petData: { 
@@ -31,6 +38,7 @@ interface PetProfileProps {
     birthday?: string;
     approximateAge?: string;
     photos?: string[];
+    appearance?: string;
   }) => void;
 }
 
@@ -43,12 +51,135 @@ export default function PetProfile({
   const [activeTab, setActiveTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isEditingAppearance, setIsEditingAppearance] = useState(false);
+  const [appearanceText, setAppearanceText] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [allPets, setAllPets] = useState<Array<{
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Función para obtener la clave de localStorage para las fotos
   const getStorageKey = () => {
     const petName = petData?.name || "default";
     return `pet_photos_${petName}`;
+  };
+
+  // Cargar todas las mascotas desde localStorage
+  useEffect(() => {
+    const loadAllPets = () => {
+      const petsMap = new Map<string, {
+        name: string;
+        breed: string;
+        imageURL?: string;
+        sex?: string;
+        gender?: string;
+        weight?: string;
+        birthday?: string;
+        approximateAge?: string;
+        photos?: string[];
+        appearance?: string;
+      }>();
+      
+      // Buscar todas las claves de mascotas en localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('pet_data_')) {
+          const petName = key.replace('pet_data_', '');
+          const petDataStr = localStorage.getItem(key);
+          
+          if (petDataStr) {
+            try {
+              const petDataObj = JSON.parse(petDataStr);
+              if (petDataObj.name && !petsMap.has(petDataObj.name)) {
+                petsMap.set(petDataObj.name, petDataObj);
+              }
+            } catch (e) {
+              console.error("Error al parsear datos de mascota:", e);
+            }
+          }
+        }
+      }
+      
+      // Buscar mascotas por fotos también
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('pet_photos_')) {
+          const petName = key.replace('pet_photos_', '');
+          if (!petsMap.has(petName)) {
+            // Si hay fotos pero no datos completos, crear entrada básica
+            petsMap.set(petName, {
+              name: petName,
+              breed: "Sin raza especificada",
+            });
+          }
+        }
+      }
+      
+      // Siempre incluir la mascota actual si existe
+      if (petData) {
+        petsMap.set(petData.name, petData);
+      }
+      
+      // Convertir el Map a array
+      const pets = Array.from(petsMap.values());
+      
+      // Si no hay ninguna mascota, agregar la actual como default
+      if (pets.length === 0 && petData) {
+        pets.push(petData);
+      }
+      
+      setAllPets(pets);
+    };
+    
+    loadAllPets();
+  }, [petData]);
+
+  // Cerrar menú cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  // Función para cambiar de mascota
+  const handlePetSelect = (selectedPet: {
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }) => {
+    if (onUpdatePetData) {
+      onUpdatePetData(selectedPet);
+    }
+    setIsDropdownOpen(false);
   };
 
   // Cargar fotos guardadas al montar el componente o cuando cambia petData
@@ -160,6 +291,15 @@ export default function PetProfile({
     return "No especificada";
   };
 
+  // Inicializar appearanceText cuando petData cambia
+  useEffect(() => {
+    if (petData?.appearance) {
+      setAppearanceText(petData.appearance);
+    } else {
+      setAppearanceText("Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.");
+    }
+  }, [petData?.appearance]);
+
   const pet = {
     name: petData?.name || "Maxi",
     breed: petData?.breed || "Border Collie",
@@ -168,7 +308,40 @@ export default function PetProfile({
     size: getSizeLabel(petData?.gender),
     weight: petData?.weight ? `${petData.weight} kg` : "0,0 kg",
     age: getAgeDisplay(),
-    appearance: "Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.",
+    appearance: petData?.appearance || "Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.",
+  };
+
+  // Función para guardar la apariencia
+  const handleSaveAppearance = () => {
+    if (onUpdatePetData && petData) {
+      const updatedPetData = { ...petData, appearance: appearanceText };
+      onUpdatePetData(updatedPetData);
+      
+      // Guardar también en localStorage
+      const storageKey = `pet_data_${petData.name || "default"}`;
+      const existingData = localStorage.getItem(storageKey);
+      if (existingData) {
+        try {
+          const parsedData = JSON.parse(existingData);
+          parsedData.appearance = appearanceText;
+          localStorage.setItem(storageKey, JSON.stringify(parsedData));
+        } catch (e) {
+          console.error("Error al guardar apariencia en localStorage:", e);
+        }
+      }
+    }
+    setIsEditingAppearance(false);
+  };
+
+  // Función para cancelar edición
+  const handleCancelEdit = () => {
+    // Restaurar el texto original
+    if (petData?.appearance) {
+      setAppearanceText(petData.appearance);
+    } else {
+      setAppearanceText("Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.");
+    }
+    setIsEditingAppearance(false);
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,6 +377,49 @@ export default function PetProfile({
     fileInputRef.current?.click();
   };
 
+  // Función para manejar el cambio de la foto principal de la mascota
+  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageDataUrl = reader.result as string;
+        // Actualizar petData con la nueva imagen
+        if (onUpdatePetData && petData) {
+          const updatedPetData = { ...petData, imageURL: imageDataUrl };
+          onUpdatePetData(updatedPetData);
+          
+          // Guardar también en localStorage
+          const storageKey = `pet_data_${petData.name || "default"}`;
+          const existingData = localStorage.getItem(storageKey);
+          if (existingData) {
+            try {
+              const parsedData = JSON.parse(existingData);
+              parsedData.imageURL = imageDataUrl;
+              localStorage.setItem(storageKey, JSON.stringify(parsedData));
+            } catch (e) {
+              console.error("Error al guardar imagen en localStorage:", e);
+            }
+          } else {
+            // Si no hay datos previos, crear un nuevo objeto
+            const newData = { ...petData, imageURL: imageDataUrl };
+            localStorage.setItem(storageKey, JSON.stringify(newData));
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input para permitir seleccionar la misma imagen nuevamente
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = '';
+    }
+  };
+
+  // Función para abrir el selector de imagen de perfil
+  const handleEditProfileImageClick = () => {
+    profileImageInputRef.current?.click();
+  };
+
   const handleNextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
   };
@@ -216,41 +432,112 @@ export default function PetProfile({
     setCurrentPhotoIndex(index);
   };
 
+  const handleDeletePhoto = (index: number) => {
+    if (photos.length === 0) return;
+    
+    const newPhotos = photos.filter((_, i) => i !== index);
+    
+    // Ajustar el índice actual si es necesario
+    let newIndex = currentPhotoIndex;
+    if (newPhotos.length === 0) {
+      // Si no quedan fotos, resetear el índice
+      newIndex = 0;
+    } else if (currentPhotoIndex >= newPhotos.length) {
+      // Si el índice actual es mayor que la cantidad de fotos restantes, ajustar
+      newIndex = newPhotos.length - 1;
+    } else if (index < currentPhotoIndex) {
+      // Si eliminamos una foto antes de la actual, ajustar el índice
+      newIndex = currentPhotoIndex - 1;
+    }
+    
+    setCurrentPhotoIndex(newIndex);
+    savePhotos(newPhotos);
+  };
+
   return (
     <MobileFrame>
       <div className="pet-profile-container">
         {/* Header */}
         <div className="pet-profile-header">
+          <div className="pet-profile-header-left">
           <button onClick={onBack} className="pet-profile-back-button" aria-label="Volver">
             <ArrowLeft className="pet-profile-back-icon" />
           </button>
           <h1 className="pet-profile-title">Perfil de mascota</h1>
-          <div className="pet-profile-selector">
-            <div className="pet-profile-selector-content">
-              <div className="pet-profile-selector-image">
-                {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
-                  <img
-                    src={pet.image}
-                    alt={pet.name}
-                    width={24}
-                    height={24}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                  />
-                ) : (
-                  <Image
-                    src={pet.image}
-                    alt={pet.name}
-                    width={24}
-                    height={24}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                  />
-                )}
+          </div>
+          <div className="pet-profile-header-right">
+          <div className="pet-profile-selector-wrapper" ref={dropdownRef}>
+            <div 
+              className="pet-profile-selector"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <div className="pet-profile-selector-content">
+                <div className="pet-profile-selector-image">
+                  {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
+                    <img
+                      src={pet.image}
+                      alt={pet.name}
+                      width={24}
+                      height={24}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    />
+                  ) : (
+                    <Image
+                      src={pet.image}
+                      alt={pet.name}
+                      width={24}
+                      height={24}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    />
+                  )}
+                </div>
+                <span className="pet-profile-selector-name">{pet.name}</span>
+                <ChevronDown className={`pet-profile-selector-chevron ${isDropdownOpen ? 'open' : ''}`} />
               </div>
-              <span className="pet-profile-selector-name">{pet.name}</span>
-              <ChevronDown className="pet-profile-selector-chevron" />
             </div>
+            {/* Menú desplegable */}
+            {isDropdownOpen && (
+              <div className="pet-profile-dropdown">
+                {allPets.map((petOption, index) => (
+                  <div
+                    key={index}
+                    className={`pet-profile-dropdown-item ${petOption.name === pet.name ? 'active' : ''}`}
+                    onClick={() => handlePetSelect(petOption)}
+                  >
+                    <div className="pet-profile-dropdown-item-image">
+                      {petOption.imageURL && (typeof petOption.imageURL === 'string' && petOption.imageURL.startsWith('data:') ? (
+                        <img
+                          src={petOption.imageURL}
+                          alt={petOption.name}
+                          width={32}
+                          height={32}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                        />
+                      ) : (
+                        <Image
+                          src={petOption.imageURL || perro}
+                          alt={petOption.name}
+                          width={32}
+                          height={32}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                        />
+                      ))}
+                    </div>
+                    <span className="pet-profile-dropdown-item-name">{petOption.name}</span>
+                    {petOption.name === pet.name && (
+                      <span className="pet-profile-dropdown-item-check">✓</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           </div>
         </div>
+        {/* Line separator */}
+    <div className="pet-profile-header-line">
+      <Image src={lineSvg} alt="Line separator" width={336} height={2} />
+    </div>
 
         {/* Tabs */}
         <div className="pet-profile-tabs">
@@ -276,44 +563,98 @@ export default function PetProfile({
 
         {/* Content */}
         <div className="pet-profile-content">
+          {activeTab === "sobre" && (
+            <>
           {/* Pet Image */}
           <div className="pet-profile-image-container">
-            <div className="pet-profile-image-circle">
-              {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
-                <img
-                  src={pet.image}
-                  alt={pet.name}
-                  width={150}
-                  height={150}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                />
-              ) : (
-                <Image
-                  src={pet.image}
-                  alt={pet.name}
-                  width={150}
-                  height={150}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                />
-              )}
+            <div className="pet-profile-image-wrapper">
+              <div className="pet-profile-image-circle">
+                {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
+                  <img
+                    src={pet.image}
+                    alt={pet.name}
+                    width={150}
+                    height={150}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  />
+                ) : (
+                  <Image
+                    src={pet.image}
+                    alt={pet.name}
+                    width={150}
+                    height={150}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  />
+                )}
+              </div>
+              {/* Botón de editar foto - posicionado debajo de la imagen */}
+              <button 
+                className="pet-profile-edit-image-button" 
+                aria-label="Cambiar foto de perfil"
+                onClick={handleEditProfileImageClick}
+              >
+                <Image src={petEditInfoIcon} alt="Cambiar foto" width={38} height={38} />
+              </button>
             </div>
+            {/* Input oculto para cambiar la foto de perfil */}
+            <input
+              type="file"
+              ref={profileImageInputRef}
+              accept="image/*"
+              onChange={handleProfileImageChange}
+              style={{ display: "none" }}
+            />
           </div>
 
           {/* Pet Name and Breed */}
           <div className="pet-profile-name-section">
             <div className="pet-profile-name-wrapper">
               <h2 className="pet-profile-name">{pet.name}</h2>
-              <button className="pet-profile-edit-icon" aria-label="Editar nombre">
-                <Pencil className="pet-profile-pencil-icon" />
-              </button>
             </div>
             <p className="pet-profile-breed">{pet.breed}</p>
           </div>
 
           {/* Appearance Section */}
           <div className="pet-profile-section">
-            <h3 className="pet-profile-section-title">Apariencia y rasgos distintivos</h3>
-            <p className="pet-profile-appearance-text">{pet.appearance}</p>
+            <div className="pet-profile-section-title-wrapper">
+              <h3 className="pet-profile-section-title">Apariencia y rasgos distintivos</h3>
+              {!isEditingAppearance && (
+                <button
+                  className="pet-profile-edit-appearance-button"
+                  onClick={() => setIsEditingAppearance(true)}
+                  aria-label="Editar apariencia"
+                >
+                  <Image src={petEditInfoIcon} alt="Editar" width={38} height={38} />
+                </button>
+              )}
+            </div>
+            {isEditingAppearance ? (
+              <div className="pet-profile-appearance-edit">
+                <textarea
+                  className="pet-profile-appearance-textarea"
+                  value={appearanceText}
+                  onChange={(e) => setAppearanceText(e.target.value)}
+                  placeholder="Describe la apariencia y rasgos distintivos de tu mascota..."
+                  rows={4}
+                />
+                <div className="pet-profile-appearance-actions">
+                  <button
+                    className="pet-profile-save-button"
+                    onClick={handleSaveAppearance}
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    className="pet-profile-cancel-button"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="pet-profile-appearance-text">{appearanceText || pet.appearance}</p>
+            )}
             
             <div className="pet-profile-details">
               <div className="pet-profile-detail-item">
@@ -385,6 +726,16 @@ export default function PetProfile({
                           className="pet-profile-photo-image"
                         />
                       )}
+                      {/* Botón de eliminar foto - solo visible en la foto actual */}
+                      {index === currentPhotoIndex && (
+                        <button
+                          className="pet-profile-delete-photo-button"
+                          onClick={() => handleDeletePhoto(index)}
+                          aria-label={`Eliminar foto ${index + 1}`}
+                        >
+                          <Trash2 className="pet-profile-delete-icon" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -432,6 +783,64 @@ export default function PetProfile({
               </div>
             )}
           </div>
+          </>
+          )}
+
+          {activeTab === "salud" && (
+            <div className="pet-profile-health-section">
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-vacuna">
+                  <Image src={vacunaIcon} alt="Vacunas" width={54} height={54} />
+                </div>
+                <span className="pet-profile-health-text">Vacunas</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-higiene">
+                  <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" fill="#E6F3FF" fillOpacity="0.4"/>
+                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" stroke="#B3D9FF"/>
+                    <path d="M27 15L20 22V35C20 37.2091 21.7909 39 24 39H30C32.2091 39 34 37.2091 34 35V22L27 15Z" fill="#3B82F6"/>
+                    <path d="M27 15L27 25M27 25L21 31M27 25L33 31" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="27" cy="32" r="3" fill="white"/>
+                  </svg>
+                </div>
+                <span className="pet-profile-health-text">Higiene</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-medicina">
+                  <Image src={medicinaIcon} alt="Medicina" width={54} height={54} />
+                </div>
+                <span className="pet-profile-health-text">Medicina</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-antiparasitario">
+                  <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" fill="#F3E8FF" fillOpacity="0.4"/>
+                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" stroke="#E9D5FF"/>
+                    <circle cx="27" cy="27" r="12" fill="#A855F7"/>
+                    <circle cx="27" cy="27" r="8" fill="#C084FC"/>
+                    <circle cx="20" cy="20" r="3" fill="white"/>
+                    <circle cx="34" cy="20" r="3" fill="white"/>
+                    <circle cx="20" cy="34" r="3" fill="white"/>
+                    <circle cx="34" cy="34" r="3" fill="white"/>
+                  </svg>
+                </div>
+                <span className="pet-profile-health-text">Anti parasitario</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-veterinario">
+                  <Image src={veterinarioIcon} alt="Visita al veterinario" width={54} height={54} />
+                </div>
+                <span className="pet-profile-health-text">Visita al veterinario</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={() => {}}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-otro">
+                  <Image src={otroIcon} alt="Otro" width={54} height={54} />
+                </div>
+                <span className="pet-profile-health-text">Otro</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </MobileFrame>
