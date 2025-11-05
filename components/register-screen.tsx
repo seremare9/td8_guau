@@ -8,9 +8,9 @@ import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Eye, EyeOff, Calendar } from "lucide-react";
-import appleLogo from "./images/apple.png";
-import googleLogo from "./images/google.png";
-import facebookLogo from "./images/facebook.png";
+import appleLogo from "./images/apple.svg";
+import googleLogo from "./images/google.svg";
+import facebookLogo from "./images/facebook.svg";
 import "./styles/register-screen-styles.css";
 
 interface RegisterScreenProps {

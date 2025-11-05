@@ -46,6 +46,7 @@ export default function App() {
     weight?: string;
     birthday?: string;
     approximateAge?: string;
+    photos?: string[];
   } | null>(null);
 
   const navigateToLogin = () => setCurrentScreen("login");
@@ -169,7 +170,12 @@ export default function App() {
         <MenuScreen userName={userName} onClose={navigateToHome} petData={petData} onOpenPetProfile={navigateToPetProfile} />
       )}
       {currentScreen === "petProfile" && (
-        <PetProfile userName={userName} petData={petData} onBack={navigateBack} />
+        <PetProfile 
+          userName={userName} 
+          petData={petData} 
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
       )}
       {currentScreen === "vacunaInfo" && (
         <VacunaInfoScreen

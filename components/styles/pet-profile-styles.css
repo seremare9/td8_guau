@@ -208,30 +208,37 @@
   margin: 0 0 1rem 0;
 }
 
-/* Details Grid */
+/* Details List */
 .pet-profile-details {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  row-gap: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .pet-profile-detail-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
 }
 
 .pet-profile-detail-label {
-  font-size: 0.75rem;
-  color: #808B9A;
-  font-weight: 500;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-weight: 400;
+  text-align: left;
 }
 
 .pet-profile-detail-value {
   font-size: 0.875rem;
   color: #39434F;
-  font-weight: 600;
+  font-weight: 400;
+  text-align: right;
+}
+
+.pet-profile-detail-divider {
+  height: 1px;
+  background-color: #E5E7EB;
+  width: 100%;
 }
 
 /* Photos Section */

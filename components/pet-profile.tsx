@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,19 +18,81 @@ interface PetProfileProps {
     weight?: string;
     birthday?: string;
     approximateAge?: string;
+    photos?: string[];
   } | null;
   onBack: () => void;
+  onUpdatePetData?: (petData: { 
+    name: string; 
+    breed: string; 
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+  }) => void;
 }
 
 export default function PetProfile({
   userName = "User",
   petData,
   onBack,
+  onUpdatePetData,
 }: PetProfileProps) {
   const [activeTab, setActiveTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Función para obtener la clave de localStorage para las fotos
+  const getStorageKey = () => {
+    const petName = petData?.name || "default";
+    return `pet_photos_${petName}`;
+  };
+
+  // Cargar fotos guardadas al montar el componente o cuando cambia petData
+  useEffect(() => {
+    if (petData?.photos && petData.photos.length > 0) {
+      setPhotos(petData.photos);
+    } else {
+      // Intentar cargar desde localStorage como respaldo
+      const storageKey = getStorageKey();
+      const savedPhotos = localStorage.getItem(storageKey);
+      if (savedPhotos) {
+        try {
+          const parsedPhotos = JSON.parse(savedPhotos);
+          if (Array.isArray(parsedPhotos) && parsedPhotos.length > 0) {
+            setPhotos(parsedPhotos);
+            // Sincronizar con petData si es posible
+            if (onUpdatePetData && petData) {
+              onUpdatePetData({ ...petData, photos: parsedPhotos });
+            }
+          }
+        } catch (e) {
+          console.error("Error al cargar fotos desde localStorage:", e);
+        }
+      } else {
+        // Si no hay fotos guardadas, limpiar el estado
+        setPhotos([]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [petData?.name, petData?.photos]); // Ejecutar cuando cambia el nombre o las fotos de la mascota
+
+  // Función para guardar fotos
+  const savePhotos = (newPhotos: string[]) => {
+    setPhotos(newPhotos);
+    
+    // Guardar en localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(newPhotos));
+    
+    // Actualizar petData en el componente padre
+    if (onUpdatePetData && petData) {
+      onUpdatePetData({ ...petData, photos: newPhotos });
+    }
+  };
 
   // Función para convertir gender a tamaño legible
   const getSizeLabel = (gender?: string) => {
@@ -47,6 +109,57 @@ export default function PetProfile({
     return "Macho"; // default
   };
 
+  // Función para obtener la edad del perro
+  const getAgeDisplay = () => {
+    if (petData?.birthday) {
+      // Si hay fecha de cumpleaños, calcular edad
+      // Formato esperado: "15 de Enero de 2025"
+      const birthdayMatch = petData.birthday.match(/(\d+)\s+de\s+(\w+)\s+de\s+(\d+)/);
+      if (birthdayMatch) {
+        const day = parseInt(birthdayMatch[1]);
+        const monthName = birthdayMatch[2];
+        const year = parseInt(birthdayMatch[3]);
+        
+        const monthsMap: { [key: string]: number } = {
+          "Enero": 0, "Febrero": 1, "Marzo": 2, "Abril": 3,
+          "Mayo": 4, "Junio": 5, "Julio": 6, "Agosto": 7,
+          "Septiembre": 8, "Octubre": 9, "Noviembre": 10, "Diciembre": 11
+        };
+        
+        const month = monthsMap[monthName];
+        if (month !== undefined) {
+          const birthday = new Date(year, month, day);
+          const today = new Date();
+          let years = today.getFullYear() - birthday.getFullYear();
+          let months = today.getMonth() - birthday.getMonth();
+          
+          if (months < 0) {
+            years--;
+            months += 12;
+          } else if (months === 0 && today.getDate() < birthday.getDate()) {
+            years--;
+            months = 11;
+          }
+          
+          if (years === 0) {
+            return months === 1 ? "1 mes" : `${months} meses`;
+          } else if (years === 1 && months === 0) {
+            return "1 año";
+          } else if (years === 1) {
+            return months === 1 ? "1 año y 1 mes" : `1 año y ${months} meses`;
+          } else {
+            return months === 0 ? `${years} años` : `${years} años y ${months} meses`;
+          }
+        }
+      }
+      // Si no se puede parsear, mostrar la fecha de cumpleaños
+      return petData.birthday;
+    } else if (petData?.approximateAge) {
+      return petData.approximateAge;
+    }
+    return "No especificada";
+  };
+
   const pet = {
     name: petData?.name || "Maxi",
     breed: petData?.breed || "Border Collie",
@@ -54,7 +167,7 @@ export default function PetProfile({
     sex: getSexLabel(petData?.sex),
     size: getSizeLabel(petData?.gender),
     weight: petData?.weight ? `${petData.weight} kg` : "0,0 kg",
-    age: petData?.birthday || petData?.approximateAge || "",
+    age: getAgeDisplay(),
     appearance: "Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.",
   };
 
@@ -73,14 +186,12 @@ export default function PetProfile({
       });
 
       Promise.all(promises).then((newPhotos) => {
-        setPhotos((prev) => {
-          const updated = [...prev, ...newPhotos];
-          // Si es la primera foto, establecer el índice en 0
-          if (prev.length === 0) {
-            setCurrentPhotoIndex(0);
-          }
-          return updated;
-        });
+        const updatedPhotos = [...photos, ...newPhotos];
+        savePhotos(updatedPhotos);
+        // Si es la primera foto, establecer el índice en 0
+        if (photos.length === 0) {
+          setCurrentPhotoIndex(0);
+        }
       });
     }
     // Reset input para permitir seleccionar la misma imagen nuevamente
@@ -209,22 +320,21 @@ export default function PetProfile({
                 <span className="pet-profile-detail-label">Sexo</span>
                 <span className="pet-profile-detail-value">{pet.sex}</span>
               </div>
+              <div className="pet-profile-detail-divider"></div>
               <div className="pet-profile-detail-item">
                 <span className="pet-profile-detail-label">Tamaño</span>
                 <span className="pet-profile-detail-value">{pet.size}</span>
               </div>
+              <div className="pet-profile-detail-divider"></div>
               <div className="pet-profile-detail-item">
                 <span className="pet-profile-detail-label">Peso</span>
                 <span className="pet-profile-detail-value">{pet.weight}</span>
               </div>
-              {pet.age && (
-                <div className="pet-profile-detail-item">
-                  <span className="pet-profile-detail-label">
-                    {petData?.birthday ? "Cumpleaños" : "Edad"}
-                  </span>
-                  <span className="pet-profile-detail-value">{pet.age}</span>
-                </div>
-              )}
+              <div className="pet-profile-detail-divider"></div>
+              <div className="pet-profile-detail-item">
+                <span className="pet-profile-detail-label">Edad</span>
+                <span className="pet-profile-detail-value">{pet.age}</span>
+              </div>
             </div>
           </div>
 
