@@ -288,3 +288,424 @@
   font-family: "Noto Sans", sans-serif;
 }
 
+/* Vaccines List Styles */
+.vaccines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.vaccine-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #E5E7EB;
+  transition: box-shadow 0.2s;
+}
+
+.vaccine-card-pending {
+  background-color: #E6F3FF;
+  border-color: #B3D9FF;
+}
+
+.vaccine-card-pending:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #93C5FD;
+}
+
+.vaccine-card-completed {
+  background-color: white;
+  border-color: #E5E7EB;
+}
+
+.vaccine-card-completed:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #D1D5DB;
+}
+
+.vaccine-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vaccine-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #39434F;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-card-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-card-calendar-icon {
+  width: 16px;
+  height: 16px;
+  color: #808B9A;
+  flex-shrink: 0;
+}
+
+.vaccine-card-pending-label {
+  margin-left: auto;
+  font-size: 0.875rem;
+  color: #3B82F6;
+  font-weight: 500;
+  font-family: "Noto Sans", sans-serif;
+}
+
+/* Vaccine Form Styles */
+.vaccine-form-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.vaccine-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.vaccine-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vaccine-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+  box-sizing: border-box;
+}
+
+.vaccine-form-input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.vaccine-form-input::placeholder {
+  color: #9CA3AF;
+}
+
+.vaccine-form-datetime-container {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.vaccine-form-datetime-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+  box-sizing: border-box;
+}
+
+.vaccine-form-datetime-input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.vaccine-form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.vaccine-form-textarea:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.vaccine-form-textarea::placeholder {
+  color: #9CA3AF;
+}
+
+.vaccine-form-select {
+  width: 100% !important;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.vaccine-form-select:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.vaccine-form-button-section {
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.vaccine-form-save-button {
+  width: 100%;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Noto Sans", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.vaccine-form-save-button:hover:not(:disabled) {
+  background-color: #2563EB;
+}
+
+.vaccine-form-save-button:disabled {
+  background-color: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Success Modal Styles */
+.vaccine-success-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.vaccine-success-modal {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 320px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.vaccine-success-modal-image {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vaccine-success-modal-image img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.vaccine-success-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #39434F;
+  margin: 0 0 0.75rem 0;
+  font-family: "Catamaran", sans-serif;
+}
+
+.vaccine-success-modal-text {
+  font-size: 0.875rem;
+  color: #808B9A;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-success-modal-button {
+  width: 100%;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Noto Sans", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.vaccine-success-modal-button:hover {
+  background-color: #2563EB;
+}
+
+/* Vaccine Details Modal Styles */
+.vaccine-details-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.vaccine-details-modal {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 0;
+  max-width: 320px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.vaccine-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.vaccine-details-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vaccine-details-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #39434F;
+  margin: 0;
+  font-family: "Catamaran", sans-serif;
+}
+
+.vaccine-details-delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.vaccine-details-delete-button:hover {
+  background-color: #FEE2E2;
+}
+
+.vaccine-details-delete-icon {
+  width: 18px;
+  height: 18px;
+  color: #DC2626;
+}
+
+.vaccine-details-close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #808B9A;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.vaccine-details-close-button:hover {
+  background-color: #F3F4F6;
+}
+
+.vaccine-details-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.vaccine-details-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vaccine-details-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #808B9A;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-details-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #39434F;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-details-notes {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
