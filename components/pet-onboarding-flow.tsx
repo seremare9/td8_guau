@@ -28,9 +28,9 @@ interface PetOnboardingFlowProps {
   onBack: () => void;
   // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
   initialStep?: number;
-  onFinish?: (petData: { 
-    name: string; 
-    breed: string; 
+  onFinish?: (petData: {
+    name: string;
+    breed: string;
     imageURL?: string;
     sex?: string;
     gender?: string;
@@ -415,7 +415,7 @@ export default function PetOnboardingFlow({
                     alt="Foto de la mascota"
                     width={200}
                     height={200}
-                    // ... estilos
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   // Muestra el placeholder (perro por defecto)
@@ -847,12 +847,16 @@ export default function PetOnboardingFlow({
               className="primary-button"
               onClick={() => {
                 if (onFinish) {
-                  const birthdayString = selectedMonth && selectedDay && selectedYear
-                    ? `${selectedDay} de ${months.find((m) => m.value === selectedMonth)?.name || ""} de ${selectedYear}`
-                    : "";
-                  onFinish({ 
-                    name: petData.name, 
-                    breed: petData.breed, 
+                  const birthdayString =
+                    selectedMonth && selectedDay && selectedYear
+                      ? `${selectedDay} de ${
+                          months.find((m) => m.value === selectedMonth)?.name ||
+                          ""
+                        } de ${selectedYear}`
+                      : "";
+                  onFinish({
+                    name: petData.name,
+                    breed: petData.breed,
                     imageURL: petData.imageURL,
                     sex: petData.sex,
                     gender: petData.gender,
@@ -965,9 +969,9 @@ export default function PetOnboardingFlow({
           <Button
             onClick={() => {
               if (onFinish)
-                onFinish({ 
-                  name: petData.name, 
-                  breed: petData.breed, 
+                onFinish({
+                  name: petData.name,
+                  breed: petData.breed,
                   imageURL: petData.imageURL,
                   sex: petData.sex,
                   gender: petData.gender,
