@@ -310,13 +310,13 @@ export default function Vaccines({
     return date.getFullYear();
   };
 
-  // Función para determinar si una vacuna está pendiente
-  const isPending = (proximaDosis: string): boolean => {
-    if (!proximaDosis) return false;
+  // Función para determinar si una vacuna está pendiente (basado en la fecha del turno, no en la próxima dosis)
+  const isPending = (fechaTurno: string): boolean => {
+    if (!fechaTurno) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const nextDoseDate = new Date(proximaDosis + "T00:00:00");
-    return nextDoseDate >= today;
+    const turnoDate = new Date(fechaTurno + "T00:00:00");
+    return turnoDate >= today;
   };
 
   // Función para obtener el nombre completo del tipo de vacuna
@@ -343,10 +343,8 @@ export default function Vaccines({
 
   // Agrupar vacunas por año
   const vaccinesByYear = filteredVaccines.reduce((acc, vaccine) => {
-    // Para agrupar por año, usar la fecha que se mostrará (próxima dosis si está pendiente, fecha de aplicación si no)
-    const pending = isPending(vaccine.proximaDosis);
-    const displayDate = pending ? vaccine.proximaDosis : vaccine.fecha;
-    const year = getYear(displayDate);
+    // Agrupar siempre por la fecha del turno (fecha)
+    const year = getYear(vaccine.fecha);
     if (!acc[year]) {
       acc[year] = [];
     }
@@ -359,14 +357,12 @@ export default function Vaccines({
     .map(Number)
     .sort((a, b) => b - a);
 
-  // Ordenar vacunas dentro de cada año por fecha (más recientes primero)
+  // Ordenar vacunas dentro de cada año por fecha del turno (más recientes primero)
   sortedYears.forEach((year) => {
     vaccinesByYear[year].sort((a, b) => {
-      // Usar la fecha que se mostrará para ordenar
-      const pendingA = isPending(a.proximaDosis);
-      const pendingB = isPending(b.proximaDosis);
-      const dateA = new Date((pendingA ? a.proximaDosis : a.fecha) + "T00:00:00");
-      const dateB = new Date((pendingB ? b.proximaDosis : b.fecha) + "T00:00:00");
+      // Ordenar por fecha del turno
+      const dateA = new Date(a.fecha + "T00:00:00");
+      const dateB = new Date(b.fecha + "T00:00:00");
       return dateB.getTime() - dateA.getTime();
     });
   });
@@ -632,6 +628,10 @@ export default function Vaccines({
             <Info className="vaccines-info-icon" />
             <span className="vaccines-info-text">Información sobre vacunas</span>
           </div>
+          {/* Line separator */}
+        <div className="vaccines-header-line">
+          <Image src={lineSvg} alt="Line separator" width={336} height={2} />
+        </div>
 
           {/* Vaccines List by Year */}
           {sortedYears.length > 0 ? (
@@ -640,9 +640,9 @@ export default function Vaccines({
                 <h3 className="vaccines-year-title">{year}</h3>
                 <div className="vaccines-list">
                   {vaccinesByYear[year].map((vaccine) => {
-                    const pending = isPending(vaccine.proximaDosis);
-                    // Si está pendiente, mostrar fecha de próxima dosis; si no, mostrar fecha de aplicación
-                    const displayDate = pending ? vaccine.proximaDosis : vaccine.fecha;
+                    const pending = isPending(vaccine.fecha);
+                    // Siempre mostrar la fecha del turno
+                    const displayDate = vaccine.fecha;
                     return (
                       <div
                         key={vaccine.id}
@@ -708,7 +708,7 @@ export default function Vaccines({
               
               <div className="vaccine-details-content">
                 <div className="vaccine-details-field">
-                  <span className="vaccine-details-label">Fecha de aplicación</span>
+                  <span className="vaccine-details-label">Fecha del turno</span>
                   <span className="vaccine-details-value">{formatDate(selectedVaccine.fecha)}</span>
                 </div>
                 
@@ -733,10 +733,10 @@ export default function Vaccines({
                   </div>
                 )}
                 
-                {/* Solo mostrar próxima dosis si la vacuna NO está pendiente */}
-                {selectedVaccine.proximaDosis && !isPending(selectedVaccine.proximaDosis) && (
+                {/* Solo mostrar próxima dosis si la vacuna NO está pendiente (turno ya pasó) */}
+                {selectedVaccine.proximaDosis && !isPending(selectedVaccine.fecha) && (
                   <div className="vaccine-details-field">
-                    <span className="vaccine-details-label">Próxima dosis</span>
+                    <span className="vaccine-details-label">Fecha sugerida para refuerzo</span>
                     <span className="vaccine-details-value">{formatDate(selectedVaccine.proximaDosis)}</span>
                   </div>
                 )}

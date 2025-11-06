@@ -206,14 +206,15 @@
   flex: 1;
   border: none;
   outline: none;
-  font-size: 0.875rem;
-  color: #39434F;
   background: transparent;
   font-family: "Noto Sans", sans-serif;
+  font-size: 0.875rem;
+  color: #A0AEC0;
+  font-weight: 500;
 }
 
 .vaccines-search-input::placeholder {
-  color: #9CA3AF;
+  color: #A0AEC0;
 }
 
 .vaccines-add-button {
@@ -253,20 +254,27 @@
 .vaccines-info-icon {
   width: 20px;
   height: 20px;
-  color: #3B82F6;
+  color: #A0AEC0;
   flex-shrink: 0;
+}
+
+.vaccines-header-line {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .vaccines-info-text {
   font-size: 0.875rem;
-  color: #39434F;
+  color: #A0AEC0;
   font-weight: 500;
   font-family: "Noto Sans", sans-serif;
 }
 
-.vaccines-year-section {
+/* .vaccines-year-section {
   margin-top: 0.5rem;
-}
+} */
 
 .vaccines-year-title {
   font-size: 1rem;
@@ -282,7 +290,7 @@
 }
 
 .vaccines-empty-text {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #808B9A;
   margin: 0;
   font-family: "Noto Sans", sans-serif;
@@ -306,17 +314,18 @@
 
 .vaccine-card-pending {
   background-color: #E6F3FF;
-  border-color: #B3D9FF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+  /* border-color: #B3D9FF; */
 }
 
 .vaccine-card-pending:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(49, 49, 49, 0.1);
   border-color: #93C5FD;
 }
 
 .vaccine-card-completed {
   background-color: white;
-  border-color: #E5E7EB;
+  box-shadow: 0 2px 8px rgba(49, 49, 49, 0.1);
 }
 
 .vaccine-card-completed:hover {
