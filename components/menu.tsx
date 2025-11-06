@@ -2,7 +2,16 @@
 
 import Image from "next/image";
 import MobileFrame from "./mobile-frame";
-import { X, ShoppingBag, Users, Calendar, HelpCircle, User, Settings, Plus } from "lucide-react";
+import {
+  X,
+  ShoppingBag,
+  Users,
+  Calendar,
+  HelpCircle,
+  User,
+  Settings,
+  Plus,
+} from "lucide-react";
 import perro from "./images/perro.png";
 import imgIcon from "./images/img-icon.svg";
 import logoGuau from "./images/logo_guau.png";
@@ -12,9 +21,9 @@ import lineSvg from "./images/line.svg";
 interface MenuScreenProps {
   userName?: string;
   onClose: () => void;
-  petData?: { 
-    name: string; 
-    breed: string; 
+  petData?: {
+    name: string;
+    breed: string;
     imageURL?: string;
     sex?: string;
     gender?: string;
@@ -53,26 +62,30 @@ export default function MenuScreen({
                 alt="logo guau"
                 width={40}
                 height={40}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "0.75rem",
+                }}
               />
             </div>
             <div className="menu-greeting">
-            <span className="menu-greeting-text">Hola, </span>
-            <span className="menu-greeting-name">{userName}</span>
+              <span className="menu-greeting-text">Hola, </span>
+              <span className="menu-greeting-name">{userName}</span>
             </div>
           </div>
-          <button onClick={onClose} className="menu-close-button" aria-label="Cerrar menú">
+          <button
+            onClick={onClose}
+            className="menu-close-button"
+            aria-label="Cerrar menú"
+          >
             <X className="menu-close-icon" />
           </button>
         </div>
         {/* Line separator */}
         <div className="home-header-line">
-          <Image
-            src={lineSvg}
-            alt="Line separator"
-            width={336}
-            height={2}
-          />
+          <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
         {/* Mis mascotas */}
@@ -80,14 +93,15 @@ export default function MenuScreen({
           <h2 className="menu-section-title">Mis mascotas</h2>
           <div className="menu-pets-container">
             {pets.map((pet) => (
-              <div 
-                key={pet.id} 
+              <div
+                key={pet.id}
                 className="menu-pet-item"
                 onClick={onOpenPetProfile}
-                style={{ cursor: onOpenPetProfile ? 'pointer' : 'default' }}
+                style={{ cursor: onOpenPetProfile ? "pointer" : "default" }}
               >
                 <div className="menu-pet-circle">
-                  {typeof pet.image === 'string' && pet.image.startsWith('data:') ? (
+                  {typeof pet.image === "string" &&
+                  pet.image.startsWith("data:") ? (
                     // Si es base64, usar img normal
                     <img
                       src={pet.image}
@@ -120,12 +134,7 @@ export default function MenuScreen({
         </div>
         {/* Line separator */}
         <div className="home-header-line">
-          <Image
-            src={lineSvg}
-            alt="Line separator"
-            width={336}
-            height={2}
-          />
+          <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
         {/* Menu Items */}
@@ -150,11 +159,7 @@ export default function MenuScreen({
 
         {/* Line separator */}
         <div className="home-header-line">
-          <Image
-            src={lineSvg}
-            alt="Line separator"
-            width={336}
-            height={2} />
+          <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
         {/* Bottom Menu Items */}
@@ -172,4 +177,3 @@ export default function MenuScreen({
     </MobileFrame>
   );
 }
-
