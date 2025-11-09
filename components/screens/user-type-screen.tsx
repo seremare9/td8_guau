@@ -3,8 +3,8 @@
 import MobileFrame from "./mobile-frame";
 import { useState } from "react";
 import Image from "next/image";
-import personaPerro from "./images/persona_perro.png";
-import "./styles/user-type-screen-styles.css";
+import personaPerro from "../images/persona_perro.png";
+import "../styles/user-type-screen-styles.css";
 
 interface UserTypeScreenProps {
   onSelectType: (type: string) => void;
@@ -22,12 +22,11 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
 
   return (
     <MobileFrame>
-      {/* 🛑 Contenedor Principal (aplica padding y flex-col) 🛑 */}
+
       <div className="user-type-container">
-        {/* Title */}
+    
         <h1 className="user-type-title">¿Qué opción te describe mejor?</h1>
 
-        {/* Illustration */}
         <div className="user-type-illustration-wrapper">
           <div className="user-type-illustration-area">
             <Image

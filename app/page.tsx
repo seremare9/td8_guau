@@ -1,23 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import OnboardingScreen from "@/components/onboarding-screen";
-import LoginScreen from "@/components/inicio";
-import RegisterScreen from "@/components/register-screen";
-import UserTypeScreen from "@/components/user-type-screen";
-import PetOnboardingFlow from "@/components/pet-onboarding-flow";
-import PetExperienceScreen from "@/components/pet-experience-screen";
-import HomeScreen from "@/components/home-screen";
-import MenuScreen from "@/components/menu";
-import PetProfile from "@/components/pet-profile";
-import Vaccines from "@/components/vaccines";
-import Calendar from "@/components/calendar";
-import HelpScreen from "@/components/help-screen";
-import Account from "@/components/account";
+import OnboardingScreen from "@/components/screens/onboarding-screen";
+import LoginScreen from "@/components/screens/inicio";
+import RegisterScreen from "@/components/screens/register-screen";
+import UserTypeScreen from "@/components/screens/user-type-screen";
+import PetOnboardingFlow from "@/components/screens/pet-onboarding-flow";
+import PetExperienceScreen from "@/components/screens/pet-experience-screen";
+import HomeScreen from "@/components/screens/home-screen";
+import MenuScreen from "@/components/screens/menu";
+import PetProfile from "@/components/screens/pet-profile";
+import Vaccines from "@/components/screens/vaccines";
+import Calendar from "@/components/screens/calendar";
+import HelpScreen from "@/components/screens/help-screen";
+import Account from "@/components/screens/account";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
-import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
-import VacunaInfoScreen from "@/components/Preguntas/vacunaInfo-screen";
+import MedicinaInfoScreen from "@/components/screens/medicinaInfo-screen";
+import VacunaInfoScreen from "@/components/screens/vacunaInfo-screen";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<

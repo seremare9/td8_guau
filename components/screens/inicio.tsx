@@ -5,14 +5,14 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import MobileFrame from "./mobile-frame";
+import MobileFrame from "@/components/screens/mobile-frame";
 
-import iconUser from "./images/Icon.png";
-import appleLogo from "./images/apple.svg";
-import googleLogo from "./images/google.svg";
-import facebookLogo from "./images/facebook.svg";
-import actionSheetBg from "./images/action-sheet-background.svg";
-import "./styles/inicio-styles.css";
+import iconUser from "../images/Icon.png";
+import appleLogo from "../images/apple.svg";
+import googleLogo from "../images/google.svg";
+import facebookLogo from "../images/facebook.svg";
+import actionSheetBg from "../images/action-sheet-background.svg";
+import "../styles/inicio-styles.css";
 
 interface LoginScreenProps {
   onCreateAccount: () => void;

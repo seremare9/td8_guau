@@ -4,22 +4,22 @@ import { useState, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image, { StaticImageData } from "next/image"; // Importar StaticImageData
 import { ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
-import perro from "./images/perro.png";
-import lineSvg from "./images/line.svg";
-import vacunaIcon from "./images/event-icons/vacuna.svg";
-import medicinaIcon from "./images/event-icons/medicina.svg";
-import veterinarioIcon from "./images/event-icons/veterinario.svg";
-import otroIcon from "./images/event-icons/otro.svg";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import perro from "../images/perro.png";
+import lineSvg from "../images/line.svg";
+import vacunaIcon from "../images/event-icons/vacuna.svg";
+import medicinaIcon from "../images/event-icons/medicina.svg";
+import veterinarioIcon from "../images/event-icons/veterinario.svg";
+import otroIcon from "../images/event-icons/otro.svg";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import "./styles/calendar-styles.css";
+} from "@/components/ui/select";
+import "../styles/calendar-styles.css";
 
 interface CalendarProps {
   userName?: string;

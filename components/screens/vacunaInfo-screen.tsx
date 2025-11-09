@@ -1,10 +1,9 @@
 "use client";
 
-// 🛑 RUTA CORREGIDA para acceder al MobileFrame fuera de la carpeta 'Preguntas' 🛑
-import MobileFrame from "../mobile-frame";
+import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Syringe } from "lucide-react";
-import "./info-screen-styles.css";
+import "../styles/info-screen-styles.css";
 
 interface InfoScreenProps {
   onNext: () => void; // Navega a MedicinaInfoScreen

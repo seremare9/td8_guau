@@ -4,24 +4,24 @@ import { useState, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 // 1. Importar StaticImageData
 import Image, { StaticImageData } from "next/image";
-import imgIcon from "./images/img-icon.svg";
-import perro from "./images/perro.png";
-import logoGuau from "./images/logo_guau.png";
-import petCardSvg from "./images/pet-card.svg";
-import imgInfoCardBasic2 from "./images/info-cards/img-info-card-basic-2.png";
-import imgInfoCardBasic3 from "./images/info-cards/img-info-card-basic-3.png";
-import imgInfoCardBasic1 from "./images/info-cards/img-info-card-basic-1.png";
-import lineSvg from "./images/line.svg";
-import lupaSvg from "./images/lupa.svg";
-import campanaSvg from "./images/campana.svg";
-import menuSvg from "./images/menu.svg";
-import dividerSvg from "./images/divider.svg";
-import elipsesSvg from "./images/elipses.svg";
-import vacunaIcon from "./images/event-icons/vacuna.svg";
-import medicinaIcon from "./images/event-icons/medicina.svg";
-import veterinarioIcon from "./images/event-icons/veterinario.svg";
-import otroIcon from "./images/event-icons/otro.svg";
-import "./styles/home-screen-styles.css";
+import imgIcon from "../images/img-icon.svg";
+import perro from "../images/perro.png";
+import logoGuau from "../images/logo_guau.png";
+import petCardSvg from "../images/pet-card.svg";
+import imgInfoCardBasic2 from "../images/info-cards/img-info-card-basic-2.png";
+import imgInfoCardBasic3 from "../images/info-cards/img-info-card-basic-3.png";
+import imgInfoCardBasic1 from "../images/info-cards/img-info-card-basic-1.png";
+import lineSvg from "../images/line.svg";
+import lupaSvg from "../images/lupa.svg";
+import campanaSvg from "../images/campana.svg";
+import menuSvg from "../images/menu.svg";
+import dividerSvg from "../images/divider.svg";
+import elipsesSvg from "../images/elipses.svg";
+import vacunaIcon from "../images/event-icons/vacuna.svg";
+import medicinaIcon from "../images/event-icons/medicina.svg";
+import veterinarioIcon from "../images/event-icons/veterinario.svg";
+import otroIcon from "../images/event-icons/otro.svg";
+import "../styles/home-screen-styles.css";
 
 // Esta interfaz ya estaba correcta en tu archivo
 interface HomeEvent {

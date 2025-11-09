@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import MobileFrame from "./mobile-frame";
+import MobileFrame from "@/components/screens/mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
-import lineSvg from "./images/line.svg";
-import "./styles/help-screen-styles.css";
+import lineSvg from "../images/line.svg";
+import "../styles/help-screen-styles.css";
 
 interface HelpScreenProps {
   onBack: () => void;

@@ -1,11 +1,11 @@
 "use client";
 
-import MobileFrame from "../mobile-frame";
+import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import logoPastilla from "../images/logo_pastilla.png";
-import "./info-screen-styles.css";
+import "../styles/info-screen-styles.css";
 
 interface InfoScreenProps {
   onNext: () => void; // Navega a Home/petOnboarding

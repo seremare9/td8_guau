@@ -15,12 +15,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import imgIcon from "./images/img-icon.svg";
-import perritos from "./images/dos-perros.png";
-import perro from "./images/perro.png";
-import "./styles/onboarding-flow-styles.css";
+import imgIcon from "../images/img-icon.svg";
+import perritos from "../images/dos-perros.png";
+import perro from "../images/perro.png";
+import "../styles/onboarding-flow-styles.css";
 // Importamos el HomeHeader desde el componente de Home
-import { HomeHeader } from "@/components/home-screen";
+import { HomeHeader } from "@/components/screens/home-screen";
 
 interface PetOnboardingFlowProps {
   userType: string;

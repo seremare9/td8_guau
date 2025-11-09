@@ -4,21 +4,21 @@ import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Plus, Info, Calendar, Trash2 } from "lucide-react";
-import perro from "./images/perro.png";
-import lupaIcon from "./images/lupa.svg";
-import lineSvg from "./images/line.svg";
-import vacunaIcon from "./images/event-icons/vacuna.svg";
-import logoEvento from "./images/logo_evento.png";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import perro from "../images/perro.png";
+import lupaIcon from "../images/lupa.svg";
+import lineSvg from "../images/line.svg";
+import vacunaIcon from "../images/event-icons/vacuna.svg";
+import logoEvento from "../images/logo_evento.png";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import "./styles/vaccines-styles.css";
+} from "@/components/ui/select";
+import "../styles/vaccines-styles.css";
 
 interface VaccinesProps {
   userName?: string;
@@ -428,7 +428,7 @@ export default function Vaccines({
               <label className="vaccine-form-label">Tipo de vacuna</label>
               <Select
                 value={vaccineForm.tipo}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setVaccineForm({ ...vaccineForm, tipo: value })
                 }
               >

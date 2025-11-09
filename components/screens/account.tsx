@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import MobileFrame from "./mobile-frame";
+import MobileFrame from "@/components/screens/mobile-frame";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
-import "./styles/pet-profile-styles.css";
-import lineSvg from "./images/line.svg";
-import petEditInfoIcon from "./images/pet-edit-info.svg";
-import imgIcon from "./images/img-icon.svg";
+import "../styles/pet-profile-styles.css";
+import lineSvg from "../images/line.svg";
+import petEditInfoIcon from "../images/pet-edit-info.svg";
+import imgIcon from "../images/img-icon.svg";
 
 interface AccountProps {
   userName?: string;

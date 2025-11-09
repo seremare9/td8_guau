@@ -4,14 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
-import perro from "./images/perro.png";
-import "./styles/pet-profile-styles.css";
-import lineSvg from "./images/line.svg";
-import petEditInfoIcon from "./images/pet-edit-info.svg";
-import vacunaIcon from "./images/event-icons/vacuna.svg";
-import medicinaIcon from "./images/event-icons/medicina.svg";
-import veterinarioIcon from "./images/event-icons/veterinario.svg";
-import otroIcon from "./images/event-icons/otro.svg";
+import perro from "../images/perro.png";
+import "../styles/pet-profile-styles.css";
+import lineSvg from "../images/line.svg";
+import petEditInfoIcon from "../images/pet-edit-info.svg";
+import vacunaIcon from "../images/event-icons/vacuna.svg";
+import medicinaIcon from "../images/event-icons/medicina.svg";
+import veterinarioIcon from "../images/event-icons/veterinario.svg";
+import otroIcon from "../images/event-icons/otro.svg";
 
 interface PetProfileProps {
   userName?: string;
