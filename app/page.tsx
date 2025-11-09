@@ -12,6 +12,7 @@ import MenuScreen from "@/components/menu";
 import PetProfile from "@/components/pet-profile";
 import Vaccines from "@/components/vaccines";
 import Calendar from "@/components/calendar";
+import HelpScreen from "@/components/help-screen";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -32,6 +33,7 @@ export default function App() {
     | "petProfile"
     | "vaccines"
     | "calendar"
+    | "help"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -82,6 +84,7 @@ export default function App() {
   };
   const navigateToVaccines = () => setCurrentScreen("vaccines");
   const navigateToCalendar = () => setCurrentScreen("calendar");
+  const navigateToHelp = () => setCurrentScreen("help");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -224,7 +227,8 @@ export default function App() {
           onClose={navigateToHome} 
           petData={petData} 
           onOpenPetProfile={(selectedPetData) => {
-            // Actualizar la mascota seleccionada y abrir el perfil
+            // Esta función ya no se usa desde el menú, pero se mantiene por compatibilidad
+            // El menú ahora solo usa onSelectPet para cambiar de perfil
             if (selectedPetData) {
               setPetData(selectedPetData);
             }
@@ -236,11 +240,80 @@ export default function App() {
             navigateToHome();
           }}
           onOpenCalendar={navigateToCalendar}
+          onOpenHelp={navigateToHelp}
           onAddNewPet={() => {
             // Navegar al flujo de onboarding para agregar una nueva mascota
             // Empezar desde el paso 1 (raza) en lugar del paso 0 (Oh Oh!)
             setPetOnboardingStartStep(1);
             setCurrentScreen("petOnboarding");
+          }}
+          onDeletePet={(petName) => {
+            // Eliminar todos los datos de la mascota
+            // 1. Eliminar datos de la mascota
+            localStorage.removeItem(`pet_data_${petName}`);
+            
+            // 2. Eliminar vacunas
+            localStorage.removeItem(`vaccines_${petName}`);
+            
+            // 3. Eliminar eventos
+            localStorage.removeItem(`events_${petName}`);
+            
+            // 4. Eliminar recordatorios relacionados con esta mascota
+            const remindersKey = "event_reminders";
+            const existingReminders = JSON.parse(
+              localStorage.getItem(remindersKey) || "[]"
+            );
+            const updatedReminders = existingReminders.filter(
+              (reminder: any) => reminder.petName !== petName
+            );
+            localStorage.setItem(remindersKey, JSON.stringify(updatedReminders));
+            
+            // 5. Si la mascota eliminada era la seleccionada, limpiar petData
+            if (petData && petData.name === petName) {
+              setPetData(null);
+              // Si hay otras mascotas, seleccionar la primera disponible
+              const allPets: any[] = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("pet_data_")) {
+                  const petDataStr = localStorage.getItem(key);
+                  if (petDataStr) {
+                    try {
+                      const petDataObj = JSON.parse(petDataStr);
+                      if (petDataObj.name) {
+                        allPets.push(petDataObj);
+                      }
+                    } catch (e) {
+                      console.error("Error al parsear datos de mascota:", e);
+                    }
+                  }
+                }
+              }
+              if (allPets.length > 0) {
+                setPetData(allPets[0]);
+              } else {
+                // Si no hay más mascotas, volver al onboarding
+                setCurrentScreen("petOnboarding");
+                setPetOnboardingStartStep(0);
+              }
+            }
+            
+            // 6. Notificar a otros componentes del cambio
+            window.dispatchEvent(new Event("customStorageChange"));
+            
+            // 7. Si no hay más mascotas, volver al home (o onboarding si no hay ninguna)
+            const hasOtherPets = Array.from({ length: localStorage.length }, (_, i) => {
+              const key = localStorage.key(i);
+              return key && key.startsWith("pet_data_");
+            }).some(Boolean);
+            
+            if (!hasOtherPets) {
+              setPetData(null);
+              setCurrentScreen("petOnboarding");
+              setPetOnboardingStartStep(0);
+            } else {
+              navigateToHome();
+            }
           }}
         />
       )}
@@ -281,6 +354,9 @@ export default function App() {
           onSkip={navigateToEmptyPetList}
           onBack={navigateBack}
         />
+      )}
+      {currentScreen === "help" && (
+        <HelpScreen onBack={navigateToMenu} />
       )}
     </div>
   );

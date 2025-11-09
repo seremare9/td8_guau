@@ -161,13 +161,21 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 3px solid #1B85F3;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background-color: #ffffff;
   position: relative;
+  transition: border-color 0.2s;
+}
+
+.menu-pet-circle-selected {
+  border: 3px solid #3B82F6;
+}
+
+.menu-pet-circle-unselected {
+  border: 3px solid #E5E7EB;
 }
 
 .menu-pet-image {
@@ -194,8 +202,14 @@ body {
 .menu-pet-name {
   font-family: "Noto Sans", sans-serif;
   font-size: 1rem;
-  color: #1B85F3;
+  color: #808B9A;
   text-align: center;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.menu-pet-name-selected {
+  color: #3B82F6;
   font-weight: 600;
 }
 
@@ -249,5 +263,195 @@ body {
   height: 1px;
   background-color: #e5e7eb;
   margin: 16px 0;
+}
+
+/* Pet Item Content */
+.menu-pet-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.menu-pet-delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #EF4444;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.menu-pet-delete-button:hover {
+  background-color: #DC2626;
+  transform: scale(1.1);
+}
+
+.menu-pet-delete-icon {
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+}
+
+/* Delete Modal */
+.menu-delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.menu-delete-modal {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.menu-delete-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.menu-delete-modal-title {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #39434F;
+  margin: 0;
+}
+
+.menu-delete-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #808B9A;
+  transition: color 0.2s;
+}
+
+.menu-delete-modal-close:hover {
+  color: #39434F;
+}
+
+.menu-delete-modal-close-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.menu-delete-modal-content {
+  padding: 1.5rem;
+}
+
+.menu-delete-modal-message {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1rem;
+  color: #39434F;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.menu-delete-modal-message strong {
+  color: #EF4444;
+  font-weight: 600;
+}
+
+.menu-delete-modal-warning {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 0.875rem;
+  color: #808B9A;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.5;
+}
+
+.menu-delete-modal-list {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 0.875rem;
+  color: #808B9A;
+  margin: 0 0 1rem 1.5rem;
+  padding: 0;
+  line-height: 1.8;
+}
+
+.menu-delete-modal-list li {
+  margin-bottom: 0.25rem;
+}
+
+.menu-delete-modal-warning-final {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 0.875rem;
+  color: #EF4444;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.menu-delete-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.menu-delete-modal-cancel,
+.menu-delete-modal-confirm {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.menu-delete-modal-cancel {
+  background-color: #F3F4F6;
+  color: #39434F;
+}
+
+.menu-delete-modal-cancel:hover {
+  background-color: #E5E7EB;
+}
+
+.menu-delete-modal-confirm {
+  background-color: #EF4444;
+  color: #ffffff;
+}
+
+.menu-delete-modal-confirm:hover {
+  background-color: #DC2626;
+}
+
+.menu-delete-modal-cancel:active,
+.menu-delete-modal-confirm:active {
+  transform: scale(0.98);
 }
 

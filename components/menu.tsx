@@ -12,6 +12,7 @@ import {
   User,
   Settings,
   Plus,
+  Trash2,
 } from "lucide-react";
 import perro from "./images/perro.png";
 import imgIcon from "./images/img-icon.svg";
@@ -60,6 +61,8 @@ interface MenuScreenProps {
     photos?: string[];
     appearance?: string;
   }) => void;
+  onOpenHelp?: () => void;
+  onDeletePet?: (petName: string) => void;
 }
 
 export default function MenuScreen({
@@ -70,7 +73,25 @@ export default function MenuScreen({
   onOpenCalendar,
   onAddNewPet,
   onSelectPet,
+  onOpenHelp,
+  onDeletePet,
 }: MenuScreenProps) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [petToDelete, setPetToDelete] = useState<{
+    name: string;
+    fullData?: {
+      name: string;
+      breed: string;
+      imageURL?: string;
+      sex?: string;
+      gender?: string;
+      weight?: string;
+      birthday?: string;
+      approximateAge?: string;
+      photos?: string[];
+      appearance?: string;
+    };
+  } | null>(null);
   const [pets, setPets] = useState<
     Array<{
       id: number;
@@ -220,39 +241,57 @@ export default function MenuScreen({
                 <div
                   key={pet.id}
                   className={`menu-pet-item ${isSelected ? "menu-pet-item-selected" : ""}`}
-                  onClick={() => {
-                    if (pet.fullData && onSelectPet) {
-                      // Solo actualizar la mascota seleccionada, no abrir el perfil
-                      onSelectPet(pet.fullData);
-                    }
-                  }}
-                  style={{ cursor: onSelectPet ? "pointer" : "default" }}
+                  style={{ position: "relative" }}
                 >
-                <div className={`menu-pet-circle ${isSelected ? "menu-pet-circle-selected" : "menu-pet-circle-unselected"}`}>
-                  {typeof pet.image === "string" &&
-                  pet.image.startsWith("data:") ? (
-                    // Si es base64, usar img normal
-                    <img
-                      src={pet.image}
-                      alt={pet.name}
-                      width={64}
-                      height={64}
-                      className="menu-pet-image"
-                    />
-                  ) : (
-                    // Si es una URL normal, usar Image de Next.js
-                    <Image
-                      src={pet.image}
-                      alt={pet.name}
-                      width={64}
-                      height={64}
-                      className="menu-pet-image"
-                    />
+                  <div
+                    className="menu-pet-item-content"
+                    onClick={() => {
+                      if (pet.fullData && onSelectPet) {
+                        // Solo actualizar la mascota seleccionada, no abrir el perfil
+                        onSelectPet(pet.fullData);
+                      }
+                    }}
+                    style={{ cursor: onSelectPet ? "pointer" : "default" }}
+                  >
+                    <div className={`menu-pet-circle ${isSelected ? "menu-pet-circle-selected" : "menu-pet-circle-unselected"}`}>
+                      {typeof pet.image === "string" &&
+                      pet.image.startsWith("data:") ? (
+                        // Si es base64, usar img normal
+                        <img
+                          src={pet.image}
+                          alt={pet.name}
+                          width={64}
+                          height={64}
+                          className="menu-pet-image"
+                        />
+                      ) : (
+                        // Si es una URL normal, usar Image de Next.js
+                        <Image
+                          src={pet.image}
+                          alt={pet.name}
+                          width={64}
+                          height={64}
+                          className="menu-pet-image"
+                        />
+                      )}
+                    </div>
+                    <span className={`menu-pet-name ${isSelected ? "menu-pet-name-selected" : ""}`}>{pet.name}</span>
+                  </div>
+                  {onDeletePet && (
+                    <button
+                      className="menu-pet-delete-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPetToDelete({ name: pet.name, fullData: pet.fullData });
+                        setShowDeleteModal(true);
+                      }}
+                      aria-label={`Eliminar ${pet.name}`}
+                    >
+                      <Trash2 className="menu-pet-delete-icon" />
+                    </button>
                   )}
                 </div>
-                <span className={`menu-pet-name ${isSelected ? "menu-pet-name-selected" : ""}`}>{pet.name}</span>
-              </div>
-            );
+              );
             })}
             <div
               className="menu-pet-item"
@@ -285,7 +324,7 @@ export default function MenuScreen({
             <Calendar className="menu-item-icon" />
             <span className="menu-item-text">Calendario</span>
           </button>
-          <button className="menu-item">
+          <button className="menu-item" onClick={onOpenHelp}>
             <HelpCircle className="menu-item-icon" />
             <span className="menu-item-text">Preguntas frecuentes</span>
           </button>
@@ -308,6 +347,77 @@ export default function MenuScreen({
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmación para eliminar mascota */}
+      {showDeleteModal && petToDelete && (
+        <div
+          className="menu-delete-modal-overlay"
+          onClick={() => {
+            setShowDeleteModal(false);
+            setPetToDelete(null);
+          }}
+        >
+          <div
+            className="menu-delete-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="menu-delete-modal-header">
+              <h3 className="menu-delete-modal-title">Eliminar mascota</h3>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setPetToDelete(null);
+                }}
+                className="menu-delete-modal-close"
+                aria-label="Cerrar"
+              >
+                <X className="menu-delete-modal-close-icon" />
+              </button>
+            </div>
+            <div className="menu-delete-modal-content">
+              <p className="menu-delete-modal-message">
+                ¿Estás seguro de que querés eliminar a <strong>{petToDelete.name}</strong>?
+              </p>
+              <p className="menu-delete-modal-warning">
+                Todos los datos de esta mascota serán eliminados permanentemente, incluyendo:
+              </p>
+              <ul className="menu-delete-modal-list">
+                <li>Información personal</li>
+                <li>Vacunas registradas</li>
+                <li>Eventos del calendario</li>
+                <li>Recordatorios programados</li>
+                <li>Fotos y documentos</li>
+              </ul>
+              <p className="menu-delete-modal-warning-final">
+                Esta acción no se puede deshacer.
+              </p>
+            </div>
+            <div className="menu-delete-modal-actions">
+              <button
+                className="menu-delete-modal-cancel"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setPetToDelete(null);
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="menu-delete-modal-confirm"
+                onClick={() => {
+                  if (onDeletePet && petToDelete) {
+                    onDeletePet(petToDelete.name);
+                    setShowDeleteModal(false);
+                    setPetToDelete(null);
+                  }
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MobileFrame>
   );
 }
