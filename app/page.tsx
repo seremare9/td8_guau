@@ -11,6 +11,7 @@ import HomeScreen from "@/components/home-screen";
 import MenuScreen from "@/components/menu";
 import PetProfile from "@/components/pet-profile";
 import Vaccines from "@/components/vaccines";
+import Calendar from "@/components/calendar";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -30,6 +31,7 @@ export default function App() {
     | "menu"
     | "petProfile"
     | "vaccines"
+    | "calendar"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -62,6 +64,7 @@ export default function App() {
   const navigateToMenu = () => setCurrentScreen("menu");
   const navigateToPetProfile = () => setCurrentScreen("petProfile");
   const navigateToVaccines = () => setCurrentScreen("vaccines");
+  const navigateToCalendar = () => setCurrentScreen("calendar");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -120,6 +123,8 @@ export default function App() {
       setCurrentScreen("home");
     } else if (currentScreen === "vaccines") {
       setCurrentScreen("petProfile");
+    } else if (currentScreen === "calendar") {
+      setCurrentScreen("menu");
     }
   };
 
@@ -173,7 +178,13 @@ export default function App() {
         <HomeScreen userName={userName} onOpenMenu={navigateToMenu} petData={petData} onOpenPetProfile={navigateToPetProfile} />
       )}
       {currentScreen === "menu" && (
-        <MenuScreen userName={userName} onClose={navigateToHome} petData={petData} onOpenPetProfile={navigateToPetProfile} />
+        <MenuScreen 
+          userName={userName} 
+          onClose={navigateToHome} 
+          petData={petData} 
+          onOpenPetProfile={navigateToPetProfile}
+          onOpenCalendar={navigateToCalendar}
+        />
       )}
       {currentScreen === "petProfile" && (
         <PetProfile 
@@ -190,6 +201,13 @@ export default function App() {
           petData={petData}
           onBack={navigateBack}
           onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "calendar" && (
+        <Calendar
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
         />
       )}
       {currentScreen === "vacunaInfo" && (

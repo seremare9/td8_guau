@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
 import perro from "./images/perro.png";
 import "./styles/pet-profile-styles.css";
 import lineSvg from "./images/line.svg";
@@ -56,6 +56,7 @@ export default function PetProfile({
   const [isEditingAppearance, setIsEditingAppearance] = useState(false);
   const [appearanceText, setAppearanceText] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [allPets, setAllPets] = useState<Array<{
     name: string;
     breed: string;
@@ -434,10 +435,18 @@ export default function PetProfile({
     setCurrentPhotoIndex(index);
   };
 
-  const handleDeletePhoto = (index: number) => {
+  const handleDeletePhoto = (index: number, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
     if (photos.length === 0) return;
     
     const newPhotos = photos.filter((_, i) => i !== index);
+    
+    // Cerrar modal si estaba abierto
+    if (selectedPhotoIndex === index) {
+      setSelectedPhotoIndex(null);
+    }
     
     // Ajustar el índice actual si es necesario
     let newIndex = currentPhotoIndex;
@@ -705,74 +714,39 @@ export default function PetProfile({
                 </button>
               </div>
             ) : (
-              <div className="pet-profile-photos-carousel">
-                <div className="pet-profile-photos-carousel-container">
+              <>
+                <div className="pet-profile-photos-grid">
                   {photos.map((photo, index) => (
                     <div
                       key={index}
-                      className={`pet-profile-photo-slide ${index === currentPhotoIndex ? 'active' : ''}`}
-                      style={{ transform: `translateX(-${currentPhotoIndex * 100}%)` }}
+                      className="pet-profile-photo-thumbnail"
+                      onClick={() => setSelectedPhotoIndex(index)}
                     >
                       {photo.startsWith('data:') ? (
                         <img
                           src={photo}
                           alt={`Foto ${index + 1} de ${pet.name}`}
-                          className="pet-profile-photo-image"
+                          className="pet-profile-thumbnail-image"
                         />
                       ) : (
                         <Image
                           src={photo}
                           alt={`Foto ${index + 1} de ${pet.name}`}
-                          width={400}
-                          height={300}
-                          className="pet-profile-photo-image"
+                          width={100}
+                          height={100}
+                          className="pet-profile-thumbnail-image"
                         />
                       )}
-                      {/* Botón de eliminar foto - solo visible en la foto actual */}
-                      {index === currentPhotoIndex && (
-                        <button
-                          className="pet-profile-delete-photo-button"
-                          onClick={() => handleDeletePhoto(index)}
-                          aria-label={`Eliminar foto ${index + 1}`}
-                        >
-                          <Trash2 className="pet-profile-delete-icon" />
-                        </button>
-                      )}
+                      <button
+                        className="pet-profile-thumbnail-delete-button"
+                        onClick={(e) => handleDeletePhoto(index, e)}
+                        aria-label={`Eliminar foto ${index + 1}`}
+                      >
+                        <Trash2 className="pet-profile-thumbnail-delete-icon" />
+                      </button>
                     </div>
                   ))}
                 </div>
-                
-                {/* Navegación del carrusel */}
-                {photos.length > 1 && (
-                  <>
-                    <button
-                      className="pet-profile-carousel-button pet-profile-carousel-button-prev"
-                      onClick={handlePrevPhoto}
-                      aria-label="Foto anterior"
-                    >
-                      <ChevronLeft className="pet-profile-carousel-icon" />
-                    </button>
-                    <button
-                      className="pet-profile-carousel-button pet-profile-carousel-button-next"
-                      onClick={handleNextPhoto}
-                      aria-label="Foto siguiente"
-                    >
-                      <ChevronRight className="pet-profile-carousel-icon" />
-                    </button>
-                    
-                    {/* Indicadores de puntos */}
-                    <div className="pet-profile-carousel-dots">
-                      {photos.map((_, index) => (
-                        <button
-                          key={index}
-                          className={`pet-profile-carousel-dot ${index === currentPhotoIndex ? 'active' : ''}`}
-                          onClick={() => handlePhotoDotClick(index)}
-                          aria-label={`Ir a foto ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
                 
                 {/* Botón para agregar más fotos */}
                 <button
@@ -782,6 +756,82 @@ export default function PetProfile({
                   <Plus className="pet-profile-add-more-icon" />
                   <span>Agregar más fotos</span>
                 </button>
+              </>
+            )}
+            
+            {/* Modal para vista ampliada */}
+            {selectedPhotoIndex !== null && (
+              <div 
+                className="pet-profile-photo-modal"
+                onClick={() => setSelectedPhotoIndex(null)}
+              >
+                <div 
+                  className="pet-profile-photo-modal-content"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="pet-profile-photo-modal-close"
+                    onClick={() => setSelectedPhotoIndex(null)}
+                    aria-label="Cerrar"
+                  >
+                    <X className="pet-profile-photo-modal-close-icon" />
+                  </button>
+                  {photos[selectedPhotoIndex] && (
+                    <>
+                      {photos[selectedPhotoIndex].startsWith('data:') ? (
+                        <img
+                          src={photos[selectedPhotoIndex]}
+                          alt={`Foto ${selectedPhotoIndex + 1} de ${pet.name}`}
+                          className="pet-profile-photo-modal-image"
+                        />
+                      ) : (
+                        <Image
+                          src={photos[selectedPhotoIndex]}
+                          alt={`Foto ${selectedPhotoIndex + 1} de ${pet.name}`}
+                          width={800}
+                          height={600}
+                          className="pet-profile-photo-modal-image"
+                        />
+                      )}
+                      {/* Navegación en el modal */}
+                      {photos.length > 1 && (
+                        <>
+                          <button
+                            className="pet-profile-photo-modal-nav pet-profile-photo-modal-prev"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhotoIndex((selectedPhotoIndex - 1 + photos.length) % photos.length);
+                            }}
+                            aria-label="Foto anterior"
+                          >
+                            <ChevronLeft className="pet-profile-photo-modal-nav-icon" />
+                          </button>
+                          <button
+                            className="pet-profile-photo-modal-nav pet-profile-photo-modal-next"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhotoIndex((selectedPhotoIndex + 1) % photos.length);
+                            }}
+                            aria-label="Foto siguiente"
+                          >
+                            <ChevronRight className="pet-profile-photo-modal-nav-icon" />
+                          </button>
+                        </>
+                      )}
+                      {/* Botón de eliminar en el modal */}
+                      <button
+                        className="pet-profile-photo-modal-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeletePhoto(selectedPhotoIndex, e);
+                        }}
+                        aria-label="Eliminar foto"
+                      >
+                        <Trash2 className="pet-profile-photo-modal-delete-icon" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>

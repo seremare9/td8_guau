@@ -241,6 +241,56 @@
   color: white;
 }
 
+.vaccines-add-menu-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.vaccines-add-menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: 0;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  z-index: 1000;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+}
+
+.vaccines-add-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: left;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 0.875rem;
+  color: #39434F;
+  font-weight: 500;
+}
+
+.vaccines-add-menu-item:first-child {
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.vaccines-add-menu-item:hover {
+  background-color: #F9FAFB;
+}
+
+.vaccines-add-menu-icon {
+  width: 18px;
+  height: 18px;
+  color: #3B82F6;
+  flex-shrink: 0;
+}
+
 .vaccines-info-banner {
   background-color: white;
   border-radius: 0.75rem;
@@ -367,6 +417,25 @@
   margin-left: auto;
   font-size: 0.875rem;
   color: #3B82F6;
+  font-weight: 500;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.vaccine-card-applied {
+  background-color: #F0FDF4;
+  box-shadow: 0 2px 8px rgba(49, 49, 49, 0.1);
+  border-color: #BBF7D0;
+}
+
+.vaccine-card-applied:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #86EFAC;
+}
+
+.vaccine-card-applied-label {
+  margin-left: auto;
+  font-size: 0.875rem;
+  color: #16A34A;
   font-weight: 500;
   font-family: "Noto Sans", sans-serif;
 }

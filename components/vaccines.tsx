@@ -52,12 +52,13 @@ interface VaccinesProps {
 interface Vaccine {
   id: string;
   tipo: string;
-  fecha: string; // Fecha de aplicación (YYYY-MM-DD)
+  fecha: string; // Fecha de aplicación o turno (YYYY-MM-DD)
   horario?: string; // Horario del turno (HH:MM)
   veterinario?: string;
   notas?: string;
   proximaDosis: string; // Fecha de próxima dosis (YYYY-MM-DD)
   petName: string;
+  esAplicada?: boolean; // true si es una vacuna ya aplicada, false si es un turno pendiente
 }
 
 export default function Vaccines({
@@ -72,6 +73,9 @@ export default function Vaccines({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccine | null>(null);
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [isVaccineApplied, setIsVaccineApplied] = useState(false); // true = vacuna aplicada, false = turno
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
   const [vaccineForm, setVaccineForm] = useState({
     tipo: "",
     fecha: "",
@@ -175,16 +179,19 @@ export default function Vaccines({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setShowAddMenu(false);
+      }
     };
 
-    if (isDropdownOpen) {
+    if (isDropdownOpen || showAddMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, showAddMenu]);
 
   const handlePetSelect = (selectedPet: {
     name: string;
@@ -206,10 +213,17 @@ export default function Vaccines({
 
   const handleAddVaccine = () => {
     setShowAddVaccine(true);
+    setIsVaccineApplied(false); // Por defecto es un turno
+  };
+
+  const handleAddAppliedVaccine = () => {
+    setShowAddVaccine(true);
+    setIsVaccineApplied(true); // Es una vacuna ya aplicada
   };
 
   const handleBackFromAddVaccine = () => {
     setShowAddVaccine(false);
+    setIsVaccineApplied(false);
     setVaccineForm({
       tipo: "",
       fecha: "",
@@ -239,11 +253,12 @@ export default function Vaccines({
       id: Date.now().toString(),
       tipo: vaccineForm.tipo,
       fecha: vaccineForm.fecha,
-      horario: vaccineForm.horario || undefined,
+      horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined), // Solo horario si es turno
       veterinario: vaccineForm.veterinario || undefined,
       notas: vaccineForm.notas || undefined,
       proximaDosis: proximaDosis,
       petName: pet.name,
+      esAplicada: isVaccineApplied, // Marcar si es aplicada o turno
     };
 
     // Guardar en localStorage
@@ -253,8 +268,13 @@ export default function Vaccines({
     localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
     setVaccines(updatedVaccines);
 
-    // Mostrar el cartel de confirmación
-    setShowSuccessModal(true);
+    // Mostrar el cartel de confirmación solo si es un turno
+    if (!isVaccineApplied) {
+      setShowSuccessModal(true);
+    } else {
+      // Si es vacuna aplicada, volver directamente a la lista
+      handleBackFromAddVaccine();
+    }
   };
 
   const handleMasTarde = () => {
@@ -310,12 +330,16 @@ export default function Vaccines({
     return date.getFullYear();
   };
 
-  // Función para determinar si una vacuna está pendiente (basado en la fecha del turno, no en la próxima dosis)
-  const isPending = (fechaTurno: string): boolean => {
-    if (!fechaTurno) return false;
+  // Función para determinar si una vacuna está pendiente
+  const isPending = (vaccine: Vaccine): boolean => {
+    // Si es una vacuna ya aplicada, nunca está pendiente
+    if (vaccine.esAplicada) return false;
+    
+    // Si es un turno, verificar si la fecha es futura
+    if (!vaccine.fecha) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const turnoDate = new Date(fechaTurno + "T00:00:00");
+    const turnoDate = new Date(vaccine.fecha + "T00:00:00");
     return turnoDate >= today;
   };
 
@@ -382,7 +406,9 @@ export default function Vaccines({
               >
                 <ArrowLeft className="vaccines-back-icon" />
               </button>
-              <h1 className="vaccines-title">Registrar vacuna</h1>
+              <h1 className="vaccines-title">
+                {isVaccineApplied ? "Registrar vacuna aplicada" : "Registrar turno"}
+              </h1>
             </div>
           </div>
 
@@ -423,7 +449,9 @@ export default function Vaccines({
             </div>
 
             <div className="vaccine-form-field">
-              <label className="vaccine-form-label">Fecha y horario del turno</label>
+              <label className="vaccine-form-label">
+                {isVaccineApplied ? "Fecha de aplicación" : "Fecha y horario del turno"}
+              </label>
               <div className="vaccine-form-datetime-container">
                 <Input
                   type="date"
@@ -433,14 +461,16 @@ export default function Vaccines({
                   }
                   className="vaccine-form-datetime-input"
                 />
-                <Input
-                  type="time"
-                  value={vaccineForm.horario}
-                  onChange={(e) =>
-                    setVaccineForm({ ...vaccineForm, horario: e.target.value })
-                  }
-                  className="vaccine-form-datetime-input"
-                />
+                {!isVaccineApplied && (
+                  <Input
+                    type="time"
+                    value={vaccineForm.horario}
+                    onChange={(e) =>
+                      setVaccineForm({ ...vaccineForm, horario: e.target.value })
+                    }
+                    className="vaccine-form-datetime-input"
+                  />
+                )}
               </div>
             </div>
 
@@ -614,13 +644,39 @@ export default function Vaccines({
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button
-              className="vaccines-add-button"
-              aria-label="Agregar vacuna"
-              onClick={handleAddVaccine}
-            >
-              <Plus className="vaccines-add-icon" />
-            </button>
+            <div className="vaccines-add-menu-wrapper" ref={addMenuRef}>
+              <button
+                className="vaccines-add-button"
+                aria-label="Agregar vacuna"
+                onClick={() => setShowAddMenu(!showAddMenu)}
+              >
+                <Plus className="vaccines-add-icon" />
+              </button>
+              {showAddMenu && (
+                <div className="vaccines-add-menu">
+                  <button
+                    className="vaccines-add-menu-item"
+                    onClick={() => {
+                      handleAddVaccine();
+                      setShowAddMenu(false);
+                    }}
+                  >
+                    <Calendar className="vaccines-add-menu-icon" />
+                    <span>Registrar turno</span>
+                  </button>
+                  <button
+                    className="vaccines-add-menu-item"
+                    onClick={() => {
+                      handleAddAppliedVaccine();
+                      setShowAddMenu(false);
+                    }}
+                  >
+                    <Info className="vaccines-add-menu-icon" />
+                    <span>Registrar vacuna aplicada</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Information Banner */}
@@ -640,13 +696,12 @@ export default function Vaccines({
                 <h3 className="vaccines-year-title">{year}</h3>
                 <div className="vaccines-list">
                   {vaccinesByYear[year].map((vaccine) => {
-                    const pending = isPending(vaccine.fecha);
-                    // Siempre mostrar la fecha del turno
+                    const pending = isPending(vaccine);
                     const displayDate = vaccine.fecha;
                     return (
                       <div
                         key={vaccine.id}
-                        className={`vaccine-card ${pending ? "vaccine-card-pending" : "vaccine-card-completed"}`}
+                        className={`vaccine-card ${pending ? "vaccine-card-pending" : vaccine.esAplicada ? "vaccine-card-applied" : "vaccine-card-completed"}`}
                         onClick={() => handleVaccineClick(vaccine)}
                         style={{ cursor: "pointer" }}
                       >
@@ -660,6 +715,11 @@ export default function Vaccines({
                             {pending && (
                               <span className="vaccine-card-pending-label">
                                 Turno pendiente
+                              </span>
+                            )}
+                            {vaccine.esAplicada && !pending && (
+                              <span className="vaccine-card-applied-label">
+                                Aplicada
                               </span>
                             )}
                           </div>
@@ -708,7 +768,9 @@ export default function Vaccines({
               
               <div className="vaccine-details-content">
                 <div className="vaccine-details-field">
-                  <span className="vaccine-details-label">Fecha del turno</span>
+                  <span className="vaccine-details-label">
+                    {selectedVaccine.esAplicada ? "Fecha de aplicación" : "Fecha del turno"}
+                  </span>
                   <span className="vaccine-details-value">{formatDate(selectedVaccine.fecha)}</span>
                 </div>
                 
@@ -733,13 +795,21 @@ export default function Vaccines({
                   </div>
                 )}
                 
-                {/* Solo mostrar próxima dosis si la vacuna NO está pendiente (turno ya pasó) */}
-                {selectedVaccine.proximaDosis && !isPending(selectedVaccine.fecha) && (
+                {/* Mostrar próxima dosis si la vacuna fue aplicada o el turno ya pasó */}
+                {selectedVaccine.proximaDosis && (selectedVaccine.esAplicada || !isPending(selectedVaccine)) && (
                   <div className="vaccine-details-field">
                     <span className="vaccine-details-label">Fecha sugerida para refuerzo</span>
                     <span className="vaccine-details-value">{formatDate(selectedVaccine.proximaDosis)}</span>
                   </div>
                 )}
+                
+                {/* Mostrar si es una vacuna aplicada o un turno */}
+                <div className="vaccine-details-field">
+                  <span className="vaccine-details-label">Estado</span>
+                  <span className="vaccine-details-value">
+                    {selectedVaccine.esAplicada ? "Vacuna aplicada" : isPending(selectedVaccine) ? "Turno pendiente" : "Turno completado"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

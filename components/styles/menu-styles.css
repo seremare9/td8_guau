@@ -11,6 +11,39 @@ body {
   min-height: 100vh;
   padding: 1rem 1.5rem;
   padding-top: 3rem;
+  position: relative;
+}
+
+/* Animación de entrada (deslizar desde la derecha) */
+.menu-slide-in {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animación de salida (deslizar hacia la derecha) */
+.menu-slide-out {
+  animation: slideOutToRight 0.3s ease-in;
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 
 /* Header */

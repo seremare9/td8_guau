@@ -34,6 +34,7 @@ interface MenuScreenProps {
     appearance?: string;
   } | null;
   onOpenPetProfile?: () => void;
+  onOpenCalendar?: () => void;
 }
 
 export default function MenuScreen({
@@ -41,6 +42,7 @@ export default function MenuScreen({
   onClose,
   petData,
   onOpenPetProfile,
+  onOpenCalendar,
 }: MenuScreenProps) {
   const pets = [
     {
@@ -52,7 +54,7 @@ export default function MenuScreen({
 
   return (
     <MobileFrame>
-      <div className="menu-container">
+      <div className="menu-container menu-slide-in">
         {/* Header */}
         <div className="menu-header">
           <div className="menu-header-left">
@@ -147,7 +149,7 @@ export default function MenuScreen({
             <Users className="menu-item-icon" />
             <span className="menu-item-text">Contactos</span>
           </button>
-          <button className="menu-item">
+          <button className="menu-item" onClick={onOpenCalendar}>
             <Calendar className="menu-item-icon" />
             <span className="menu-item-text">Calendario</span>
           </button>
