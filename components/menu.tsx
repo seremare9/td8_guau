@@ -63,6 +63,7 @@ interface MenuScreenProps {
   }) => void;
   onOpenHelp?: () => void;
   onDeletePet?: (petName: string) => void;
+  onOpenAccount?: () => void;
 }
 
 export default function MenuScreen({
@@ -75,7 +76,9 @@ export default function MenuScreen({
   onSelectPet,
   onOpenHelp,
   onDeletePet,
+  onOpenAccount,
 }: MenuScreenProps) {
+  const [isClosing, setIsClosing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [petToDelete, setPetToDelete] = useState<{
     name: string;
@@ -195,7 +198,7 @@ export default function MenuScreen({
 
   return (
     <MobileFrame>
-      <div className="menu-container menu-slide-in">
+      <div className={`menu-container ${isClosing ? "menu-slide-out" : "menu-slide-in"}`}>
         {/* Header */}
         <div className="menu-header">
           <div className="menu-header-left">
@@ -219,7 +222,13 @@ export default function MenuScreen({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setIsClosing(true);
+              // Esperar a que termine la animación antes de cerrar
+              setTimeout(() => {
+                onClose();
+              }, 300); // Duración de la animación (0.3s)
+            }}
             className="menu-close-button"
             aria-label="Cerrar menú"
           >
@@ -337,7 +346,7 @@ export default function MenuScreen({
 
         {/* Bottom Menu Items */}
         <div className="menu-items">
-          <button className="menu-item">
+          <button className="menu-item" onClick={onOpenAccount}>
             <User className="menu-item-icon" />
             <span className="menu-item-text">Mi cuenta</span>
           </button>

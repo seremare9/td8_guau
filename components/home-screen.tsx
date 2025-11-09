@@ -178,6 +178,7 @@ interface HomeScreenProps {
     photos?: string[];
     appearance?: string;
   }) => void;
+  onOpenCalendar?: () => void;
 }
 
 export default function HomeScreen({
@@ -185,6 +186,7 @@ export default function HomeScreen({
   onOpenMenu,
   petData,
   onOpenPetProfile,
+  onOpenCalendar,
 }: HomeScreenProps) {
   const [allPets, setAllPets] = useState<
     Array<{
@@ -571,7 +573,16 @@ export default function HomeScreen({
                 const petImage = getPetImage(event.petName);
 
                 return (
-                  <div key={event.id} className="home-event-card">
+                  <div 
+                    key={event.id} 
+                      className="home-event-card"
+                      onClick={() => {
+                        if (onOpenCalendar) {
+                          onOpenCalendar();
+                        }
+                      }}
+                      style={{ cursor: onOpenCalendar ? "pointer" : "default" }}
+                    >
                     <div
                       className="home-event-icon"
                       style={{

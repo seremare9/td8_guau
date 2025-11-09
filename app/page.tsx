@@ -13,6 +13,7 @@ import PetProfile from "@/components/pet-profile";
 import Vaccines from "@/components/vaccines";
 import Calendar from "@/components/calendar";
 import HelpScreen from "@/components/help-screen";
+import Account from "@/components/account";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/Preguntas/medicinaInfo-screen";
@@ -34,6 +35,7 @@ export default function App() {
     | "vaccines"
     | "calendar"
     | "help"
+    | "account"
   >("onboarding");
 
   const [userType, setUserType] = useState<string>("");
@@ -85,6 +87,7 @@ export default function App() {
   const navigateToVaccines = () => setCurrentScreen("vaccines");
   const navigateToCalendar = () => setCurrentScreen("calendar");
   const navigateToHelp = () => setCurrentScreen("help");
+  const navigateToAccount = () => setCurrentScreen("account");
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -218,7 +221,8 @@ export default function App() {
               setPetData(selectedPetData);
             }
             navigateToPetProfile(selectedPetData);
-          }} 
+          }}
+          onOpenCalendar={navigateToCalendar}
         />
       )}
       {currentScreen === "menu" && (
@@ -241,6 +245,7 @@ export default function App() {
           }}
           onOpenCalendar={navigateToCalendar}
           onOpenHelp={navigateToHelp}
+          onOpenAccount={navigateToAccount}
           onAddNewPet={() => {
             // Navegar al flujo de onboarding para agregar una nueva mascota
             // Empezar desde el paso 1 (raza) en lugar del paso 0 (Oh Oh!)
@@ -357,6 +362,20 @@ export default function App() {
       )}
       {currentScreen === "help" && (
         <HelpScreen onBack={navigateToMenu} />
+      )}
+      {currentScreen === "account" && (
+        <Account
+          userName={userName}
+          onBack={navigateToMenu}
+          onUpdateUserData={(updatedUserData) => {
+            // Guardar los datos actualizados en localStorage
+            localStorage.setItem("user_data", JSON.stringify(updatedUserData));
+            // Actualizar el nombre de usuario si cambió
+            if (updatedUserData.firstName) {
+              setUserName(updatedUserData.firstName);
+            }
+          }}
+        />
       )}
     </div>
   );

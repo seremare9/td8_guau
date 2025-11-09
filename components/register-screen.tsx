@@ -41,7 +41,17 @@ export default function RegisterScreen({
   const handleRegister = () => {
     // Aquí puedes agregar validación de datos antes de navegar
     if (acceptTerms) {
-      // Guardar el email del usuario en localStorage
+      // Guardar todos los datos del usuario en localStorage
+      const userData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        birthDate: formData.birthDate,
+        phone: formData.phone,
+      };
+      localStorage.setItem("user_data", JSON.stringify(userData));
+      
+      // También guardar el email por separado para compatibilidad
       if (formData.email) {
         localStorage.setItem("user_email", formData.email);
       }

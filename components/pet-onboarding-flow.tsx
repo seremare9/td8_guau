@@ -68,6 +68,8 @@ export default function PetOnboardingFlow({
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedYear, setSelectedYear] = useState(2025);
   const [approximateAge, setApproximateAge] = useState("");
+  const [breeds, setBreeds] = useState<string[]>([]);
+  const [isLoadingBreeds, setIsLoadingBreeds] = useState(true);
 
   // Referencia para el input de archivo (NECESARIO PARA EL SELECTOR DE IMAGEN)
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,29 +123,67 @@ export default function PetOnboardingFlow({
     { name: "Diciembre", value: 12 },
   ];
 
-  // Para esta parte hay que sacar la lista completa de razas de algun sitio
-  const breeds = [
-    "Beagle",
-    "Bóxer",
-    "Bulldog Francés",
-    "Bulldog Inglés",
-    "Caniche",
-    "Chihuahua",
-    "Cocker Spaniel",
-    "Dálmata",
-    "Doberman",
-    "Dogo Argentino",
-    "Galgo",
-    "Golden Retriever",
-    "Labrador Retriever",
-    "Mestizo",
-    "Pastor Alemán",
-    "Pug",
-    "Rottweiler",
-    "Schnauzer",
-    "Shih Tzu",
-    "Yorkshire Terrier",
-  ].sort((a, b) => a.localeCompare(b, "es"));
+  // Cargar razas desde breeds.csv
+  // Las razas se ordenan alfabéticamente automáticamente, sin importar
+  // dónde se agreguen en el CSV (al final, al principio, o en cualquier posición)
+  useEffect(() => {
+    const loadBreeds = async () => {
+      try {
+        setIsLoadingBreeds(true);
+        // Usar la API route para leer desde components/breeds.csv
+        // Agregar timestamp para evitar caché del navegador
+        const response = await fetch(`/api/breeds?t=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          throw new Error("No se pudo cargar el archivo de razas");
+        }
+        const text = await response.text();
+        const lines = text.split("\n");
+        // Filtrar líneas vacías y el encabezado si existe
+        const breedsList = lines
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0 && line !== "Raza");
+        // Ordenar alfabéticamente en español (ignora mayúsculas/minúsculas y maneja caracteres especiales)
+        const sortedBreeds = breedsList.sort((a, b) => 
+          a.localeCompare(b, "es", { sensitivity: "base" })
+        );
+        setBreeds(sortedBreeds);
+      } catch (error) {
+        console.error("Error cargando razas:", error);
+        // Fallback a lista básica si falla la carga (también ordenada alfabéticamente)
+        const fallbackBreeds = [
+          "Akita Inu",
+          "Beagle",
+          "Bichón Frisé",
+          "Bichón Maltés",
+          "Border Collie",
+          "Bóxer",
+          "Bulldog Francés",
+          "Bulldog Inglés",
+          "Caniche",
+          "Chihuahua",
+          "Cocker Spaniel",
+          "Dálmata",
+          "Doberman",
+          "Dogo Argentino",
+          "Golden Retriever",
+          "Labrador Retriever",
+          "Mestizo",
+          "Pastor Alemán",
+          "Pug",
+          "Rottweiler",
+          "Schnauzer",
+          "Shih Tzu",
+          "Yorkshire Terrier",
+        ].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+        setBreeds(fallbackBreeds);
+      } finally {
+        setIsLoadingBreeds(false);
+      }
+    };
+    loadBreeds();
+  }, []);
   // ============================================
   // 🔧 CONFIGURACIÓN DE TAMAÑOS DE MASCOTAS
   // ============================================
@@ -315,7 +355,9 @@ export default function PetOnboardingFlow({
 
           {/* Breed list */}
           <div className="breed-list">
-            {filteredBreeds.length > 0 ? (
+            {isLoadingBreeds ? (
+              <p className="breed-no-results">Cargando razas...</p>
+            ) : filteredBreeds.length > 0 ? (
               filteredBreeds.map((breed) => (
                 <button
                   key={breed}

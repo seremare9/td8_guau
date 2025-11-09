@@ -299,7 +299,7 @@ export default function PetProfile({
     if (petData?.appearance) {
       setAppearanceText(petData.appearance);
     } else {
-      setAppearanceText("Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.");
+      setAppearanceText("Agregá una descripción de tu mascota");
     }
   }, [petData?.appearance]);
 
