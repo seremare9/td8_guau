@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import MobileFrame from "./mobile-frame";
 // 1. Importar StaticImageData
 import Image, { StaticImageData } from "next/image";
@@ -8,9 +8,9 @@ import imgIcon from "../images/img-icon.svg";
 import perro from "../images/perro.png";
 import logoGuau from "../images/logo_guau.png";
 import petCardSvg from "../images/pet-card.svg";
-import imgInfoCardBasic2 from "../images/info-cards/img-info-card-basic-2.png";
-import imgInfoCardBasic3 from "../images/info-cards/img-info-card-basic-3.png";
-import imgInfoCardBasic1 from "../images/info-cards/img-info-card-basic-1.png";
+import stockImage1 from "../images/stock-images/dog-img1.jpg";
+import stockImage2 from "../images/stock-images/dog-img2.jpeg";
+import stockImage3 from "../images/stock-images/dog-img3.jpeg";
 import lineSvg from "../images/line.svg";
 import lupaSvg from "../images/lupa.svg";
 import campanaSvg from "../images/campana.svg";
@@ -21,6 +21,8 @@ import vacunaIcon from "../images/event-icons/vacuna.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
+import higieneIcon from "../images/event-icons/higiene.svg";
+import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
 import "../styles/home-screen-styles.css";
 
 // Esta interfaz ya estaba correcta en tu archivo
@@ -294,16 +296,13 @@ export default function HomeScreen({
     };
   }, [petData]);
 
-  // Mostrar solo la mascota seleccionada (petData)
-  const pets = petData ? [
-    {
-      id: 1,
-      name: petData.name,
-      breed: petData.breed || "Sin raza especificada",
-      image: petData.imageURL || perro,
-      fullData: petData,
-    },
-  ] : allPets.length > 0 ? allPets : [
+  // Estado para rastrear qué mascota está visible
+  const [activePetIndex, setActivePetIndex] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0); // 0 = completamente en una card, 1 = completamente en la siguiente
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Usar todas las mascotas para el swipe
+  const pets = allPets.length > 0 ? allPets : [
     {
       id: 1,
       name: "Maxi",
@@ -313,14 +312,54 @@ export default function HomeScreen({
     },
   ];
 
-  // Cargar eventos de salud - solo de la mascota seleccionada
+  // Efecto para actualizar el índice activo cuando cambia el scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || pets.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      // Cada card ocupa aproximadamente el ancho del contenedor (con gap)
+      const cardWidth = containerWidth;
+      const gap = 12; // 0.75rem = 12px
+      const totalCardWidth = cardWidth + gap;
+      
+      // Calcular el índice basado en la posición de scroll
+      const exactIndex = scrollLeft / totalCardWidth;
+      let newIndex = Math.round(exactIndex);
+      
+      // Asegurar que el índice esté dentro del rango válido
+      newIndex = Math.max(0, Math.min(newIndex, pets.length - 1));
+      
+      // Calcular el progreso del scroll entre cards (0 = en una card, 1 = en la siguiente)
+      const progress = Math.abs(exactIndex - newIndex) * 2; // Multiplicar por 2 para que llegue a 1 más rápido
+      const clampedProgress = Math.min(1, progress);
+      
+      setScrollProgress(clampedProgress);
+      
+      if (newIndex !== activePetIndex) {
+        setActivePetIndex(newIndex);
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    // Inicializar el índice activo al cargar
+    handleScroll();
+    
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [pets.length, activePetIndex]);
+
+  // Cargar eventos de salud - de la mascota visible actualmente
   useEffect(() => {
     const loadEvents = () => {
       const allEvents: HomeEvent[] = [];
 
-      // Solo cargar eventos de la mascota seleccionada (petData)
-      if (petData) {
-        const pet = { name: petData.name };
+      // Obtener la mascota que está visible actualmente
+      const activePet = pets[activePetIndex];
+      
+      if (activePet && activePet.fullData) {
+        const pet = { name: activePet.fullData.name };
         // Cargar vacunas
         const vaccinesKey = `vaccines_${pet.name}`;
         const vaccinesStr = localStorage.getItem(vaccinesKey);
@@ -394,26 +433,26 @@ export default function HomeScreen({
     // Recargar eventos periódicamente
     const interval = setInterval(loadEvents, 5000);
     return () => clearInterval(interval);
-  }, [petData]);
+  }, [activePetIndex, pets]);
 
   const [usefulInfo] = useState([
     {
       id: 1,
       title: "Cuidados básicos",
       subtitle: "Click para leer",
-      image: imgInfoCardBasic1,
+      image: stockImage1,
     },
     {
       id: 2,
       title: "Juguetes ideales para cachorros",
       subtitle: "Click para leer",
-      image: imgInfoCardBasic2,
+      image: stockImage2,
     },
     {
       id: 3,
       title: "Tips para la hora del paseo",
       subtitle: "Click para leer",
-      image: imgInfoCardBasic3,
+      image: stockImage3,
     },
   ]);
 
@@ -426,66 +465,114 @@ export default function HomeScreen({
           <div className="home-section-header">
             <h2 className="home-section-title">Mis mascotas</h2>
             <div className="home-section-badge">
-              <span>{pets.length}</span>
+              <span>{allPets.length}</span>
             </div>
           </div>
           <div className="home-pets-container">
-            {pets.map((pet, index) => (
-              <div
-                key={pet.id}
-                className="home-pet-card"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (onOpenPetProfile && pet.fullData) {
-                    onOpenPetProfile(pet.fullData);
-                  } else if (onOpenPetProfile) {
-                    onOpenPetProfile();
-                  }
-                }}
-                style={{ cursor: onOpenPetProfile ? "pointer" : "default" }}
-              >
-                <div className="home-pet-card-content">
-                  <div className="home-pet-info">
-                    <h3 className="home-pet-name">{pet.name}</h3>
-                    <p className="home-pet-breed">{pet.breed}</p>
-                  </div>
-                  <div className="home-pet-image-wrapper">
-                    <div className="home-pet-image-circle">
-                      {typeof pet.image === "string" &&
-                      pet.image.startsWith("data:") ? (
-                        <img
-                          src={pet.image}
-                          alt={pet.name}
-                          width={120}
-                          height={120}
-                          className="home-pet-image"
-                        />
-                      ) : (
-                        <Image
-                          src={pet.image}
-                          alt={pet.name}
-                          width={120}
-                          height={120}
-                          className="home-pet-image"
-                        />
-                      )}
+            <div className="home-pets-scroll-container" ref={scrollContainerRef}>
+              {pets.map((pet, index) => {
+                // Calcular opacidad y z-index basada en la distancia del índice activo y el progreso del scroll
+                const distance = index - activePetIndex;
+                let opacity = 1;
+                let zIndex = 1;
+                let scale = 1;
+                let isBehind = false;
+                
+                if (distance === 0) {
+                  // Card activa: opacidad completa, z-index alto
+                  opacity = 1 - (scrollProgress * 0.1); // Va de 1 a 0.9 durante swipe
+                  zIndex = 10;
+                  scale = 1;
+                } else if (distance === 1) {
+                  // Card siguiente (derecha): detrás, más clara
+                  opacity = 0.5 + (scrollProgress * 0.2); // Va de 0.5 a 0.7 durante swipe
+                  zIndex = 0;
+                  scale = 0.98;
+                  isBehind = true;
+                } else if (distance === -1) {
+                  // Card anterior (izquierda): detrás, más clara
+                  opacity = 0.4 - (scrollProgress * 0.1); // Se atenúa más durante swipe
+                  zIndex = 1;
+                  scale = 0.95;
+                  isBehind = true;
+                } else {
+                  // Cards más lejanas: muy atenuadas
+                  opacity = 0.3;
+                  zIndex = 0;
+                  scale = 0.9;
+                  isBehind = true;
+                }
+                
+                return (
+                <div
+                  key={pet.id}
+                  className={`home-pet-card ${isBehind ? "home-pet-card-behind" : ""}`}
+                  style={{ 
+                    opacity: opacity,
+                    zIndex: zIndex,
+                    transform: distance === 1 ? `scale(${scale}) translateX(-0.5rem) translateY(0.5rem)` : `scale(${scale})`,
+                    cursor: onOpenPetProfile ? "pointer" : "default"
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (onOpenPetProfile && pet.fullData) {
+                      onOpenPetProfile(pet.fullData);
+                    } else if (onOpenPetProfile) {
+                      onOpenPetProfile();
+                    }
+                  }}
+                >
+                  <div className="home-pet-card-content">
+                    <div className="home-pet-info">
+                      <h3 className="home-pet-name">{pet.name}</h3>
+                      <p className="home-pet-breed">{pet.breed}</p>
+                    </div>
+                    <div className="home-pet-image-wrapper">
+                      <div className="home-pet-image-circle">
+                        {typeof pet.image === "string" &&
+                        pet.image.startsWith("data:") ? (
+                          <img
+                            src={pet.image}
+                            alt={pet.name}
+                            width={120}
+                            height={120}
+                            className="home-pet-image"
+                          />
+                        ) : (
+                          <Image
+                            src={pet.image}
+                            alt={pet.name}
+                            width={120}
+                            height={120}
+                            className="home-pet-image"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="home-pet-image-elipses">
+                      <Image
+                        src={elipsesSvg}
+                        alt=""
+                        width={120}
+                        height={120}
+                        className="home-elipses-image"
+                      />
                     </div>
                   </div>
-                  <div className="home-pet-image-elipses">
-                    <Image
-                      src={elipsesSvg}
-                      alt=""
-                      width={120}
-                      height={120}
-                      className="home-elipses-image"
-                    />
-                  </div>
+                  <div className="home-pet-pattern"></div>
                 </div>
-                <div className="home-pet-pattern"></div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
             <div className="home-pagination">
-              <div className="home-pagination-dot active"></div>
+              {pets.map((_, index) => (
+                <div
+                  key={index}
+                  className={`home-pagination-dot ${
+                    index === activePetIndex ? "active" : ""
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -498,7 +585,12 @@ export default function HomeScreen({
               <span>{events.length}</span>
             </div>
           </div>
-          <div className="home-events-container">
+          <div 
+            className="home-events-container"
+            style={{ 
+              opacity: 1 - (scrollProgress * 0.7) // Va de 1 a 0.3 durante el swipe
+            }}
+          >
             {events.length === 0 ? (
               <div className="home-empty-card">
                 <p className="home-empty-text">No tenés eventos registrados</p>
@@ -537,6 +629,10 @@ export default function HomeScreen({
                       return medicinaIcon;
                     case "veterinario":
                       return veterinarioIcon;
+                    case "higiene":
+                      return higieneIcon;
+                    case "antiparasitario":
+                      return antiparasitarioIcon;
                     default:
                       return otroIcon;
                   }
@@ -560,12 +656,18 @@ export default function HomeScreen({
                   return event.tipo;
                 };
 
-                // 2. Corregir el tipo de retorno de la función
+                // 2. Obtener la imagen de la mascota visible actualmente
                 const getPetImage = (
                   petName: string
                 ): string | StaticImageData => {
-                  if (petData && petData.name === petName) {
-                    return petData.imageURL || perro;
+                  const activePet = pets[activePetIndex];
+                  if (activePet && activePet.fullData && activePet.fullData.name === petName) {
+                    return activePet.fullData.imageURL || perro;
+                  }
+                  // Buscar en todas las mascotas
+                  const pet = pets.find(p => p.fullData && p.fullData.name === petName);
+                  if (pet && pet.fullData) {
+                    return pet.fullData.imageURL || perro;
                   }
                   return perro;
                 };
@@ -583,17 +685,12 @@ export default function HomeScreen({
                       }}
                       style={{ cursor: onOpenCalendar ? "pointer" : "default" }}
                     >
-                    <div
-                      className="home-event-icon"
-                      style={{
-                        backgroundColor: `${getEventColor(event.eventType)}20`,
-                      }}
-                    >
+                    <div className="home-event-icon">
                       <Image
                         src={getEventIcon(event.eventType)}
                         alt={event.eventType}
-                        width={54}
-                        height={54}
+                        width={60}
+                        height={60}
                       />
                     </div>
                     <div className="home-event-info">

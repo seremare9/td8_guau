@@ -10,6 +10,8 @@ import vacunaIcon from "../images/event-icons/vacuna.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
+import higieneIcon from "../images/event-icons/higiene.svg";
+import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -296,6 +298,10 @@ export default function Calendar({
         return medicinaIcon;
       case "veterinario":
         return veterinarioIcon;
+      case "higiene":
+        return higieneIcon;
+      case "antiparasitario":
+        return antiparasitarioIcon;
       default:
         return otroIcon;
     }
@@ -626,17 +632,12 @@ export default function Calendar({
                     }}
                     style={{ cursor: "pointer" }}
                   >
-                    <div
-                      className="calendar-event-icon"
-                      style={{
-                        backgroundColor: `${getEventColor(event.eventType)}20`,
-                      }}
-                    >
+                    <div className="calendar-event-icon">
                       <Image
                         src={getEventIcon(event.eventType)}
                         alt={event.eventType}
-                        width={54}
-                        height={54}
+                        width={64}
+                        height={64}
                       />
                     </div>
                     <div className="calendar-event-info">

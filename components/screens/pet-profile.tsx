@@ -12,6 +12,8 @@ import vacunaIcon from "../images/event-icons/vacuna.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
+import higieneIcon from "../images/event-icons/higiene.svg";
+import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
 
 interface PetProfileProps {
   userName?: string;
@@ -848,13 +850,7 @@ export default function PetProfile({
               </div>
               <div className="pet-profile-health-card" onClick={() => {}}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-higiene">
-                  <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" fill="#E6F3FF" fillOpacity="0.4"/>
-                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" stroke="#B3D9FF"/>
-                    <path d="M27 15L20 22V35C20 37.2091 21.7909 39 24 39H30C32.2091 39 34 37.2091 34 35V22L27 15Z" fill="#3B82F6"/>
-                    <path d="M27 15L27 25M27 25L21 31M27 25L33 31" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                    <circle cx="27" cy="32" r="3" fill="white"/>
-                  </svg>
+                  <Image src={higieneIcon} alt="Higiene" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Higiene</span>
               </div>
@@ -866,16 +862,7 @@ export default function PetProfile({
               </div>
               <div className="pet-profile-health-card" onClick={() => {}}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-antiparasitario">
-                  <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" fill="#F3E8FF" fillOpacity="0.4"/>
-                    <rect x="0.5" y="0.5" width="53" height="53" rx="7.5" stroke="#E9D5FF"/>
-                    <circle cx="27" cy="27" r="12" fill="#A855F7"/>
-                    <circle cx="27" cy="27" r="8" fill="#C084FC"/>
-                    <circle cx="20" cy="20" r="3" fill="white"/>
-                    <circle cx="34" cy="20" r="3" fill="white"/>
-                    <circle cx="20" cy="34" r="3" fill="white"/>
-                    <circle cx="34" cy="34" r="3" fill="white"/>
-                  </svg>
+                  <Image src={antiparasitarioIcon} alt="Anti parasitario" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Anti parasitario</span>
               </div>

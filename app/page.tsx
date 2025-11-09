@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OnboardingScreen from "@/components/screens/onboarding-screen";
 import LoginScreen from "@/components/screens/inicio";
 import RegisterScreen from "@/components/screens/register-screen";
@@ -58,6 +58,48 @@ export default function App() {
     appearance?: string;
   } | null>(null);
 
+  // Función para verificar si hay mascotas registradas
+  const hasRegisteredPets = (): boolean => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("pet_data_")) {
+        const petDataStr = localStorage.getItem(key);
+        if (petDataStr) {
+          try {
+            const petDataObj = JSON.parse(petDataStr);
+            if (petDataObj.name) {
+              return true;
+            }
+          } catch (e) {
+            console.error("Error al parsear datos de mascota:", e);
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  // Función para cargar la primera mascota registrada
+  const loadFirstPet = () => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("pet_data_")) {
+        const petDataStr = localStorage.getItem(key);
+        if (petDataStr) {
+          try {
+            const petDataObj = JSON.parse(petDataStr);
+            if (petDataObj.name) {
+              setPetData(petDataObj);
+              return;
+            }
+          } catch (e) {
+            console.error("Error al parsear datos de mascota:", e);
+          }
+        }
+      }
+    }
+  };
+
   const navigateToLogin = () => setCurrentScreen("login");
   const navigateToRegister = () => setCurrentScreen("register");
   const navigateToUserType = () => setCurrentScreen("userType");
@@ -88,6 +130,14 @@ export default function App() {
   const navigateToCalendar = () => setCurrentScreen("calendar");
   const navigateToHelp = () => setCurrentScreen("help");
   const navigateToAccount = () => setCurrentScreen("account");
+
+  // Verificar al cargar si hay mascotas registradas y cargar la primera
+  useEffect(() => {
+    if (hasRegisteredPets()) {
+      loadFirstPet();
+      setCurrentScreen("home");
+    }
+  }, []); // Solo se ejecuta al montar el componente
 
   // Nueva función: Navega al flujo de onboarding forzando el paso 0 ("Oh Oh!")
   const navigateToEmptyPetList = () => {
@@ -162,7 +212,13 @@ export default function App() {
           onBack={navigateBack}
           onLogin={() => {
             setUserName("User");
-            navigateToUserType();
+            // Si hay mascotas registradas, ir directamente a home
+            if (hasRegisteredPets()) {
+              loadFirstPet();
+              navigateToHome();
+            } else {
+              navigateToUserType();
+            }
           }}
         />
       )}
@@ -171,7 +227,13 @@ export default function App() {
           onBack={navigateBack}
           onRegister={(name: string) => {
             setUserName(name || "User");
-            navigateToUserType();
+            // Si hay mascotas registradas, ir directamente a home
+            if (hasRegisteredPets()) {
+              loadFirstPet();
+              navigateToHome();
+            } else {
+              navigateToUserType();
+            }
           }}
         />
       )}

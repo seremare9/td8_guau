@@ -135,6 +135,34 @@
 /* Pets Section */
 .home-pets-container {
   position: relative;
+  overflow: visible;
+}
+
+.home-pets-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 0;
+  padding-bottom: 0.5rem;
+  position: relative;
+}
+
+.home-pets-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.home-pets-scroll-container .home-pet-card {
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  width: calc(100% - 1.5rem);
+  min-width: calc(100% - 1.5rem);
+  position: relative;
+  margin-right: 0;
 }
 
 .home-pet-card {
@@ -146,13 +174,19 @@
   border-radius: 0.875rem;
   padding: 1.5rem;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 336px;
   height: 130px;
   align-items: center;
   /* min-height: 157px; */
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.home-pet-card-behind {
+  background-color: rgba(255, 255, 255, 0.7); /* Color más claro, casi blanco con transparencia */
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
 }
 
 .home-pet-card-content {
@@ -276,6 +310,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  transition: opacity 0.2s ease-out;
 }
 
 .home-empty-card {
@@ -308,8 +343,8 @@
 }
 
 .home-event-icon {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 0.75rem;
   display: flex;
   align-items: center;
@@ -325,11 +360,11 @@
 }
 
 .home-event-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #39434F;
-  margin: 0;
-  font-family: "Noto Sans", sans-serif;
+  font-size: 1rem;
+  font-family: var(--info-card-font-family);
+  font-weight: var(--info-card-title-font-weight);
+  line-height: 1.2;
+  margin: 0 0 0.25rem 0;
 }
 
 .home-event-date {
@@ -414,7 +449,6 @@
   font-size: 1rem;
   font-family: var(--info-card-font-family);
   font-weight: var(--info-card-title-font-weight);
- 
   line-height: 1.2;
   margin: 0 0 0.25rem 0;
 }

@@ -302,16 +302,19 @@ export default function MenuScreen({
                 </div>
               );
             })}
-            <div
-              className="menu-pet-item"
-              onClick={onAddNewPet}
-              style={{ cursor: onAddNewPet ? "pointer" : "default" }}
-            >
-              <div className="menu-pet-circle menu-pet-new">
-                <Plus className="menu-pet-plus-icon" />
+            {/* Solo mostrar opción "Nueva" si hay menos de 3 mascotas */}
+            {pets.length < 3 && (
+              <div
+                className="menu-pet-item"
+                onClick={onAddNewPet}
+                style={{ cursor: onAddNewPet ? "pointer" : "default" }}
+              >
+                <div className="menu-pet-circle menu-pet-new">
+                  <Plus className="menu-pet-plus-icon" />
+                </div>
+                <span className="menu-pet-name menu-pet-name-new">Nueva</span>
               </div>
-              <span className="menu-pet-name menu-pet-name-new">Nueva</span>
-            </div>
+            )}
           </div>
         </div>
         {/* Line separator */}
