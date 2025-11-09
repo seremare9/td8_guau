@@ -28,6 +28,8 @@ interface PetOnboardingFlowProps {
   onBack: () => void;
   // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
   initialStep?: number;
+  // Propiedad para indicar si viene del menú (para agregar nueva mascota)
+  fromMenu?: boolean;
   onFinish?: (petData: {
     name: string;
     breed: string;
@@ -46,6 +48,7 @@ export default function PetOnboardingFlow({
   onBack,
   onFinish,
   initialStep, // Recibimos la prop aquí
+  fromMenu = false, // Por defecto no viene del menú
 }: PetOnboardingFlowProps) {
   const defaultInitialStep = userType === "future" ? 0 : 1;
   const [step, setStep] = useState(
@@ -285,7 +288,7 @@ export default function PetOnboardingFlow({
           <div className="breed-header">
             <div className="breed-header-top">
               <button
-                onClick={userType === "future" ? () => setStep(0) : onBack}
+                onClick={fromMenu ? onBack : (userType === "future" ? () => setStep(0) : onBack)}
                 className="breed-back-button"
               >
                 <ArrowLeft className="icon-arrow" />

@@ -86,13 +86,16 @@ export default function Calendar({
     }>
   >([]);
   const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [showDayEventsModal, setShowDayEventsModal] = useState(false);
+  const [showEditEventModal, setShowEditEventModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<HealthEvent | null>(null);
   const [eventForm, setEventForm] = useState({
     tipo: "",
     horario: "",
     petName: "",
     eventType: "otro" as HealthEvent["eventType"],
     reminderEnabled: false,
-    reminderTime: "",
+    reminderBefore: "", // Tiempo antes del evento (ej: "0", "5", "10", etc.)
   });
 
   const pet = {
@@ -138,6 +141,19 @@ export default function Calendar({
     };
 
     loadAllPets();
+
+    // Escuchar cambios en localStorage
+    const handleStorageChange = () => {
+      loadAllPets();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
   }, [petData]);
 
   // Cargar eventos de salud
@@ -363,11 +379,130 @@ export default function Calendar({
       .slice(0, 10); // Máximo 10 eventos próximos
   };
 
-  // CORRECCIÓN: el tipo de retorno debe incluir StaticImageData
   const getPetImage = (petName: string): string | StaticImageData => {
     const pet = allPets.find((p) => p.name === petName);
     return pet?.imageURL || perro;
   };
+
+  // *** FUNCIONES MOVIDAS AQUÍ DENTRO ***
+
+  const calculateNextDose = (applicationDate: string): string => {
+    if (!applicationDate) return "";
+    const date = new Date(applicationDate + "T00:00:00");
+    date.setFullYear(date.getFullYear() + 1);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const deleteEvent = (event: HealthEvent) => {
+    if (event.eventType === "vacuna") {
+      const vaccinesKey = `vaccines_${event.petName}`;
+      const existingVaccines = JSON.parse(
+        localStorage.getItem(vaccinesKey) || "[]"
+      );
+      const updatedVaccines = existingVaccines.filter(
+        (v: any) => v.id !== event.id
+      );
+      localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
+    } else {
+      const eventsKey = `events_${event.petName}`;
+      const existingEvents = JSON.parse(
+        localStorage.getItem(eventsKey) || "[]"
+      );
+      const updatedEvents = existingEvents.filter(
+        (e: any) => e.id !== event.id
+      );
+      localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+    }
+    window.dispatchEvent(new Event("customStorageChange"));
+    // AHORA SÍ PUEDE ENCONTRAR ESTAS FUNCIONES
+    setShowEditEventModal(false);
+    setEditingEvent(null);
+  };
+
+  const formatDayName = (date: Date): string => {
+    const dayNames = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
+    return dayNames[date.getDay()];
+  };
+
+  const formatMonthDay = (date: Date): string => {
+    const day = date.getDate();
+    const monthNames = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ];
+    return `${day} de ${monthNames[date.getMonth()]}`;
+  };
+
+  // Función para obtener el email del usuario
+  // TODO: Cuando integres las tablas SQL, reemplaza esta función para obtener el email desde la base de datos
+  const getUserEmail = (): string => {
+    // Por ahora, obtenemos el email desde localStorage
+    // Cuando tengas las tablas SQL integradas, aquí deberías hacer una llamada a tu API
+    // Ejemplo: const user = await fetchUserFromDatabase(); return user.email;
+    return localStorage.getItem("user_email") || "";
+  };
+
+  // Función para programar el envío del email del recordatorio
+  // TODO: Cuando integres las tablas SQL, reemplaza esta función para programar el envío real del email
+  const scheduleEmailReminder = async (reminder: {
+    id: string;
+    eventId: string;
+    eventTitle: string;
+    eventDate: string;
+    eventTime: string;
+    petName: string;
+    reminderDateTime: string;
+    reminderMinutesBefore: number;
+    userEmail: string;
+  }) => {
+    // Por ahora, solo guardamos el recordatorio en localStorage
+    // Cuando tengas las tablas SQL integradas, aquí deberías llamar a tu API para programar el envío
+    // Ejemplo: await fetch('/api/reminders/schedule', { method: 'POST', body: JSON.stringify(reminder) });
+    
+    console.log("Recordatorio programado para envío por email:", {
+      email: reminder.userEmail,
+      asunto: `Recordatorio: ${reminder.eventTitle} para ${reminder.petName}`,
+      mensaje: `Te recordamos que tienes un evento "${reminder.eventTitle}" para ${reminder.petName} el ${formatDate(new Date(reminder.eventDate))}${reminder.eventTime !== "00:00" ? ` a las ${reminder.eventTime}hs` : ""}.`,
+      fechaEnvio: reminder.reminderDateTime,
+      minutosAntes: reminder.reminderMinutesBefore,
+    });
+
+    // Aquí es donde deberías integrar con tu backend para programar el envío del email
+    // Por ejemplo:
+    // try {
+    //   const response = await fetch('/api/reminders', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(reminder)
+    //   });
+    //   if (!response.ok) throw new Error('Error al programar recordatorio');
+    // } catch (error) {
+    //   console.error('Error al programar recordatorio:', error);
+    // }
+  };
+
+  // *** FIN DE LAS FUNCIONES MOVIDAS ***
 
   const days = getDaysInMonth(currentDate);
   const upcomingEvents = getUpcomingEvents();
@@ -437,15 +572,7 @@ export default function Calendar({
                 onClick={() => {
                   if (date && isCurrentMonth(date)) {
                     setSelectedDate(date);
-                    setShowAddEventModal(true);
-                    setEventForm({
-                      tipo: "",
-                      horario: "",
-                      petName: pet.name,
-                      eventType: "otro",
-                      reminderEnabled: false,
-                      reminderTime: "",
-                    });
+                    setShowDayEventsModal(true);
                   }
                 }}
               >
@@ -490,7 +617,15 @@ export default function Calendar({
                 const petImage = getPetImage(event.petName);
 
                 return (
-                  <div key={event.id} className="calendar-event-card">
+                  <div
+                    key={event.id}
+                    className="calendar-event-card"
+                    onClick={() => {
+                      setEditingEvent(event);
+                      setShowEditEventModal(true);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
                     <div
                       className="calendar-event-icon"
                       style={{
@@ -554,11 +689,222 @@ export default function Calendar({
           )}
         </div>
 
-        {/* Modal para agregar evento */}
-        {showAddEventModal && selectedDate && (
+        {/* Modal para mostrar eventos del día */}
+        {showDayEventsModal && selectedDate && (
           <div
             className="calendar-add-event-modal-overlay"
-            onClick={() => setShowAddEventModal(false)}
+            onClick={() => {
+              setShowDayEventsModal(false);
+              setSelectedDate(null);
+            }}
+          >
+            <div
+              className="calendar-day-events-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="calendar-day-events-modal-header">
+                <h3 className="calendar-day-events-modal-title">
+                  {formatDayName(selectedDate)} {formatMonthDay(selectedDate)}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowDayEventsModal(false);
+                    setSelectedDate(null);
+                  }}
+                  className="calendar-add-event-modal-close"
+                >
+                  <X className="calendar-add-event-modal-close-icon" />
+                </button>
+              </div>
+
+              <div className="calendar-day-events-modal-content">
+                {(() => {
+                  const dayEvents = getEventsForDate(selectedDate);
+                  return dayEvents.length === 0 ? (
+                    <div className="calendar-day-events-empty">
+                      <p className="calendar-day-events-empty-text">
+                        No hay eventos programados para esta fecha
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="calendar-day-events-list">
+                      {dayEvents.map((event) => {
+                        const petImage = getPetImage(event.petName);
+                        return (
+                          <div
+                            key={event.id}
+                            className="calendar-day-event-item"
+                            onClick={() => {
+                              setEditingEvent(event);
+                              setShowDayEventsModal(false);
+                              setShowEditEventModal(true);
+                            }}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div
+                              className="calendar-day-event-icon"
+                              style={{
+                                backgroundColor: `${getEventColor(
+                                  event.eventType
+                                )}20`,
+                              }}
+                            >
+                              <Image
+                                src={getEventIcon(event.eventType)}
+                                alt={event.eventType}
+                                width={40}
+                                height={40}
+                              />
+                            </div>
+                            <div className="calendar-day-event-info">
+                              <h4 className="calendar-day-event-name">
+                                {getEventTypeName(event)}
+                              </h4>
+                              <p className="calendar-day-event-time">
+                                {event.horario
+                                  ? `${event.horario}hs`
+                                  : "Sin horario"}
+                              </p>
+                            </div>
+                            <div className="calendar-day-event-pet">
+                              {typeof petImage === "string" &&
+                              petImage.startsWith("data:") ? (
+                                <img
+                                  src={petImage}
+                                  alt={event.petName}
+                                  width={40}
+                                  height={40}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              ) : (
+                                <Image
+                                  src={petImage}
+                                  alt={event.petName}
+                                  width={40}
+                                  height={40}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                <Button
+                  onClick={() => {
+                    setShowDayEventsModal(false);
+                    setShowAddEventModal(true);
+                    setEventForm({
+                      tipo: "",
+                      horario: "",
+                      petName: pet.name,
+                      eventType: "otro",
+                      reminderEnabled: false,
+                      reminderBefore: "",
+                    });
+                  }}
+                  className="calendar-day-events-add-button"
+                >
+                  Añadir evento
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para editar/eliminar evento */}
+        {showEditEventModal && editingEvent && (
+          <div
+            className="calendar-add-event-modal-overlay"
+            onClick={() => {
+              setShowEditEventModal(false);
+              setEditingEvent(null);
+            }}
+          >
+            <div
+              className="calendar-edit-event-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="calendar-add-event-modal-header">
+                <h3 className="calendar-add-event-modal-title">
+                  Editar evento
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEditEventModal(false);
+                    setEditingEvent(null);
+                  }}
+                  className="calendar-add-event-modal-close"
+                >
+                  <X className="calendar-add-event-modal-close-icon" />
+                </button>
+              </div>
+
+              <div className="calendar-add-event-modal-content">
+                <div className="calendar-edit-event-actions">
+                  <Button
+                    onClick={() => {
+                      const eventDate = new Date(
+                        editingEvent.fecha + "T00:00:00"
+                      ); // Asegurarse de que la zona horaria sea correcta
+                      setSelectedDate(eventDate);
+                      setEventForm({
+                        tipo: editingEvent.tipo,
+                        horario: editingEvent.horario || "",
+                        petName: editingEvent.petName,
+                        eventType: editingEvent.eventType,
+                        reminderEnabled: false,
+                        reminderBefore: "",
+                      });
+                      setShowEditEventModal(false);
+                      setShowAddEventModal(true);
+                    }}
+                    className="calendar-edit-event-button"
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "¿Estás seguro de que deseas eliminar este evento?"
+                        )
+                      ) {
+                        deleteEvent(editingEvent);
+                      }
+                    }}
+                    className="calendar-delete-event-button"
+                  >
+                    Eliminar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para agregar evento */}
+        {showAddEventModal && (selectedDate || editingEvent) && (
+          <div
+            className="calendar-add-event-modal-overlay"
+            onClick={() => {
+              setShowAddEventModal(false);
+              setSelectedDate(null);
+              setEditingEvent(null);
+            }}
           >
             <div
               className="calendar-add-event-modal"
@@ -566,10 +912,14 @@ export default function Calendar({
             >
               <div className="calendar-add-event-modal-header">
                 <h3 className="calendar-add-event-modal-title">
-                  Agregar evento
+                  {editingEvent ? "Editar evento" : "Agregar evento"}
                 </h3>
                 <button
-                  onClick={() => setShowAddEventModal(false)}
+                  onClick={() => {
+                    setShowAddEventModal(false);
+                    setSelectedDate(null);
+                    setEditingEvent(null);
+                  }}
                   className="calendar-add-event-modal-close"
                 >
                   <X className="calendar-add-event-modal-close-icon" />
@@ -581,7 +931,13 @@ export default function Calendar({
                   <label className="calendar-add-event-label">Fecha</label>
                   <Input
                     type="date"
-                    value={selectedDate.toISOString().split("T")[0]}
+                    value={
+                      selectedDate
+                        ? selectedDate.toISOString().split("T")[0]
+                        : editingEvent
+                        ? editingEvent.fecha
+                        : ""
+                    }
                     disabled
                     className="calendar-add-event-input"
                   />
@@ -603,14 +959,19 @@ export default function Calendar({
                     <SelectTrigger className="calendar-add-event-select">
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent
+                      className="calendar-select-content"
+                      style={{ zIndex: 10001 }}
+                    >
                       <SelectItem value="vacuna">Vacuna</SelectItem>
+                      <SelectItem value="higiene">Higiene</SelectItem>
                       <SelectItem value="medicina">Medicina</SelectItem>
-                      <SelectItem value="veterinario">Veterinario</SelectItem>
                       <SelectItem value="antiparasitario">
                         Antiparasitario
                       </SelectItem>
-                      <SelectItem value="higiene">Higiene</SelectItem>
+                      <SelectItem value="veterinario">
+                        Visita al veterinario
+                      </SelectItem>
                       <SelectItem value="otro">Otro</SelectItem>
                     </SelectContent>
                   </Select>
@@ -656,7 +1017,7 @@ export default function Calendar({
                     <SelectTrigger className="calendar-add-event-select">
                       <SelectValue placeholder="Seleccionar mascota" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent style={{ zIndex: 10001 }}>
                       {allPets.map((pet) => (
                         <SelectItem key={pet.name} value={pet.name}>
                           {pet.name}
@@ -686,34 +1047,81 @@ export default function Calendar({
                 {eventForm.reminderEnabled && (
                   <div className="calendar-add-event-field">
                     <label className="calendar-add-event-label">
-                      Hora del recordatorio
+                      Recordar
                     </label>
-                    <Input
-                      type="time"
-                      value={eventForm.reminderTime}
-                      onChange={(e) =>
+                    <Select
+                      value={eventForm.reminderBefore}
+                      onValueChange={(value) =>
                         setEventForm({
                           ...eventForm,
-                          reminderTime: e.target.value,
+                          reminderBefore: value,
                         })
                       }
-                      className="calendar-add-event-input"
-                    />
+                    >
+                      <SelectTrigger className="calendar-add-event-select">
+                        <SelectValue placeholder="Seleccionar cuándo recordar" />
+                      </SelectTrigger>
+                      <SelectContent style={{ zIndex: 10001 }}>
+                        <SelectItem value="0">A la hora del evento</SelectItem>
+                        <SelectItem value="5">5 minutos antes</SelectItem>
+                        <SelectItem value="10">10 minutos antes</SelectItem>
+                        <SelectItem value="15">15 minutos antes</SelectItem>
+                        <SelectItem value="30">30 minutos antes</SelectItem>
+                        <SelectItem value="60">1 hora antes</SelectItem>
+                        <SelectItem value="120">2 horas antes</SelectItem>
+                        <SelectItem value="1440">1 día antes</SelectItem>
+                        <SelectItem value="2880">2 días antes</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
 
                 <div className="calendar-add-event-modal-actions">
                   <Button
                     onClick={() => {
-                      if (eventForm.tipo && eventForm.petName && selectedDate) {
+                      const eventDate =
+                        selectedDate ||
+                        (editingEvent
+                          ? new Date(editingEvent.fecha + "T00:00:00")
+                          : null);
+                      if (eventForm.tipo && eventForm.petName && eventDate) {
                         const newEvent: HealthEvent = {
-                          id: Date.now().toString(),
+                          id: editingEvent?.id || Date.now().toString(),
                           tipo: eventForm.tipo,
-                          fecha: selectedDate.toISOString().split("T")[0],
+                          fecha: eventDate.toISOString().split("T")[0],
                           horario: eventForm.horario || undefined,
                           petName: eventForm.petName,
                           eventType: eventForm.eventType,
                         };
+
+                        // Si estamos editando, eliminar el evento anterior
+                        if (editingEvent) {
+                          if (editingEvent.eventType === "vacuna") {
+                            const vaccinesKey = `vaccines_${editingEvent.petName}`;
+                            const existingVaccines = JSON.parse(
+                              localStorage.getItem(vaccinesKey) || "[]"
+                            );
+                            const updatedVaccines = existingVaccines.filter(
+                              (v: any) => v.id !== editingEvent.id
+                            );
+                            localStorage.setItem(
+                              vaccinesKey,
+                              JSON.stringify(updatedVaccines)
+                            );
+                          } else {
+                            const eventsKey = `events_${editingEvent.petName}`;
+                            const existingEvents = JSON.parse(
+                              localStorage.getItem(eventsKey) || "[]"
+                            );
+                            const updatedEvents = existingEvents.filter(
+                              (e: any) => e.id !== editingEvent.id
+                            );
+                            localStorage.setItem(
+                              eventsKey,
+                              JSON.stringify(updatedEvents)
+                            );
+                          }
+                        }
 
                         // Guardar evento según su tipo
                         if (eventForm.eventType === "vacuna") {
@@ -723,8 +1131,9 @@ export default function Calendar({
                           );
                           const vaccineEvent = {
                             ...newEvent,
+                            id: editingEvent?.id || newEvent.id,
                             proximaDosis: calculateNextDose(newEvent.fecha),
-                            esAplicada: false,
+                            esAplicada: editingEvent?.esAplicada || false,
                           };
                           existingVaccines.push(vaccineEvent);
                           localStorage.setItem(
@@ -737,38 +1146,67 @@ export default function Calendar({
                           const existingEvents = JSON.parse(
                             localStorage.getItem(eventsKey) || "[]"
                           );
-                          existingEvents.push(newEvent);
+                          const eventToSave = {
+                            ...newEvent,
+                            id: editingEvent?.id || newEvent.id,
+                          };
+                          existingEvents.push(eventToSave);
                           localStorage.setItem(
                             eventsKey,
                             JSON.stringify(existingEvents)
                           );
                         }
 
-                        // Crear notificación si está habilitado
+                        // Crear recordatorio si está habilitado
                         if (
                           eventForm.reminderEnabled &&
-                          eventForm.reminderTime
+                          eventForm.reminderBefore !== ""
                         ) {
-                          const notification = {
-                            id: Date.now().toString(),
-                            eventId: newEvent.id,
-                            title: eventForm.tipo,
-                            message: `Recordatorio: ${eventForm.tipo} para ${eventForm.petName}`,
-                            date: selectedDate.toISOString().split("T")[0],
-                            time: eventForm.reminderTime,
-                            read: false,
-                            createdAt: new Date().toISOString(),
-                          };
+                          // Calcular la hora del recordatorio
+                          const reminderMinutes = parseInt(eventForm.reminderBefore);
+                          const eventDateTime = new Date(
+                            eventDate.toISOString().split("T")[0] +
+                              (newEvent.horario ? `T${newEvent.horario}:00` : "T00:00:00")
+                          );
+                          const reminderDateTime = new Date(
+                            eventDateTime.getTime() - reminderMinutes * 60 * 1000
+                          );
 
-                          const notificationsKey = "notifications";
-                          const existingNotifications = JSON.parse(
-                            localStorage.getItem(notificationsKey) || "[]"
-                          );
-                          existingNotifications.push(notification);
-                          localStorage.setItem(
-                            notificationsKey,
-                            JSON.stringify(existingNotifications)
-                          );
+                          // Obtener el email del usuario
+                          const userEmail = getUserEmail();
+
+                          if (!userEmail) {
+                            console.warn("No se encontró el email del usuario. El recordatorio no se programará.");
+                          } else {
+                            // Crear el recordatorio
+                            const reminder = {
+                              id: Date.now().toString(),
+                              eventId: newEvent.id,
+                              eventTitle: eventForm.tipo,
+                              eventDate: eventDate.toISOString().split("T")[0],
+                              eventTime: newEvent.horario || "00:00",
+                              petName: eventForm.petName,
+                              reminderDateTime: reminderDateTime.toISOString(),
+                              reminderMinutesBefore: reminderMinutes,
+                              userEmail: userEmail,
+                              sent: false,
+                              createdAt: new Date().toISOString(),
+                            };
+
+                            // Guardar el recordatorio en localStorage
+                            const remindersKey = "event_reminders";
+                            const existingReminders = JSON.parse(
+                              localStorage.getItem(remindersKey) || "[]"
+                            );
+                            existingReminders.push(reminder);
+                            localStorage.setItem(
+                              remindersKey,
+                              JSON.stringify(existingReminders)
+                            );
+
+                            // Programar el envío del email
+                            scheduleEmailReminder(reminder);
+                          }
                         }
 
                         // Disparar evento personalizado para recargar eventos
@@ -776,6 +1214,15 @@ export default function Calendar({
 
                         setShowAddEventModal(false);
                         setSelectedDate(null);
+                        setEditingEvent(null);
+                        setEventForm({
+                          tipo: "",
+                          horario: "",
+                          petName: pet.name,
+                          eventType: "otro",
+                          reminderEnabled: false,
+                          reminderBefore: "",
+                        });
                       }
                     }}
                     className="calendar-add-event-save-button"
@@ -784,7 +1231,11 @@ export default function Calendar({
                     Guardar
                   </Button>
                   <Button
-                    onClick={() => setShowAddEventModal(false)}
+                    onClick={() => {
+                      setShowAddEventModal(false);
+                      setSelectedDate(null);
+                      setEditingEvent(null);
+                    }}
                     className="calendar-add-event-cancel-button"
                   >
                     Cancelar
@@ -798,13 +1249,3 @@ export default function Calendar({
     </MobileFrame>
   );
 }
-
-const calculateNextDose = (applicationDate: string): string => {
-  if (!applicationDate) return "";
-  const date = new Date(applicationDate + "T00:00:00");
-  date.setFullYear(date.getFullYear() + 1);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};

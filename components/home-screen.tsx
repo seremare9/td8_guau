@@ -166,7 +166,18 @@ interface HomeScreenProps {
     photos?: string[];
     appearance?: string;
   } | null;
-  onOpenPetProfile?: () => void;
+  onOpenPetProfile?: (petData?: {
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }) => void;
 }
 
 export default function HomeScreen({
@@ -175,25 +186,49 @@ export default function HomeScreen({
   petData,
   onOpenPetProfile,
 }: HomeScreenProps) {
-  const pets = [
-    {
-      id: 1,
-      name: petData?.name || "Maxi",
-      breed: petData?.breed || "Border Collie",
-      image: petData?.imageURL || perro,
-    },
-  ];
+  const [allPets, setAllPets] = useState<
+    Array<{
+      id: number;
+      name: string;
+      breed: string;
+      image: string | StaticImageData;
+      fullData?: {
+        name: string;
+        breed: string;
+        imageURL?: string;
+        sex?: string;
+        gender?: string;
+        weight?: string;
+        birthday?: string;
+        approximateAge?: string;
+        photos?: string[];
+        appearance?: string;
+      };
+    }>
+  >([]);
 
   const [events, setEvents] = useState<HomeEvent[]>([]);
 
-  // Cargar eventos de salud
+  // Cargar todas las mascotas desde localStorage
   useEffect(() => {
-    const loadEvents = () => {
-      const allEvents: HomeEvent[] = [];
+    const loadAllPets = () => {
+      const petsMap = new Map<
+        string,
+        {
+          name: string;
+          breed: string;
+          imageURL?: string;
+          sex?: string;
+          gender?: string;
+          weight?: string;
+          birthday?: string;
+          approximateAge?: string;
+          photos?: string[];
+          appearance?: string;
+        }
+      >();
 
-      // Obtener todas las mascotas
-      const petsMap = new Map<string, { name: string }>();
-
+      // Buscar todas las claves de mascotas en localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith("pet_data_")) {
@@ -204,7 +239,7 @@ export default function HomeScreen({
             try {
               const petDataObj = JSON.parse(petDataStr);
               if (petDataObj.name && !petsMap.has(petDataObj.name)) {
-                petsMap.set(petDataObj.name, { name: petDataObj.name });
+                petsMap.set(petDataObj.name, petDataObj);
               }
             } catch (e) {
               console.error("Error al parsear datos de mascota:", e);
@@ -213,14 +248,77 @@ export default function HomeScreen({
         }
       }
 
+      // Siempre incluir la mascota actual si existe
       if (petData) {
-        petsMap.set(petData.name, { name: petData.name });
+        petsMap.set(petData.name, petData);
       }
 
-      const allPets = Array.from(petsMap.values());
+      // Convertir el Map a array con todos los datos
+      const allPetsArray = Array.from(petsMap.values()).map((pet, index) => ({
+        id: index + 1,
+        name: pet.name,
+        breed: pet.breed || "Sin raza especificada",
+        image: pet.imageURL || perro,
+        fullData: pet,
+      }));
 
-      // Cargar eventos de todas las mascotas
-      allPets.forEach((pet) => {
+      // Si no hay mascotas, agregar la actual como default
+      if (allPetsArray.length === 0 && petData) {
+        allPetsArray.push({
+          id: 1,
+          name: petData.name || "Maxi",
+          breed: petData.breed || "Border Collie",
+          image: petData.imageURL || perro,
+          fullData: petData,
+        });
+      }
+
+      setAllPets(allPetsArray);
+    };
+
+    loadAllPets();
+
+    // Escuchar cambios en localStorage
+    const handleStorageChange = () => {
+      loadAllPets();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
+  }, [petData]);
+
+  // Mostrar solo la mascota seleccionada (petData)
+  const pets = petData ? [
+    {
+      id: 1,
+      name: petData.name,
+      breed: petData.breed || "Sin raza especificada",
+      image: petData.imageURL || perro,
+      fullData: petData,
+    },
+  ] : allPets.length > 0 ? allPets : [
+    {
+      id: 1,
+      name: "Maxi",
+      breed: "Border Collie",
+      image: perro,
+      fullData: undefined,
+    },
+  ];
+
+  // Cargar eventos de salud - solo de la mascota seleccionada
+  useEffect(() => {
+    const loadEvents = () => {
+      const allEvents: HomeEvent[] = [];
+
+      // Solo cargar eventos de la mascota seleccionada (petData)
+      if (petData) {
+        const pet = { name: petData.name };
         // Cargar vacunas
         const vaccinesKey = `vaccines_${pet.name}`;
         const vaccinesStr = localStorage.getItem(vaccinesKey);
@@ -262,7 +360,7 @@ export default function HomeScreen({
             console.error("Error al parsear eventos:", e);
           }
         }
-      });
+      }
 
       // Filtrar solo eventos futuros y ordenar
       const today = new Date();
@@ -334,7 +432,14 @@ export default function HomeScreen({
               <div
                 key={pet.id}
                 className="home-pet-card"
-                onClick={onOpenPetProfile}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onOpenPetProfile && pet.fullData) {
+                    onOpenPetProfile(pet.fullData);
+                  } else if (onOpenPetProfile) {
+                    onOpenPetProfile();
+                  }
+                }}
                 style={{ cursor: onOpenPetProfile ? "pointer" : "default" }}
               >
                 <div className="home-pet-card-content">

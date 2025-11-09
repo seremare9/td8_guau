@@ -312,6 +312,11 @@
   padding: 1rem;
 }
 
+/* Asegurar que el SelectContent esté por encima del modal */
+[data-radix-portal] {
+  z-index: 10001 !important;
+}
+
 .calendar-add-event-modal {
   background-color: white;
   border-radius: 1rem;
@@ -468,5 +473,191 @@
 
 .calendar-add-event-cancel-button:hover {
   background-color: #E5E7EB;
+}
+
+/* Modal de eventos del día */
+.calendar-day-events-modal {
+  background-color: white;
+  border-radius: 1rem;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-day-events-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.calendar-day-events-modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #39434F;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.calendar-day-events-modal-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.calendar-day-events-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.calendar-day-events-empty-text {
+  font-size: 0.875rem;
+  color: #39434F;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.calendar-day-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.calendar-day-event-item {
+  background-color: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+
+.calendar-day-event-item:hover {
+  border-color: #3B82F6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day-event-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.calendar-day-event-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.calendar-day-event-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #39434F;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.calendar-day-event-time {
+  font-size: 0.875rem;
+  color: #808B9A;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.calendar-day-event-pet {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #F3F4F6;
+}
+
+.calendar-day-events-add-button {
+  width: 100%;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Noto Sans", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.calendar-day-events-add-button:hover {
+  background-color: #2563EB;
+}
+
+/* Modal de editar evento */
+.calendar-edit-event-modal {
+  background-color: white;
+  border-radius: 1rem;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-edit-event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.calendar-edit-event-button {
+  width: 100%;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Noto Sans", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-edit-event-button:hover {
+  background-color: #2563EB;
+}
+
+.calendar-delete-event-button {
+  width: 100%;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Noto Sans", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-delete-event-button:hover {
+  background-color: #DC2626;
+}
+
+/* Arreglar z-index del Select */
+.calendar-select-content {
+  z-index: 10000 !important;
 }
 

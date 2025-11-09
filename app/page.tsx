@@ -62,7 +62,24 @@ export default function App() {
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
   const navigateToMenu = () => setCurrentScreen("menu");
-  const navigateToPetProfile = () => setCurrentScreen("petProfile");
+  const navigateToPetProfile = (selectedPetData?: {
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }) => {
+    // Si se pasa una mascota específica, actualizar petData
+    if (selectedPetData) {
+      setPetData(selectedPetData);
+    }
+    setCurrentScreen("petProfile");
+  };
   const navigateToVaccines = () => setCurrentScreen("vaccines");
   const navigateToCalendar = () => setCurrentScreen("calendar");
 
@@ -165,25 +182,66 @@ export default function App() {
         <PetOnboardingFlow
           userType={userType}
           userName={userName}
-          onBack={navigateBack}
+          onBack={petOnboardingStartStep === 1 ? navigateToMenu : navigateBack}
           onFinish={(data) => {
-            setPetData(data);
+            // Guardar la nueva mascota en localStorage
+            const petKey = `pet_data_${data.name}`;
+            localStorage.setItem(petKey, JSON.stringify(data));
+            
+            // Disparar evento para actualizar otros componentes
+            window.dispatchEvent(new Event("customStorageChange"));
+            
+            // Si es la primera mascota, actualizar el estado principal
+            if (!petData) {
+              setPetData(data);
+            }
+            
             navigateToHome();
           }}
           // Pasar el paso inicial solo si está definido
           initialStep={petOnboardingStartStep}
+          // Indicar si viene del menú (cuando initialStep es 1)
+          fromMenu={petOnboardingStartStep === 1}
         />
       )}
       {currentScreen === "home" && (
-        <HomeScreen userName={userName} onOpenMenu={navigateToMenu} petData={petData} onOpenPetProfile={navigateToPetProfile} />
+        <HomeScreen 
+          userName={userName} 
+          onOpenMenu={navigateToMenu} 
+          petData={petData} 
+          onOpenPetProfile={(selectedPetData) => {
+            // Si se pasa una mascota específica, actualizar petData
+            if (selectedPetData) {
+              setPetData(selectedPetData);
+            }
+            navigateToPetProfile(selectedPetData);
+          }} 
+        />
       )}
       {currentScreen === "menu" && (
         <MenuScreen 
           userName={userName} 
           onClose={navigateToHome} 
           petData={petData} 
-          onOpenPetProfile={navigateToPetProfile}
+          onOpenPetProfile={(selectedPetData) => {
+            // Actualizar la mascota seleccionada y abrir el perfil
+            if (selectedPetData) {
+              setPetData(selectedPetData);
+            }
+            navigateToPetProfile(selectedPetData);
+          }}
+          onSelectPet={(selectedPetData) => {
+            // Actualizar la mascota seleccionada y volver al home
+            setPetData(selectedPetData);
+            navigateToHome();
+          }}
           onOpenCalendar={navigateToCalendar}
+          onAddNewPet={() => {
+            // Navegar al flujo de onboarding para agregar una nueva mascota
+            // Empezar desde el paso 1 (raza) en lugar del paso 0 (Oh Oh!)
+            setPetOnboardingStartStep(1);
+            setCurrentScreen("petOnboarding");
+          }}
         />
       )}
       {currentScreen === "petProfile" && (

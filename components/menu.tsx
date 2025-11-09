@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import Image, { StaticImageData } from "next/image";
 import MobileFrame from "./mobile-frame";
 import {
   X,
@@ -33,8 +34,32 @@ interface MenuScreenProps {
     photos?: string[];
     appearance?: string;
   } | null;
-  onOpenPetProfile?: () => void;
+  onOpenPetProfile?: (petData?: {
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }) => void;
   onOpenCalendar?: () => void;
+  onAddNewPet?: () => void;
+  onSelectPet?: (petData: {
+    name: string;
+    breed: string;
+    imageURL?: string;
+    sex?: string;
+    gender?: string;
+    weight?: string;
+    birthday?: string;
+    approximateAge?: string;
+    photos?: string[];
+    appearance?: string;
+  }) => void;
 }
 
 export default function MenuScreen({
@@ -43,14 +68,109 @@ export default function MenuScreen({
   petData,
   onOpenPetProfile,
   onOpenCalendar,
+  onAddNewPet,
+  onSelectPet,
 }: MenuScreenProps) {
-  const pets = [
-    {
-      id: 1,
-      name: petData?.name || "Maxi",
-      image: petData?.imageURL || perro,
-    },
-  ];
+  const [pets, setPets] = useState<
+    Array<{
+      id: number;
+      name: string;
+      image: string | StaticImageData;
+      fullData?: {
+        name: string;
+        breed: string;
+        imageURL?: string;
+        sex?: string;
+        gender?: string;
+        weight?: string;
+        birthday?: string;
+        approximateAge?: string;
+        photos?: string[];
+        appearance?: string;
+      };
+    }>
+  >([]);
+
+  // Cargar todas las mascotas desde localStorage
+  useEffect(() => {
+    const loadAllPets = () => {
+      const petsMap = new Map<
+        string,
+        {
+          name: string;
+          breed: string;
+          imageURL?: string;
+          sex?: string;
+          gender?: string;
+          weight?: string;
+          birthday?: string;
+          approximateAge?: string;
+          photos?: string[];
+          appearance?: string;
+        }
+      >();
+
+      // Buscar todas las claves de mascotas en localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("pet_data_")) {
+          const petName = key.replace("pet_data_", "");
+          const petDataStr = localStorage.getItem(key);
+
+          if (petDataStr) {
+            try {
+              const petDataObj = JSON.parse(petDataStr);
+              if (petDataObj.name && !petsMap.has(petDataObj.name)) {
+                petsMap.set(petDataObj.name, petDataObj);
+              }
+            } catch (e) {
+              console.error("Error al parsear datos de mascota:", e);
+            }
+          }
+        }
+      }
+
+      // Siempre incluir la mascota actual si existe
+      if (petData) {
+        petsMap.set(petData.name, petData);
+      }
+
+      // Convertir el Map a array con todos los datos
+      const allPets = Array.from(petsMap.values()).map((pet, index) => ({
+        id: index + 1,
+        name: pet.name,
+        image: pet.imageURL || perro,
+        fullData: pet,
+      }));
+
+      // Si no hay mascotas, agregar la actual como default
+      if (allPets.length === 0 && petData) {
+        allPets.push({
+          id: 1,
+          name: petData.name || "Maxi",
+          image: petData.imageURL || perro,
+          fullData: petData,
+        });
+      }
+
+      setPets(allPets);
+    };
+
+    loadAllPets();
+
+    // Escuchar cambios en localStorage
+    const handleStorageChange = () => {
+      loadAllPets();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
+  }, [petData]);
 
   return (
     <MobileFrame>
@@ -94,14 +214,21 @@ export default function MenuScreen({
         <div className="menu-section">
           <h2 className="menu-section-title">Mis mascotas</h2>
           <div className="menu-pets-container">
-            {pets.map((pet) => (
-              <div
-                key={pet.id}
-                className="menu-pet-item"
-                onClick={onOpenPetProfile}
-                style={{ cursor: onOpenPetProfile ? "pointer" : "default" }}
-              >
-                <div className="menu-pet-circle">
+            {pets.map((pet) => {
+              const isSelected = petData && pet.fullData && petData.name === pet.fullData.name;
+              return (
+                <div
+                  key={pet.id}
+                  className={`menu-pet-item ${isSelected ? "menu-pet-item-selected" : ""}`}
+                  onClick={() => {
+                    if (pet.fullData && onSelectPet) {
+                      // Solo actualizar la mascota seleccionada, no abrir el perfil
+                      onSelectPet(pet.fullData);
+                    }
+                  }}
+                  style={{ cursor: onSelectPet ? "pointer" : "default" }}
+                >
+                <div className={`menu-pet-circle ${isSelected ? "menu-pet-circle-selected" : "menu-pet-circle-unselected"}`}>
                   {typeof pet.image === "string" &&
                   pet.image.startsWith("data:") ? (
                     // Si es base64, usar img normal
@@ -123,10 +250,15 @@ export default function MenuScreen({
                     />
                   )}
                 </div>
-                <span className="menu-pet-name">{pet.name}</span>
+                <span className={`menu-pet-name ${isSelected ? "menu-pet-name-selected" : ""}`}>{pet.name}</span>
               </div>
-            ))}
-            <div className="menu-pet-item">
+            );
+            })}
+            <div
+              className="menu-pet-item"
+              onClick={onAddNewPet}
+              style={{ cursor: onAddNewPet ? "pointer" : "default" }}
+            >
               <div className="menu-pet-circle menu-pet-new">
                 <Plus className="menu-pet-plus-icon" />
               </div>
