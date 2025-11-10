@@ -39,6 +39,7 @@ interface HomeHeaderProps {
   userName: string;
   onOpenMenu?: () => void;
   onBack?: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const HomeHeader = ({
@@ -189,6 +190,7 @@ interface HomeScreenProps {
     appearance?: string;
   }) => void;
   onOpenCalendar?: () => void;
+  onOpenSearch?: () => void;
 }
 
 export default function HomeScreen({
