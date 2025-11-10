@@ -20,12 +20,16 @@ interface AccountProps {
     phone: string;
     imageURL?: string;
   }) => void;
+  onLogout?: () => void;
+  onDeleteAccount?: () => void;
 }
 
 export default function Account({
   userName = "User",
   onBack,
   onUpdateUserData,
+  onLogout,
+  onDeleteAccount,
 }: AccountProps) {
   const [userData, setUserData] = useState<{
     firstName: string;
@@ -49,6 +53,7 @@ export default function Account({
     birthDate: "",
     phone: "",
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   // Cargar datos del usuario desde localStorage
@@ -156,6 +161,52 @@ export default function Account({
       birthDate: userData.birthDate,
       phone: userData.phone,
     });
+  };
+
+  // Función para manejar el logout
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
+  // Función para manejar la eliminación de cuenta
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+  };
+
+  // Función para confirmar eliminación
+  const handleConfirmDelete = () => {
+    // Limpiar todos los datos del usuario
+    localStorage.removeItem("user_data");
+    localStorage.removeItem("user_email");
+    
+    // Limpiar todas las mascotas y eventos relacionados
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith("pet_data_") || key.startsWith("vaccines_") || 
+          key.startsWith("higiene_") || key.startsWith("medicina_") || 
+          key.startsWith("antiparasitario_") || key.startsWith("veterinario_") || 
+          key.startsWith("otro_") || key.startsWith("peso_"))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => {
+      if (key) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    setShowDeleteModal(false);
+    if (onDeleteAccount) {
+      onDeleteAccount();
+    }
+  };
+
+  // Función para cancelar eliminación
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
   };
 
   const displayName = `${userData.firstName} ${userData.lastName}`.trim() || userName;
@@ -367,8 +418,52 @@ export default function Account({
               </div>
             )}
           </div>
+
+          {/* Account Actions Section */}
+          <div className="pet-profile-section" style={{ marginTop: "1.5rem" }}>
+            <div className="pet-profile-account-actions">
+              <button
+                className="pet-profile-account-action-button pet-profile-logout-button"
+                onClick={handleLogout}
+              >
+                Salir de mi cuenta
+              </button>
+              <button
+                className="pet-profile-account-action-button pet-profile-delete-button"
+                onClick={handleDeleteAccount}
+              >
+                Eliminar mi cuenta
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="pet-profile-modal-overlay" onClick={handleCancelDelete}>
+          <div className="pet-profile-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="pet-profile-modal-title">¿Estás seguro que querés eliminar tu cuenta?</h3>
+            <p className="pet-profile-modal-message">
+              Esta acción eliminará todos tus datos y no se puede deshacer.
+            </p>
+            <div className="pet-profile-modal-actions">
+              <button
+                className="pet-profile-modal-cancel-button"
+                onClick={handleCancelDelete}
+              >
+                Cancelar
+              </button>
+              <button
+                className="pet-profile-modal-confirm-button"
+                onClick={handleConfirmDelete}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MobileFrame>
   );
 }

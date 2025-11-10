@@ -525,6 +525,16 @@ export default function App() {
               setUserName(updatedUserData.firstName);
             }
           }}
+          onLogout={() => {
+            // Limpiar datos de sesión si es necesario
+            setCurrentScreen("login");
+          }}
+          onDeleteAccount={() => {
+            // Limpiar estado de la aplicación
+            setPetData(null);
+            setUserName("User");
+            setCurrentScreen("login");
+          }}
         />
       )}
 
