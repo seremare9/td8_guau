@@ -5,12 +5,14 @@
   flex-direction: column;
   align-items: center;
   background-color: #ffffff;
-  padding: 24px 24px 16px;
+  padding: clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px) clamp(12px, 3vw, 16px);
   overflow: hidden;
   box-sizing: border-box;
   min-height: 100vh;
-  row-gap: 8px;
-  column-gap: 15px;
+  row-gap: clamp(6px, 1.5vw, 8px);
+  column-gap: clamp(12px, 3vw, 15px);
+  width: 100%;
+  max-width: 100%;
 }
 
 .mobile-notch,
@@ -38,17 +40,17 @@
 /* icono superior */
 .login-icon-container {
   border-radius: 100%;
-  width: 80px;
-  height: 80px;
+  width: clamp(60px, 18vw, 80px);
+  height: clamp(60px, 18vw, 80px);
   display: flex;
   justify-content: center;
-  margin-top: 95px;
+  margin-top: clamp(60px, 15vw, 95px);
   z-index: 2;
 }
 
 .login-icon {
-  width: 64px;
-  height: 64px;
+  width: clamp(48px, 14vw, 64px);
+  height: clamp(48px, 14vw, 64px);
 }
 
 /* texto */

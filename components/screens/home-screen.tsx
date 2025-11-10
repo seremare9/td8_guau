@@ -12,7 +12,6 @@ import stockImage1 from "../images/stock-images/dog-img1.jpg";
 import stockImage2 from "../images/stock-images/dog-img2.jpeg";
 import stockImage3 from "../images/stock-images/dog-img3.jpeg";
 import lineSvg from "../images/line.svg";
-import lupaSvg from "../images/lupa.svg";
 import campanaSvg from "../images/campana.svg";
 import menuSvg from "../images/menu.svg";
 import dividerSvg from "../images/divider.svg";
@@ -39,14 +38,12 @@ interface HomeHeaderProps {
   userName: string;
   onOpenMenu?: () => void;
   onBack?: () => void;
-  onOpenSearch?: () => void;
 }
 
 export const HomeHeader = ({
   userName,
   onOpenMenu,
   onBack,
-  onOpenSearch,
 }: HomeHeaderProps) => {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
@@ -95,27 +92,6 @@ export const HomeHeader = ({
           </div>
         </div>
         <div className="home-header-icons">
-          <button
-            onClick={onOpenSearch}
-            className="home-icon-button"
-            aria-label="Buscar"
-            disabled={!onOpenSearch}
-          >
-            <Image
-              src={lupaSvg}
-              alt="Buscar"
-              width={20}
-              height={20}
-              className="home-icon"
-            />
-          </button>
-          <Image
-            src={dividerSvg}
-            alt=""
-            width={1}
-            height={20}
-            className="home-icon-divider"
-          />
           <div className="home-notification-wrapper">
             <Image
               src={campanaSvg}
@@ -190,7 +166,6 @@ interface HomeScreenProps {
     appearance?: string;
   }) => void;
   onOpenCalendar?: () => void;
-  onOpenSearch?: () => void;
 }
 
 export default function HomeScreen({
@@ -199,7 +174,6 @@ export default function HomeScreen({
   petData,
   onOpenPetProfile,
   onOpenCalendar,
-  onOpenSearch,
 }: HomeScreenProps) {
   const [allPets, setAllPets] = useState<
     Array<{
@@ -575,7 +549,7 @@ export default function HomeScreen({
   return (
     <MobileFrame>
       <div className="home-container">
-        <HomeHeader userName={userName} onOpenMenu={onOpenMenu} onOpenSearch={onOpenSearch} />
+        <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
 
         <div className="home-section">
           <div className="home-section-header">

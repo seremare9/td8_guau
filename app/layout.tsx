@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: "Guau",
   description: "Created for Serena Marelli & Josefina Jahde - UTDT",
   generator: "v0.app",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({

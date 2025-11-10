@@ -2,10 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 .home-container {
-  padding: 1rem 1.5rem;
-  padding-top: 3rem;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 4vw, 1.5rem);
+  padding-top: clamp(2rem, 6vw, 3rem);
   background-color: #FAFAFA;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -24,8 +27,8 @@
 }
 
 .home-logo-container {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: clamp(2rem, 5vw, 2.5rem);
+  height: clamp(2rem, 5vw, 2.5rem);
   border-radius: 0.75rem;
   display: flex;
   align-items: center;
@@ -169,13 +172,13 @@
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 0.875rem;
-  padding: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
   position: relative;
   overflow: visible;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 336px;
-  height: 130px;
+  max-width: 100%;
+  height: clamp(110px, 30vw, 130px);
   align-items: center;
   transition: opacity 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out;
 }
@@ -192,12 +195,12 @@
 
 .home-pet-image-elipses {
   position: absolute;
-  right: -3.1rem;
+  right: clamp(-2.5rem, -8vw, -3.1rem);
   /* left: 2.5rem; */
   top: 50%;
   transform: translateY(-50%);
-  width: 200px;
-  height: 200px;
+  width: clamp(150px, 40vw, 200px);
+  height: clamp(150px, 40vw, 200px);
   z-index: 3;
   display: flex;
   align-items: center;
@@ -232,8 +235,8 @@
 }
 
 .home-pet-image-circle {
-  width: 100px;
-  height: 100px;
+  width: clamp(80px, 22vw, 100px);
+  height: clamp(80px, 22vw, 100px);
   border-radius: 50%;
   overflow: hidden;
   background-color: white;
@@ -334,8 +337,8 @@
 }
 
 .home-event-icon {
-  width: 60px;
-  height: 60px;
+  width: clamp(50px, 12vw, 60px);
+  height: clamp(50px, 12vw, 60px);
   border-radius: 0.75rem;
   display: flex;
   align-items: center;
@@ -366,8 +369,8 @@
 }
 
 .home-event-pet {
-  width: 40px;
-  height: 40px;
+  width: clamp(35px, 9vw, 40px);
+  height: clamp(35px, 9vw, 40px);
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -437,8 +440,8 @@
 }
 
 .home-info-image {
-  width: 60px;
-  height: 60px;
+  width: clamp(50px, 12vw, 60px);
+  height: clamp(50px, 12vw, 60px);
   border-radius: 50%;
   object-fit: cover;
 }

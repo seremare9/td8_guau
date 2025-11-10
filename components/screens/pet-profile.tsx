@@ -8,6 +8,7 @@ import perro from "../images/perro.png";
 import "../styles/pet-profile-styles.css";
 import lineSvg from "../images/line.svg";
 import petEditInfoIcon from "../images/pet-edit-info.svg";
+import dosPerros from "../images/dos-perros.png";
 import vacunaIcon from "../images/event-icons/vacuna.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import veterinarioIcon from "../images/event-icons/veterinario.svg";
@@ -934,6 +935,15 @@ export default function PetProfile({
           {activeTab === "nutricion" && (
             <div className="pet-profile-nutricion-section">
               <div className="pet-profile-nutricion-placeholder">
+                <div className="pet-profile-nutricion-logo">
+                  <Image
+                    src={dosPerros}
+                    alt="Dos perros"
+                    width={400}
+                    height={400}
+                    className="pet-profile-nutricion-image"
+                  />
+                </div>
                 <p className="pet-profile-nutricion-text">Próximamente</p>
               </div>
             </div>

@@ -20,7 +20,6 @@ import Peso from "@/components/screens/peso";
 import Calendar from "@/components/screens/calendar";
 import HelpScreen from "@/components/screens/help-screen";
 import Account from "@/components/screens/account";
-import GlobalSearch from "@/components/screens/global-search";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/screens/medicinaInfo-screen";
@@ -122,7 +121,6 @@ export default function App() {
   const navigateToHome = () => setCurrentScreen("home");
   const navigateToMenu = () => setCurrentScreen("menu");
   const [petProfileInitialTab, setPetProfileInitialTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const navigateToPetProfile = (selectedPetData?: {
     name: string;
@@ -355,7 +353,6 @@ export default function App() {
             navigateToPetProfile(selectedPetData);
           }}
           onOpenCalendar={navigateToCalendar}
-          onOpenSearch={() => setIsSearchOpen(true)}
         />
       )}
       {currentScreen === "menu" && (
@@ -576,45 +573,6 @@ export default function App() {
         />
       )}
 
-      {/* Global Search Modal */}
-      <GlobalSearch
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onNavigateToPet={(selectedPetData) => {
-          setPetData(selectedPetData);
-          navigateToPetProfile(selectedPetData);
-        }}
-        onNavigateToEvent={(eventType, petName) => {
-          // Buscar la mascota por nombre
-          const petDataKey = `pet_data_${petName}`;
-          const petDataStr = localStorage.getItem(petDataKey);
-          if (petDataStr) {
-            try {
-              const petData = JSON.parse(petDataStr);
-              setPetData(petData);
-              
-              // Navegar a la pantalla correspondiente
-              if (eventType === "vaccines") {
-                setCurrentScreen("vaccines");
-              } else if (eventType === "higiene") {
-                setCurrentScreen("higiene");
-              } else if (eventType === "medicina") {
-                setCurrentScreen("medicina");
-              } else if (eventType === "antiparasitario") {
-                setCurrentScreen("antiparasitario");
-              } else if (eventType === "veterinario") {
-                setCurrentScreen("veterinario");
-              } else if (eventType === "otro") {
-                setCurrentScreen("otro");
-              } else if (eventType === "peso") {
-                setCurrentScreen("peso");
-              }
-            } catch (e) {
-              console.error("Error al parsear datos de mascota:", e);
-            }
-          }
-        }}
-      />
     </div>
   );
 }
