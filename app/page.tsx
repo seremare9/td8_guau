@@ -252,6 +252,16 @@ export default function App() {
               navigateToUserType();
             }
           }}
+          onSocialLogin={(provider, userData) => {
+            setUserName(userData.firstName || "User");
+            // Si hay mascotas registradas, ir directamente a home
+            if (hasRegisteredPets()) {
+              loadFirstPet();
+              navigateToHome();
+            } else {
+              navigateToUserType();
+            }
+          }}
         />
       )}
       {currentScreen === "register" && (
@@ -259,6 +269,16 @@ export default function App() {
           onBack={navigateBack}
           onRegister={(name: string) => {
             setUserName(name || "User");
+            // Si hay mascotas registradas, ir directamente a home
+            if (hasRegisteredPets()) {
+              loadFirstPet();
+              navigateToHome();
+            } else {
+              navigateToUserType();
+            }
+          }}
+          onSocialRegister={(provider, userData) => {
+            setUserName(userData.firstName || "User");
             // Si hay mascotas registradas, ir directamente a home
             if (hasRegisteredPets()) {
               loadFirstPet();
