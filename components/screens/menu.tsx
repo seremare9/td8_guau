@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import perro from "../images/perro.png";
 import imgIcon from "../images/img-icon.svg";
-import logoGuau from "../images/logo_guau.png";
+import logoGuau from "../images/guau_logo.svg";
 import "../styles/menu-styles.css";
 import lineSvg from "../images/line.svg";
 

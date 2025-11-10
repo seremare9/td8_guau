@@ -6,7 +6,7 @@ import MobileFrame from "./mobile-frame";
 import Image, { StaticImageData } from "next/image";
 import imgIcon from "../images/img-icon.svg";
 import perro from "../images/perro.png";
-import logoGuau from "../images/logo_guau.png";
+import logoGuau from "../images/guau_logo.svg";
 import petCardSvg from "../images/pet-card.svg";
 import stockImage1 from "../images/stock-images/dog-img1.jpg";
 import stockImage2 from "../images/stock-images/dog-img2.jpeg";

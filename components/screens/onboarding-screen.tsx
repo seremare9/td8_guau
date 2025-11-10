@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import imgLogoGuau from "../images/logo_guau.png";
+import imgLogoGuau from "../images/guau_logo.svg";
 import MobileFrame from "./mobile-frame";
 import "../styles/onboarding-screen-styles.css";
 
