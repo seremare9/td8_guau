@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* .body {
+  font-family: "Comic Sans MS", sans-serif;
+} */
+
 .home-container {
   padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 4vw, 1.5rem);
   padding-top: clamp(2rem, 6vw, 3rem);
@@ -9,6 +15,7 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  font-family: "Noto Sans", sans-serif;
 }
 
 /* Header */
@@ -51,12 +58,14 @@
 .home-greeting-text {
   font-size: 1rem;
   color: #808B9A;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-greeting-name {
   font-size: 1rem;
   font-weight: 700;
   color: #39434F;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-header-icons {
@@ -103,7 +112,7 @@
 }
 
 .home-section {
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .home-section-header {
@@ -132,6 +141,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: #606873;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-pets-container {
@@ -151,6 +161,7 @@
   padding-bottom: 0.5rem;
   position: relative;
   touch-action: pan-x;
+  scroll-padding-left: 0;
 }
 
 .home-pets-scroll-container::-webkit-scrollbar {
@@ -159,7 +170,7 @@
 
 .home-pets-scroll-container .home-pet-card {
   flex-shrink: 0;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   scroll-snap-stop: always;
   width: calc(100% - 1.5rem);
   min-width: calc(100% - 1.5rem);
@@ -217,6 +228,7 @@
   font-weight: 700;
   color: white;
   margin: 0 0 0.25rem 0;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-pet-breed {
@@ -224,6 +236,7 @@
   color: white;
   margin: 0;
   opacity: 0.95;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-pet-image-wrapper {
@@ -319,6 +332,7 @@
   font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
+  font-family: "Noto Sans", sans-serif;
 }
 
 .home-event-card {
@@ -355,8 +369,9 @@
 
 .home-event-title {
   font-size: 1rem;
-  font-family: var(--info-card-font-family);
-  font-weight: var(--info-card-title-font-weight);
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 600;
+  color: #808B9A;
   line-height: 1.2;
   margin: 0 0 0.25rem 0;
 }
@@ -448,6 +463,7 @@
 
 .home-info-content {
   flex: 1;
+  color: #808B9A;
 }
 
 
@@ -455,14 +471,14 @@
 .home-info-card {
   --info-card-title-font-size: 1rem;
   --info-card-subtitle-font-size: 0.75rem;
-  --info-card-font-family: inherit;
+  /* --info-card-font-family: inherit; */
   --info-card-title-font-weight: 600;
   --info-card-subtitle-font-weight: 400;
 }
 
 .home-info-title {
   font-size: 1rem;
-  font-family: var(--info-card-font-family);
+  font-family: "Noto Sans", sans-serif;
   font-weight: var(--info-card-title-font-weight);
   line-height: 1.2;
   margin: 0 0 0.25rem 0;
@@ -470,7 +486,7 @@
 
 .home-info-subtitle {
   font-size: 0.85rem;
-  font-family: var(--info-card-font-family);
+  font-family: "Noto Sans", sans-serif;
   font-weight: var(--info-card-subtitle-font-weight);
   /* color: #9ca3af; */
   margin: 0;

@@ -590,8 +590,14 @@ export default function HomeScreen({
                   zIndex = 1;
                   scale = 1;
                   isBehind = true;
+                } else if (distance > 1) {
+                  // Cards más lejanas a la derecha: ocultas
+                  opacity = 0;
+                  zIndex = 0;
+                  scale = 1;
+                  isBehind = true;
                 } else {
-                  // Cards más lejanas: ocultas
+                  // Cards más lejanas a la izquierda: ocultas
                   opacity = 0;
                   zIndex = 0;
                   scale = 1;
