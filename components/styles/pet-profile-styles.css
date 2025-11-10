@@ -383,6 +383,15 @@
   transition: border-color 0.2s;
 }
 
+/* Estilos para campos de entrada en modo edición (más finos) */
+.pet-profile-appearance-edit input.pet-profile-appearance-textarea {
+  padding: 0.5rem 0.75rem;
+  min-height: auto;
+  height: auto;
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
 .pet-profile-appearance-textarea:focus {
   outline: none;
   border-color: #3B82F6;

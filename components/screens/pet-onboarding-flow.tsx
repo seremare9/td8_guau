@@ -144,15 +144,29 @@ export default function PetOnboardingFlow({
         const breedsList = lines
           .map((line) => line.trim())
           .filter((line) => line.length > 0 && line !== "Raza");
-        // Ordenar alfabéticamente en español (ignora mayúsculas/minúsculas y maneja caracteres especiales)
-        const sortedBreeds = breedsList.sort((a, b) => 
+        
+        // Separar "Mestizo" del resto de las razas
+        const mestizoIndex = breedsList.findIndex(breed => 
+          breed.toLowerCase() === "mestizo"
+        );
+        const mestizo = mestizoIndex !== -1 ? breedsList[mestizoIndex] : null;
+        const otherBreeds = breedsList.filter((_, index) => index !== mestizoIndex);
+        
+        // Ordenar el resto alfabéticamente en español
+        const sortedOtherBreeds = otherBreeds.sort((a, b) => 
           a.localeCompare(b, "es", { sensitivity: "base" })
         );
+        
+        // Poner "Mestizo" primero, luego el resto ordenado alfabéticamente
+        const sortedBreeds = mestizo 
+          ? [mestizo, ...sortedOtherBreeds]
+          : sortedOtherBreeds;
+        
         setBreeds(sortedBreeds);
       } catch (error) {
         console.error("Error cargando razas:", error);
         // Fallback a lista básica si falla la carga (también ordenada alfabéticamente)
-        const fallbackBreeds = [
+        const fallbackBreedsList = [
           "Akita Inu",
           "Beagle",
           "Bichón Frisé",
@@ -176,7 +190,25 @@ export default function PetOnboardingFlow({
           "Schnauzer",
           "Shih Tzu",
           "Yorkshire Terrier",
-        ].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+        ];
+        
+        // Separar "Mestizo" del resto
+        const mestizoIndex = fallbackBreedsList.findIndex(breed => 
+          breed.toLowerCase() === "mestizo"
+        );
+        const mestizo = mestizoIndex !== -1 ? fallbackBreedsList[mestizoIndex] : null;
+        const otherFallbackBreeds = fallbackBreedsList.filter((_, index) => index !== mestizoIndex);
+        
+        // Ordenar el resto alfabéticamente
+        const sortedOtherFallbackBreeds = otherFallbackBreeds.sort((a, b) => 
+          a.localeCompare(b, "es", { sensitivity: "base" })
+        );
+        
+        // Poner "Mestizo" primero
+        const fallbackBreeds = mestizo 
+          ? [mestizo, ...sortedOtherFallbackBreeds]
+          : sortedOtherFallbackBreeds;
+        
         setBreeds(fallbackBreeds);
       } finally {
         setIsLoadingBreeds(false);
@@ -317,9 +349,21 @@ export default function PetOnboardingFlow({
   // Step 1: Breed selection
   if (step === 1) {
     // Filtrar razas según la búsqueda
-    const filteredBreeds = breeds.filter((breed) =>
+    const filteredBreedsList = breeds.filter((breed) =>
       breed.toLowerCase().includes(searchBreed.toLowerCase())
     );
+    
+    // Asegurar que "Mestizo" aparezca primero si está en los resultados filtrados
+    const mestizoInFiltered = filteredBreedsList.find(breed => 
+      breed.toLowerCase() === "mestizo"
+    );
+    const otherFilteredBreeds = filteredBreedsList.filter(breed => 
+      breed.toLowerCase() !== "mestizo"
+    );
+    
+    const filteredBreeds = mestizoInFiltered
+      ? [mestizoInFiltered, ...otherFilteredBreeds]
+      : filteredBreedsList;
 
     return (
       <MobileFrame>

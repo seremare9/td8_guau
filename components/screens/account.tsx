@@ -263,7 +263,6 @@ export default function Account({
                       onChange={(e) => setEditValues({ ...editValues, firstName: e.target.value })}
                       placeholder="Ingresá tu nombre"
                       className="pet-profile-appearance-textarea"
-                      style={{ height: "auto", padding: "0.75rem" }}
                     />
                   </div>
                   <div>
@@ -276,7 +275,6 @@ export default function Account({
                       onChange={(e) => setEditValues({ ...editValues, lastName: e.target.value })}
                       placeholder="Ingresá tu apellido"
                       className="pet-profile-appearance-textarea"
-                      style={{ height: "auto", padding: "0.75rem" }}
                     />
                   </div>
                   <div>
@@ -289,7 +287,6 @@ export default function Account({
                       onChange={(e) => setEditValues({ ...editValues, email: e.target.value })}
                       placeholder="tu@email.com"
                       className="pet-profile-appearance-textarea"
-                      style={{ height: "auto", padding: "0.75rem" }}
                     />
                   </div>
                   <div>
@@ -301,7 +298,6 @@ export default function Account({
                       value={editValues.birthDate}
                       onChange={(e) => setEditValues({ ...editValues, birthDate: e.target.value })}
                       className="pet-profile-appearance-textarea"
-                      style={{ height: "auto", padding: "0.75rem" }}
                     />
                   </div>
                   <div>
@@ -314,7 +310,6 @@ export default function Account({
                       onChange={(e) => setEditValues({ ...editValues, phone: e.target.value })}
                       placeholder="+54 9 11 1234-5678"
                       className="pet-profile-appearance-textarea"
-                      style={{ height: "auto", padding: "0.75rem" }}
                     />
                   </div>
                 </div>
