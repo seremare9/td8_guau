@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X, Scale } from "lucide-react";
 import perro from "../images/perro.png";
 import "../styles/pet-profile-styles.css";
 import lineSvg from "../images/line.svg";
@@ -43,6 +43,13 @@ interface PetProfileProps {
     appearance?: string;
   }) => void;
   onOpenVaccines?: () => void;
+  onOpenHigiene?: () => void;
+  onOpenMedicina?: () => void;
+  onOpenAntiparasitario?: () => void;
+  onOpenVeterinario?: () => void;
+  onOpenOtro?: () => void;
+  onOpenPeso?: () => void;
+  initialTab?: "sobre" | "salud" | "nutricion";
 }
 
 export default function PetProfile({
@@ -51,8 +58,20 @@ export default function PetProfile({
   onBack,
   onUpdatePetData,
   onOpenVaccines,
+  onOpenHigiene,
+  onOpenMedicina,
+  onOpenAntiparasitario,
+  onOpenVeterinario,
+  onOpenOtro,
+  onOpenPeso,
+  initialTab = "sobre",
 }: PetProfileProps) {
-  const [activeTab, setActiveTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
+  const [activeTab, setActiveTab] = useState<"sobre" | "salud" | "nutricion">(initialTab);
+
+  // Actualizar el tab cuando cambie initialTab
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isEditingAppearance, setIsEditingAppearance] = useState(false);
@@ -305,13 +324,38 @@ export default function PetProfile({
     }
   }, [petData?.appearance]);
 
+  // Función para obtener el peso más reciente desde los registros
+  const getLatestWeight = (): string => {
+    const petName = petData?.name || "Maxi";
+    const recordsKey = `peso_${petName}`;
+    const recordsStr = localStorage.getItem(recordsKey);
+    if (recordsStr) {
+      try {
+        const records = JSON.parse(recordsStr);
+        if (records.length > 0) {
+          // Ordenar por fecha (más reciente primero)
+          const sortedRecords = [...records].sort((a, b) => {
+            const dateA = new Date(a.fecha + "T00:00:00");
+            const dateB = new Date(b.fecha + "T00:00:00");
+            return dateB.getTime() - dateA.getTime();
+          });
+          return `${sortedRecords[0].peso} kg`;
+        }
+      } catch (e) {
+        console.error("Error al parsear registros de peso:", e);
+      }
+    }
+    // Si no hay registros, usar el peso de petData o un valor por defecto
+    return petData?.weight ? `${petData.weight} kg` : "0,0 kg";
+  };
+
   const pet = {
     name: petData?.name || "Maxi",
     breed: petData?.breed || "Border Collie",
     image: petData?.imageURL || perro,
     sex: getSexLabel(petData?.sex),
     size: getSizeLabel(petData?.gender),
-    weight: petData?.weight ? `${petData.weight} kg` : "0,0 kg",
+    weight: getLatestWeight(),
     age: getAgeDisplay(),
     appearance: petData?.appearance || "Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.",
   };
@@ -848,35 +892,49 @@ export default function PetProfile({
                 </div>
                 <span className="pet-profile-health-text">Vacunas</span>
               </div>
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenHigiene || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-higiene">
                   <Image src={higieneIcon} alt="Higiene" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Higiene</span>
               </div>
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenMedicina || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-medicina">
                   <Image src={medicinaIcon} alt="Medicina" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Medicina</span>
               </div>
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenAntiparasitario || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-antiparasitario">
                   <Image src={antiparasitarioIcon} alt="Anti parasitario" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Anti parasitario</span>
               </div>
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenVeterinario || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-veterinario">
                   <Image src={veterinarioIcon} alt="Visita al veterinario" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Visita al veterinario</span>
               </div>
-              <div className="pet-profile-health-card" onClick={() => {}}>
+              <div className="pet-profile-health-card" onClick={onOpenPeso || (() => {})}>
+                <div className="pet-profile-health-icon-wrapper pet-profile-health-peso">
+                  <Scale className="pet-profile-health-peso-icon" width={54} height={54} />
+                </div>
+                <span className="pet-profile-health-text">Peso</span>
+              </div>
+              <div className="pet-profile-health-card" onClick={onOpenOtro || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-otro">
                   <Image src={otroIcon} alt="Otro" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Otro</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "nutricion" && (
+            <div className="pet-profile-nutricion-section">
+              <div className="pet-profile-nutricion-placeholder">
+                <p className="pet-profile-nutricion-text">Próximamente</p>
               </div>
             </div>
           )}

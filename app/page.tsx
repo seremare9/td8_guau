@@ -11,9 +11,16 @@ import HomeScreen from "@/components/screens/home-screen";
 import MenuScreen from "@/components/screens/menu";
 import PetProfile from "@/components/screens/pet-profile";
 import Vaccines from "@/components/screens/vaccines";
+import Higiene from "@/components/screens/higiene";
+import Medicina from "@/components/screens/medicina";
+import Antiparasitario from "@/components/screens/antiparasitario";
+import Veterinario from "@/components/screens/veterinario";
+import Otro from "@/components/screens/otro";
+import Peso from "@/components/screens/peso";
 import Calendar from "@/components/screens/calendar";
 import HelpScreen from "@/components/screens/help-screen";
 import Account from "@/components/screens/account";
+import GlobalSearch from "@/components/screens/global-search";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/screens/medicinaInfo-screen";
@@ -33,6 +40,12 @@ export default function App() {
     | "menu"
     | "petProfile"
     | "vaccines"
+    | "higiene"
+    | "medicina"
+    | "antiparasitario"
+    | "veterinario"
+    | "otro"
+    | "peso"
     | "calendar"
     | "help"
     | "account"
@@ -108,6 +121,9 @@ export default function App() {
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
   const navigateToMenu = () => setCurrentScreen("menu");
+  const [petProfileInitialTab, setPetProfileInitialTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const navigateToPetProfile = (selectedPetData?: {
     name: string;
     breed: string;
@@ -119,14 +135,30 @@ export default function App() {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
-  }) => {
+  }, tab?: "sobre" | "salud" | "nutricion") => {
     // Si se pasa una mascota específica, actualizar petData
     if (selectedPetData) {
       setPetData(selectedPetData);
     }
+    if (tab) {
+      setPetProfileInitialTab(tab);
+    } else {
+      setPetProfileInitialTab("sobre");
+    }
+    setCurrentScreen("petProfile");
+  };
+
+  const navigateToPetProfileWithTab = (tab: "sobre" | "salud" | "nutricion") => {
+    setPetProfileInitialTab(tab);
     setCurrentScreen("petProfile");
   };
   const navigateToVaccines = () => setCurrentScreen("vaccines");
+  const navigateToHigiene = () => setCurrentScreen("higiene");
+  const navigateToMedicina = () => setCurrentScreen("medicina");
+  const navigateToAntiparasitario = () => setCurrentScreen("antiparasitario");
+  const navigateToVeterinario = () => setCurrentScreen("veterinario");
+  const navigateToOtro = () => setCurrentScreen("otro");
+  const navigateToPeso = () => setCurrentScreen("peso");
   const navigateToCalendar = () => setCurrentScreen("calendar");
   const navigateToHelp = () => setCurrentScreen("help");
   const navigateToAccount = () => setCurrentScreen("account");
@@ -194,8 +226,8 @@ export default function App() {
     } else if (currentScreen === "petProfile") {
       // Regresar a home (puedes mejorar esto guardando la pantalla anterior)
       setCurrentScreen("home");
-    } else if (currentScreen === "vaccines") {
-      setCurrentScreen("petProfile");
+    } else if (currentScreen === "vaccines" || currentScreen === "higiene" || currentScreen === "medicina" || currentScreen === "antiparasitario" || currentScreen === "veterinario" || currentScreen === "otro" || currentScreen === "peso") {
+      navigateToPetProfileWithTab("salud");
     } else if (currentScreen === "calendar") {
       setCurrentScreen("menu");
     }
@@ -285,6 +317,7 @@ export default function App() {
             navigateToPetProfile(selectedPetData);
           }}
           onOpenCalendar={navigateToCalendar}
+          onOpenSearch={() => setIsSearchOpen(true)}
         />
       )}
       {currentScreen === "menu" && (
@@ -391,10 +424,65 @@ export default function App() {
           onBack={navigateBack}
           onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
           onOpenVaccines={navigateToVaccines}
+          onOpenHigiene={navigateToHigiene}
+          onOpenMedicina={navigateToMedicina}
+          onOpenAntiparasitario={navigateToAntiparasitario}
+          onOpenVeterinario={navigateToVeterinario}
+          onOpenOtro={navigateToOtro}
+          onOpenPeso={navigateToPeso}
+          initialTab={petProfileInitialTab}
         />
       )}
       {currentScreen === "vaccines" && (
         <Vaccines
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "higiene" && (
+        <Higiene
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "medicina" && (
+        <Medicina
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "antiparasitario" && (
+        <Antiparasitario
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "veterinario" && (
+        <Veterinario
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "otro" && (
+        <Otro
+          userName={userName}
+          petData={petData}
+          onBack={navigateBack}
+          onUpdatePetData={(updatedPetData) => setPetData(updatedPetData)}
+        />
+      )}
+      {currentScreen === "peso" && (
+        <Peso
           userName={userName}
           petData={petData}
           onBack={navigateBack}
@@ -439,6 +527,46 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Global Search Modal */}
+      <GlobalSearch
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigateToPet={(selectedPetData) => {
+          setPetData(selectedPetData);
+          navigateToPetProfile(selectedPetData);
+        }}
+        onNavigateToEvent={(eventType, petName) => {
+          // Buscar la mascota por nombre
+          const petDataKey = `pet_data_${petName}`;
+          const petDataStr = localStorage.getItem(petDataKey);
+          if (petDataStr) {
+            try {
+              const petData = JSON.parse(petDataStr);
+              setPetData(petData);
+              
+              // Navegar a la pantalla correspondiente
+              if (eventType === "vaccines") {
+                setCurrentScreen("vaccines");
+              } else if (eventType === "higiene") {
+                setCurrentScreen("higiene");
+              } else if (eventType === "medicina") {
+                setCurrentScreen("medicina");
+              } else if (eventType === "antiparasitario") {
+                setCurrentScreen("antiparasitario");
+              } else if (eventType === "veterinario") {
+                setCurrentScreen("veterinario");
+              } else if (eventType === "otro") {
+                setCurrentScreen("otro");
+              } else if (eventType === "peso") {
+                setCurrentScreen("peso");
+              }
+            } catch (e) {
+              console.error("Error al parsear datos de mascota:", e);
+            }
+          }
+        }}
+      />
     </div>
   );
 }

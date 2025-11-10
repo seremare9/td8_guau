@@ -685,6 +685,12 @@
   color: #39434F;
 }
 
+.pet-profile-health-peso-icon {
+  color: #808B9A;
+  width: 54px;
+  height: 54px;
+}
+
 .pet-profile-delete-photo-button {
   position: absolute;
   top: 0.75rem;
@@ -939,5 +945,26 @@
   width: 20px;
   height: 20px;
   color: white;
+}
+
+.pet-profile-nutricion-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+}
+
+.pet-profile-nutricion-placeholder {
+  text-align: center;
+}
+
+.pet-profile-nutricion-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #808B9A;
+  margin: 0;
+  font-family: "Noto Sans", sans-serif;
 }
 

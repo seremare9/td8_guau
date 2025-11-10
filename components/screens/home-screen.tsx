@@ -45,6 +45,7 @@ export const HomeHeader = ({
   userName,
   onOpenMenu,
   onBack,
+  onOpenSearch,
 }: HomeHeaderProps) => {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
@@ -93,13 +94,20 @@ export const HomeHeader = ({
           </div>
         </div>
         <div className="home-header-icons">
-          <Image
-            src={lupaSvg}
-            alt="Buscar"
-            width={20}
-            height={20}
-            className="home-icon"
-          />
+          <button
+            onClick={onOpenSearch}
+            className="home-icon-button"
+            aria-label="Buscar"
+            disabled={!onOpenSearch}
+          >
+            <Image
+              src={lupaSvg}
+              alt="Buscar"
+              width={20}
+              height={20}
+              className="home-icon"
+            />
+          </button>
           <Image
             src={dividerSvg}
             alt=""
@@ -189,6 +197,7 @@ export default function HomeScreen({
   petData,
   onOpenPetProfile,
   onOpenCalendar,
+  onOpenSearch,
 }: HomeScreenProps) {
   const [allPets, setAllPets] = useState<
     Array<{
@@ -459,7 +468,7 @@ export default function HomeScreen({
   return (
     <MobileFrame>
       <div className="home-container">
-        <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
+        <HomeHeader userName={userName} onOpenMenu={onOpenMenu} onOpenSearch={onOpenSearch} />
 
         <div className="home-section">
           <div className="home-section-header">
