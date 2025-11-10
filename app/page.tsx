@@ -163,6 +163,24 @@ export default function App() {
   const navigateToHelp = () => setCurrentScreen("help");
   const navigateToAccount = () => setCurrentScreen("account");
 
+  // Cargar el nombre del usuario desde localStorage al iniciar
+  useEffect(() => {
+    const loadUserName = () => {
+      const storedData = localStorage.getItem("user_data");
+      if (storedData) {
+        try {
+          const parsed = JSON.parse(storedData);
+          if (parsed.firstName) {
+            setUserName(parsed.firstName);
+          }
+        } catch (e) {
+          console.error("Error cargando datos del usuario:", e);
+        }
+      }
+    };
+    loadUserName();
+  }, []); // Solo se ejecuta al montar el componente
+
   // Verificar al cargar si hay mascotas registradas y cargar la primera
   useEffect(() => {
     if (hasRegisteredPets()) {

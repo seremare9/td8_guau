@@ -369,6 +369,7 @@ export default function HomeScreen({
       
       if (activePet && activePet.fullData) {
         const pet = { name: activePet.fullData.name };
+        
         // Cargar vacunas
         const vaccinesKey = `vaccines_${pet.name}`;
         const vaccinesStr = localStorage.getItem(vaccinesKey);
@@ -390,7 +391,112 @@ export default function HomeScreen({
           }
         }
 
-        // Cargar otros eventos
+        // Cargar higiene
+        const higieneKey = `higiene_${pet.name}`;
+        const higieneStr = localStorage.getItem(higieneKey);
+        if (higieneStr) {
+          try {
+            const higieneEvents = JSON.parse(higieneStr);
+            higieneEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "higiene",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear higiene:", e);
+          }
+        }
+
+        // Cargar medicina
+        const medicinaKey = `medicina_${pet.name}`;
+        const medicinaStr = localStorage.getItem(medicinaKey);
+        if (medicinaStr) {
+          try {
+            const medicinaEvents = JSON.parse(medicinaStr);
+            medicinaEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "medicina",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear medicina:", e);
+          }
+        }
+
+        // Cargar antiparasitario
+        const antiparasitarioKey = `antiparasitario_${pet.name}`;
+        const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
+        if (antiparasitarioStr) {
+          try {
+            const antiparasitarioEvents = JSON.parse(antiparasitarioStr);
+            antiparasitarioEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "antiparasitario",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear antiparasitario:", e);
+          }
+        }
+
+        // Cargar veterinario
+        const veterinarioKey = `veterinario_${pet.name}`;
+        const veterinarioStr = localStorage.getItem(veterinarioKey);
+        if (veterinarioStr) {
+          try {
+            const veterinarioEvents = JSON.parse(veterinarioStr);
+            veterinarioEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "veterinario",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear veterinario:", e);
+          }
+        }
+
+        // Cargar otro
+        const otroKey = `otro_${pet.name}`;
+        const otroStr = localStorage.getItem(otroKey);
+        if (otroStr) {
+          try {
+            const otroEvents = JSON.parse(otroStr);
+            otroEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "otro",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear otro:", e);
+          }
+        }
+
+        // Cargar otros eventos generales
         const eventsKey = `events_${pet.name}`;
         const eventsStr = localStorage.getItem(eventsKey);
         if (eventsStr) {
@@ -431,8 +537,7 @@ export default function HomeScreen({
             b.fecha + (b.horario ? `T${b.horario}` : "T00:00")
           );
           return dateA.getTime() - dateB.getTime();
-        })
-        .slice(0, 10);
+        });
 
       setEvents(upcomingEvents);
     };
@@ -487,39 +592,44 @@ export default function HomeScreen({
                 let scale = 1;
                 let isBehind = false;
                 
+                // Colores según el índice de la mascota
+                const petColors = ["#EE7232", "#F3B38F", "#FFC542"];
+                const petColorIndex = index % petColors.length;
+                const petColor = petColors[petColorIndex];
+                
                 if (distance === 0) {
                   // Card activa: opacidad completa, z-index alto
-                  opacity = 1 - (scrollProgress * 0.1); // Va de 1 a 0.9 durante swipe
+                  opacity = 1;
                   zIndex = 10;
                   scale = 1;
                 } else if (distance === 1) {
-                  // Card siguiente (derecha): detrás, más clara
-                  opacity = 0.5 + (scrollProgress * 0.2); // Va de 0.5 a 0.7 durante swipe
-                  zIndex = 0;
-                  scale = 0.98;
-                  isBehind = true;
+                  // Card siguiente (derecha): se asoma parcialmente
+                  opacity = 1;
+                  zIndex = 5;
+                  scale = 1;
+                  isBehind = false;
                 } else if (distance === -1) {
-                  // Card anterior (izquierda): detrás, más clara
-                  opacity = 0.4 - (scrollProgress * 0.1); // Se atenúa más durante swipe
+                  // Card anterior (izquierda): oculta o muy atenuada
+                  opacity = 0.3;
                   zIndex = 1;
-                  scale = 0.95;
+                  scale = 1;
                   isBehind = true;
                 } else {
-                  // Cards más lejanas: muy atenuadas
-                  opacity = 0.3;
+                  // Cards más lejanas: ocultas
+                  opacity = 0;
                   zIndex = 0;
-                  scale = 0.9;
+                  scale = 1;
                   isBehind = true;
                 }
                 
                 return (
                 <div
                   key={pet.id}
-                  className={`home-pet-card ${isBehind ? "home-pet-card-behind" : ""}`}
+                  className="home-pet-card"
                   style={{ 
+                    backgroundColor: petColor,
                     opacity: opacity,
                     zIndex: zIndex,
-                    transform: distance === 1 ? `scale(${scale}) translateX(-0.5rem) translateY(0.5rem)` : `scale(${scale})`,
                     cursor: onOpenPetProfile ? "pointer" : "default"
                   }}
                   onClick={(e) => {
@@ -594,18 +704,13 @@ export default function HomeScreen({
               <span>{events.length}</span>
             </div>
           </div>
-          <div 
-            className="home-events-container"
-            style={{ 
-              opacity: 1 - (scrollProgress * 0.7) // Va de 1 a 0.3 durante el swipe
-            }}
-          >
-            {events.length === 0 ? (
-              <div className="home-empty-card">
-                <p className="home-empty-text">No tenés eventos registrados</p>
-              </div>
-            ) : (
-              events.map((event) => {
+          {events.length === 0 ? (
+            <div className="home-empty-card">
+              <p className="home-empty-text">No tenés eventos registrados</p>
+            </div>
+          ) : (
+            <div className="home-events-container">
+              {events.slice(0, 2).map((event) => {
                 const eventDate = new Date(
                   event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
                 );
@@ -743,9 +848,21 @@ export default function HomeScreen({
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+              {events.length > 2 && (
+                <button
+                  className="home-ver-todos-button"
+                  onClick={() => {
+                    if (onOpenCalendar) {
+                      onOpenCalendar();
+                    }
+                  }}
+                >
+                  Ver todos
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Información útil */}

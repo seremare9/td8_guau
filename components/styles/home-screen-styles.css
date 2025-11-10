@@ -99,9 +99,8 @@
   height: auto;
 }
 
-/* Section */
 .home-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .home-section-header {
@@ -132,7 +131,6 @@
   color: #606873;
 }
 
-/* Pets Section */
 .home-pets-container {
   position: relative;
   overflow: visible;
@@ -141,14 +139,15 @@
 .home-pets-scroll-container {
   display: flex;
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  gap: 0;
+  gap: 0.75rem;
   padding-bottom: 0.5rem;
   position: relative;
+  touch-action: pan-x;
 }
 
 .home-pets-scroll-container::-webkit-scrollbar {
@@ -166,8 +165,6 @@
 }
 
 .home-pet-card {
-  /* background-image: url("../images/pet-card.svg"); */
-  background-color: #EE7232;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -180,14 +177,9 @@
   max-width: 336px;
   height: 130px;
   align-items: center;
-  /* min-height: 157px; */
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out;
 }
 
-.home-pet-card-behind {
-  background-color: rgba(255, 255, 255, 0.7); /* Color más claro, casi blanco con transparencia */
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
-}
 
 .home-pet-card-content {
   display: flex;
@@ -310,7 +302,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  transition: opacity 0.2s ease-out;
 }
 
 .home-empty-card {
@@ -381,6 +372,27 @@
   overflow: hidden;
   flex-shrink: 0;
   background-color: #F3F4F6;
+}
+
+.home-ver-todos-button {
+  /* background-color: white;
+  border: 1px solid #E5E7EB; */
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  /* padding: 1rem; */
+  width: 100%;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #39434F;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.home-ver-todos-button:hover {
+  background-color: #F9FAFB;
+  border-color: #D1D5DB;
 }
 
 /* Useful Info Section */
