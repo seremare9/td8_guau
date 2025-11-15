@@ -267,6 +267,9 @@ export default function Vaccines({
     const updatedVaccines = [...existingVaccines, newVaccine];
     localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
     setVaccines(updatedVaccines);
+    
+    // Notificar a otros componentes del cambio
+    window.dispatchEvent(new Event("customStorageChange"));
 
     // Mostrar el cartel de confirmación solo si es un turno
     if (!isVaccineApplied) {
@@ -301,6 +304,9 @@ export default function Vaccines({
       // Actualizar localStorage
       const vaccinesKey = `vaccines_${pet.name}`;
       localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
+      
+      // Notificar a otros componentes del cambio
+      window.dispatchEvent(new Event("customStorageChange"));
       
       // Cerrar el modal
       setSelectedVaccine(null);

@@ -241,11 +241,14 @@ export default function Otro({
       esAplicada: isEventApplied,
     };
 
-    const eventsKey = `higiene_${pet.name}`;
+    const eventsKey = `otro_${pet.name}`;
     const existingEvents = events.length > 0 ? events : [];
     const updatedEvents = [...existingEvents, newEvent];
     localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
     setEvents(updatedEvents);
+    
+    // Notificar a otros componentes del cambio
+    window.dispatchEvent(new Event("customStorageChange"));
 
     if (!isEventApplied) {
       setShowSuccessModal(true);
@@ -274,6 +277,9 @@ export default function Otro({
       
       const eventsKey = `otro_${pet.name}`;
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+      
+      // Notificar a otros componentes del cambio
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedEvent(null);
     }

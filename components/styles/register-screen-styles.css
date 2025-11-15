@@ -180,3 +180,27 @@
   font-weight: 500;
   font-size: 1rem;
 }
+
+.register-field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.register-error-message {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+.register-input-error {
+  border-color: #ef4444 !important;
+}
+
+.register-password-hint {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+}

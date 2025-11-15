@@ -64,6 +64,7 @@ interface MenuScreenProps {
   onOpenHelp?: () => void;
   onDeletePet?: (petName: string) => void;
   onOpenAccount?: () => void;
+  skipAnimation?: boolean;
 }
 
 export default function MenuScreen({
@@ -77,6 +78,7 @@ export default function MenuScreen({
   onOpenHelp,
   onDeletePet,
   onOpenAccount,
+  skipAnimation = false,
 }: MenuScreenProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -198,7 +200,7 @@ export default function MenuScreen({
 
   return (
     <MobileFrame>
-      <div className={`menu-container ${isClosing ? "menu-slide-out" : "menu-slide-in"}`}>
+      <div className={`menu-container ${isClosing ? "menu-slide-out" : (skipAnimation ? "" : "menu-slide-in")}`}>
         {/* Header */}
         <div className="menu-header">
           <div className="menu-header-left">

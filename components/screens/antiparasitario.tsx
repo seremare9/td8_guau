@@ -219,6 +219,9 @@ export default function Antiparasitario({
     const updatedEvents = [...existingEvents, newEvent];
     localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
     setEvents(updatedEvents);
+    
+    // Notificar a otros componentes del cambio
+    window.dispatchEvent(new Event("customStorageChange"));
 
     handleBackFromAddEvent();
   };
@@ -238,6 +241,9 @@ export default function Antiparasitario({
       
       const eventsKey = `antiparasitario_${pet.name}`;
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+      
+      // Notificar a otros componentes del cambio
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedEvent(null);
     }

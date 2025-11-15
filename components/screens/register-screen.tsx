@@ -35,9 +35,18 @@ export default function RegisterScreen({
     birthDate: "",
     phone: "",
     password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [errors, setErrors] = useState<{
+    password?: string;
+    confirmPassword?: string;
+    email?: string;
+    firstName?: string;
+    phone?: string;
+  }>({});
 
   // Función para manejar el registro con proveedores sociales
   const handleSocialRegister = async (provider: "google" | "apple" | "facebook") => {
@@ -138,11 +147,69 @@ export default function RegisterScreen({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Limpiar errores cuando el usuario empieza a escribir
+    if (errors[field as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  // Validar contraseña: mínimo 8 caracteres, alfanumérica
+  const validatePassword = (password: string): string | undefined => {
+    if (password.length < 8) {
+      return "La contraseña debe tener al menos 8 caracteres";
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(password)) {
+      return "La contraseña debe ser alfanumérica (solo letras y números)";
+    }
+    return undefined;
+  };
+
+  // Validar que las contraseñas coincidan
+  const validateConfirmPassword = (password: string, confirmPassword: string): string | undefined => {
+    if (password !== confirmPassword) {
+      return "Las contraseñas no coinciden";
+    }
+    return undefined;
   };
 
   // Función de registro que podemos usar en el onClick
   const handleRegister = () => {
-    // Aquí puedes agregar validación de datos antes de navegar
+    // Validar campos obligatorios
+    const newErrors: typeof errors = {};
+    
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "El nombre es obligatorio";
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = "El email es obligatorio";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "El email no es válido";
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = "El teléfono es obligatorio";
+    }
+    
+    // Validar contraseña
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      newErrors.password = passwordError;
+    }
+    
+    // Validar confirmación de contraseña
+    const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword);
+    if (confirmPasswordError) {
+      newErrors.confirmPassword = confirmPasswordError;
+    }
+    
+    // Si hay errores, mostrarlos y no continuar
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    // Si todo está bien y acepta términos, proceder
     if (acceptTerms) {
       // Guardar todos los datos del usuario en localStorage
       const userData = {
@@ -178,31 +245,43 @@ export default function RegisterScreen({
           <div className="register-form-container">
             <div className="register-form-fields">
               <div className="register-name-grid">
-                <Input
-                  placeholder="Nombre"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    handleInputChange("firstName", e.target.value)
-                  }
-                  className="register-input"
-                />
-                <Input
-                  placeholder="Apellido"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    handleInputChange("lastName", e.target.value)
-                  }
-                  className="register-input"
-                />
+                <div className="register-field-wrapper">
+                  <Input
+                    placeholder="Nombre *"
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      handleInputChange("firstName", e.target.value)
+                    }
+                    className={`register-input ${errors.firstName ? "register-input-error" : ""}`}
+                  />
+                  {errors.firstName && (
+                    <span className="register-error-message">{errors.firstName}</span>
+                  )}
+                </div>
+                <div className="register-field-wrapper">
+                  <Input
+                    placeholder="Apellido"
+                    value={formData.lastName}
+                    onChange={(e) =>
+                      handleInputChange("lastName", e.target.value)
+                    }
+                    className="register-input"
+                  />
+                </div>
               </div>
 
-              <Input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className="register-input-full"
-              />
+              <div className="register-field-wrapper">
+                <Input
+                  type="email"
+                  placeholder="Email *"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  className={`register-input-full ${errors.email ? "register-input-error" : ""}`}
+                />
+                {errors.email && (
+                  <span className="register-error-message">{errors.email}</span>
+                )}
+              </div>
 
               <div className="register-input-container">
                 <Input
@@ -216,35 +295,84 @@ export default function RegisterScreen({
                 />
               </div>
 
-              <Input
-                type="tel"
-                placeholder="Teléfono"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="register-input-full"
-              />
-
-              <div className="register-input-container">
+              <div className="register-field-wrapper">
                 <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Contraseña"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className="register-input-with-icon"
+                  type="tel"
+                  placeholder="Teléfono *"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className={`register-input-full ${errors.phone ? "register-input-error" : ""}`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="register-password-toggle"
-                >
-                  {showPassword ? (
-                    <EyeOff className="register-icon" />
-                  ) : (
-                    <Eye className="register-icon" />
-                  )}
-                </button>
+                {errors.phone && (
+                  <span className="register-error-message">{errors.phone}</span>
+                )}
+              </div>
+
+              <div className="register-field-wrapper">
+                <div className="register-input-container">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Contraseña *"
+                    value={formData.password}
+                    onChange={(e) => {
+                      handleInputChange("password", e.target.value);
+                      // Validar en tiempo real
+                      if (formData.confirmPassword) {
+                        const confirmError = validateConfirmPassword(e.target.value, formData.confirmPassword);
+                        setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
+                      }
+                    }}
+                    className={`register-input-with-icon ${errors.password ? "register-input-error" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="register-password-toggle"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="register-icon" />
+                    ) : (
+                      <Eye className="register-icon" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <span className="register-error-message">{errors.password}</span>
+                )}
+                <span className="register-password-hint">
+                  La contraseña debe tener al menos 8 caracteres y ser alfanumérica
+                </span>
+              </div>
+
+              <div className="register-field-wrapper">
+                <div className="register-input-container">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Repetir contraseña *"
+                    value={formData.confirmPassword}
+                    onChange={(e) => {
+                      handleInputChange("confirmPassword", e.target.value);
+                      // Validar en tiempo real
+                      const confirmError = validateConfirmPassword(formData.password, e.target.value);
+                      setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
+                    }}
+                    className={`register-input-with-icon ${errors.confirmPassword ? "register-input-error" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="register-password-toggle"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="register-icon" />
+                    ) : (
+                      <Eye className="register-icon" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <span className="register-error-message">{errors.confirmPassword}</span>
+                )}
               </div>
             </div>
 

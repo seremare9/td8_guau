@@ -187,7 +187,115 @@ export default function Calendar({
           }
         }
 
-        // Cargar otros eventos
+        // Cargar higiene
+        const higieneKey = `higiene_${pet.name}`;
+        const higieneStr = localStorage.getItem(higieneKey);
+        if (higieneStr) {
+          try {
+            const higieneEvents = JSON.parse(higieneStr);
+            higieneEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "higiene",
+                esAplicada: event.esAplicada,
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear higiene:", e);
+          }
+        }
+
+        // Cargar medicina
+        const medicinaKey = `medicina_${pet.name}`;
+        const medicinaStr = localStorage.getItem(medicinaKey);
+        if (medicinaStr) {
+          try {
+            const medicinaEvents = JSON.parse(medicinaStr);
+            medicinaEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "medicina",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear medicina:", e);
+          }
+        }
+
+        // Cargar antiparasitario
+        const antiparasitarioKey = `antiparasitario_${pet.name}`;
+        const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
+        if (antiparasitarioStr) {
+          try {
+            const antiparasitarioEvents = JSON.parse(antiparasitarioStr);
+            antiparasitarioEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "antiparasitario",
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear antiparasitario:", e);
+          }
+        }
+
+        // Cargar veterinario
+        const veterinarioKey = `veterinario_${pet.name}`;
+        const veterinarioStr = localStorage.getItem(veterinarioKey);
+        if (veterinarioStr) {
+          try {
+            const veterinarioEvents = JSON.parse(veterinarioStr);
+            veterinarioEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "veterinario",
+                esAplicada: event.esAplicada,
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear veterinario:", e);
+          }
+        }
+
+        // Cargar otro
+        const otroKey = `otro_${pet.name}`;
+        const otroStr = localStorage.getItem(otroKey);
+        if (otroStr) {
+          try {
+            const otroEvents = JSON.parse(otroStr);
+            otroEvents.forEach((event: any) => {
+              allEvents.push({
+                id: event.id,
+                tipo: event.tipo,
+                fecha: event.fecha,
+                horario: event.horario,
+                petName: pet.name,
+                eventType: "otro",
+                esAplicada: event.esAplicada,
+              });
+            });
+          } catch (e) {
+            console.error("Error al parsear otro:", e);
+          }
+        }
+
+        // Cargar otros eventos (para compatibilidad con eventos creados desde el calendario)
         const eventsKey = `events_${pet.name}`;
         const eventsStr = localStorage.getItem(eventsKey);
         if (eventsStr) {

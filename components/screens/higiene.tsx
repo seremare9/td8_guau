@@ -246,6 +246,9 @@ export default function Higiene({
     const updatedEvents = [...existingEvents, newEvent];
     localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
     setEvents(updatedEvents);
+    
+    // Notificar a otros componentes del cambio
+    window.dispatchEvent(new Event("customStorageChange"));
 
     if (!isEventApplied) {
       setShowSuccessModal(true);
@@ -274,6 +277,9 @@ export default function Higiene({
       
       const eventsKey = `higiene_${pet.name}`;
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+      
+      // Notificar a otros componentes del cambio
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedEvent(null);
     }

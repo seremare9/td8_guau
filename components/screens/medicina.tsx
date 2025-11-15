@@ -222,6 +222,9 @@ export default function Medicina({
     const updatedEvents = [...existingEvents, newEvent];
     localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
     setEvents(updatedEvents);
+    
+    // Notificar a otros componentes del cambio
+    window.dispatchEvent(new Event("customStorageChange"));
 
     handleBackFromAddEvent();
   };
@@ -241,6 +244,9 @@ export default function Medicina({
       
       const eventsKey = `medicina_${pet.name}`;
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+      
+      // Notificar a otros componentes del cambio
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedEvent(null);
     }

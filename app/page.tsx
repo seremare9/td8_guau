@@ -56,6 +56,10 @@ export default function App() {
   const [petOnboardingStartStep, setPetOnboardingStartStep] = useState<
     number | undefined
   >(undefined);
+  // Estado para controlar si se debe saltar la animación del menú
+  const [skipMenuAnimation, setSkipMenuAnimation] = useState<boolean>(false);
+  // Estado para rastrear desde dónde se navegó al calendario
+  const [calendarFromScreen, setCalendarFromScreen] = useState<"home" | "menu" | null>(null);
   // Estado para guardar los datos de la mascota (incluyendo la imagen)
   const [petData, setPetData] = useState<{ 
     name: string; 
@@ -119,7 +123,10 @@ export default function App() {
   const navigateToVacunaInfo = () => setCurrentScreen("vacunaInfo");
   const navigateToMedicinaInfo = () => setCurrentScreen("medicinaInfo");
   const navigateToHome = () => setCurrentScreen("home");
-  const navigateToMenu = () => setCurrentScreen("menu");
+  const navigateToMenu = () => {
+    setSkipMenuAnimation(false);
+    setCurrentScreen("menu");
+  };
   const [petProfileInitialTab, setPetProfileInitialTab] = useState<"sobre" | "salud" | "nutricion">("sobre");
 
   const navigateToPetProfile = (selectedPetData?: {
@@ -157,7 +164,10 @@ export default function App() {
   const navigateToVeterinario = () => setCurrentScreen("veterinario");
   const navigateToOtro = () => setCurrentScreen("otro");
   const navigateToPeso = () => setCurrentScreen("peso");
-  const navigateToCalendar = () => setCurrentScreen("calendar");
+  const navigateToCalendar = (from: "home" | "menu" = "menu") => {
+    setCalendarFromScreen(from);
+    setCurrentScreen("calendar");
+  };
   const navigateToHelp = () => setCurrentScreen("help");
   const navigateToAccount = () => setCurrentScreen("account");
 
@@ -245,6 +255,16 @@ export default function App() {
     } else if (currentScreen === "vaccines" || currentScreen === "higiene" || currentScreen === "medicina" || currentScreen === "antiparasitario" || currentScreen === "veterinario" || currentScreen === "otro" || currentScreen === "peso") {
       navigateToPetProfileWithTab("salud");
     } else if (currentScreen === "calendar") {
+      // Volver a la pantalla desde donde se vino
+      if (calendarFromScreen === "home") {
+        setCurrentScreen("home");
+      } else {
+        setSkipMenuAnimation(true);
+        setCurrentScreen("menu");
+      }
+      setCalendarFromScreen(null);
+    } else if (currentScreen === "account" || currentScreen === "help") {
+      setSkipMenuAnimation(true);
       setCurrentScreen("menu");
     }
   };
@@ -318,7 +338,7 @@ export default function App() {
         <PetOnboardingFlow
           userType={userType}
           userName={userName}
-          onBack={petOnboardingStartStep === 1 ? navigateToMenu : navigateBack}
+          onBack={petOnboardingStartStep === 1 && userType !== "experienced" ? navigateToMenu : navigateBack}
           onFinish={(data) => {
             // Guardar la nueva mascota en localStorage
             const petKey = `pet_data_${data.name}`;
@@ -352,14 +372,18 @@ export default function App() {
             }
             navigateToPetProfile(selectedPetData);
           }}
-          onOpenCalendar={navigateToCalendar}
+          onOpenCalendar={() => navigateToCalendar("home")}
         />
       )}
       {currentScreen === "menu" && (
         <MenuScreen 
           userName={userName} 
-          onClose={navigateToHome} 
-          petData={petData} 
+          onClose={() => {
+            setSkipMenuAnimation(false);
+            navigateToHome();
+          }}
+          petData={petData}
+          skipAnimation={skipMenuAnimation} 
           onOpenPetProfile={(selectedPetData) => {
             // Esta función ya no se usa desde el menú, pero se mantiene por compatibilidad
             // El menú ahora solo usa onSelectPet para cambiar de perfil
@@ -373,7 +397,7 @@ export default function App() {
             setPetData(selectedPetData);
             navigateToHome();
           }}
-          onOpenCalendar={navigateToCalendar}
+          onOpenCalendar={() => navigateToCalendar("menu")}
           onOpenHelp={navigateToHelp}
           onOpenAccount={navigateToAccount}
           onAddNewPet={() => {
@@ -546,12 +570,12 @@ export default function App() {
         />
       )}
       {currentScreen === "help" && (
-        <HelpScreen onBack={navigateToMenu} />
+        <HelpScreen onBack={navigateBack} />
       )}
       {currentScreen === "account" && (
         <Account
           userName={userName}
-          onBack={navigateToMenu}
+          onBack={navigateBack}
           onUpdateUserData={(updatedUserData) => {
             // Guardar los datos actualizados en localStorage
             localStorage.setItem("user_data", JSON.stringify(updatedUserData));
