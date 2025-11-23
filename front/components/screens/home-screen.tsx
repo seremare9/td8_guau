@@ -242,14 +242,69 @@ export default function HomeScreen({
         petsMap.set(petData.name, petData);
       }
 
-      // Convertir el Map a array con todos los datos
-      const allPetsArray = Array.from(petsMap.values()).map((pet, index) => ({
-        id: index + 1,
-        name: pet.name,
-        breed: pet.breed || "Sin raza especificada",
-        image: pet.imageURL || perro,
-        fullData: pet,
-      }));
+      // Obtener el orden de las mascotas desde localStorage
+      const petsOrderKey = "pets_order";
+      let petsOrder: string[] = [];
+      const petsOrderStr = localStorage.getItem(petsOrderKey);
+      if (petsOrderStr) {
+        try {
+          petsOrder = JSON.parse(petsOrderStr);
+        } catch (e) {
+          console.error("Error al parsear orden de mascotas:", e);
+        }
+      }
+
+      // Si no hay orden guardado, crear uno basado en las mascotas existentes
+      if (petsOrder.length === 0) {
+        petsOrder = Array.from(petsMap.keys());
+        localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
+      }
+
+      // Agregar nuevas mascotas al final del orden si no están en la lista
+      const allPetNames = Array.from(petsMap.keys());
+      allPetNames.forEach((petName) => {
+        if (!petsOrder.includes(petName)) {
+          petsOrder.push(petName);
+        }
+      });
+
+      // Filtrar el orden para incluir solo mascotas que existen
+      petsOrder = petsOrder.filter((petName) => petsMap.has(petName));
+
+      // Guardar el orden actualizado
+      localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
+
+      // Ordenar las mascotas según el orden guardado
+      const allPetsArray = petsOrder
+        .map((petName) => {
+          const pet = petsMap.get(petName);
+          if (!pet) return null;
+          return {
+            id: petsOrder.indexOf(petName) + 1,
+            name: pet.name,
+            breed: pet.breed || "Sin raza especificada",
+            image: pet.imageURL || perro,
+            fullData: pet,
+          };
+        })
+        .filter((pet) => pet !== null) as Array<{
+        id: number;
+        name: string;
+        breed: string;
+        image: string | StaticImageData;
+        fullData?: {
+          name: string;
+          breed: string;
+          imageURL?: string;
+          sex?: string;
+          gender?: string;
+          weight?: string;
+          birthday?: string;
+          approximateAge?: string;
+          photos?: string[];
+          appearance?: string;
+        };
+      }>;
 
       // Si no hay mascotas, agregar la actual como default
       if (allPetsArray.length === 0 && petData) {
@@ -692,7 +747,7 @@ export default function HomeScreen({
             </div>
           ) : (
             <div className="home-events-container">
-              {events.slice(0, 2).map((event) => {
+              {events.map((event) => {
                 const eventDate = new Date(
                   event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
                 );
@@ -844,6 +899,18 @@ export default function HomeScreen({
                 </button>
               )}
             </div>
+          )}
+          {events.length > 0 && (
+            <button
+              className="home-abrir-calendario-button"
+              onClick={() => {
+                if (onOpenCalendar) {
+                  onOpenCalendar();
+                }
+              }}
+            >
+              Abrir calendario
+            </button>
           )}
         </div>
 

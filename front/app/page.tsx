@@ -344,6 +344,24 @@ export default function App() {
             const petKey = `pet_data_${data.name}`;
             localStorage.setItem(petKey, JSON.stringify(data));
             
+            // Actualizar el orden de las mascotas
+            const petsOrderKey = "pets_order";
+            let petsOrder: string[] = [];
+            const petsOrderStr = localStorage.getItem(petsOrderKey);
+            if (petsOrderStr) {
+              try {
+                petsOrder = JSON.parse(petsOrderStr);
+              } catch (e) {
+                console.error("Error al parsear orden de mascotas:", e);
+              }
+            }
+            
+            // Agregar la nueva mascota al final del orden si no existe
+            if (!petsOrder.includes(data.name)) {
+              petsOrder.push(data.name);
+              localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
+            }
+            
             // Disparar evento para actualizar otros componentes
             window.dispatchEvent(new Event("customStorageChange"));
             
