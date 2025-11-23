@@ -3,9 +3,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-/* .body {
-  font-family: "Comic Sans MS", sans-serif;
-} */
 
 .home-container {
   padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 4vw, 1.5rem);
@@ -207,9 +204,8 @@
 .home-pet-image-elipses {
   position: absolute;
   right: clamp(-2.5rem, -8vw, -3.1rem);
-  /* left: 2.5rem; */
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(clamp(-35px, -9vw, -50px), -50%);
   width: clamp(150px, 40vw, 200px);
   height: clamp(150px, 40vw, 200px);
   z-index: 3;
@@ -221,6 +217,8 @@
 
 .home-pet-info {
   flex: 1;
+  position: relative;
+  z-index: 6;
 }
 
 .home-pet-name {

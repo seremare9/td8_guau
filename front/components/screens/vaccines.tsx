@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Plus, Info, Calendar, Trash2 } from "lucide-react";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import lupaIcon from "../images/lupa.svg";
 import lineSvg from "../images/line.svg";
 import vacunaIcon from "../images/event-icons/vacuna.svg";

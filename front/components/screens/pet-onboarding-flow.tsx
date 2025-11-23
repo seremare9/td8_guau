@@ -17,9 +17,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import imgIcon from "../images/img-icon.svg";
 import perritos from "../images/dos-perros.png";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import "../styles/onboarding-flow-styles.css";
-// Importamos el HomeHeader desde el componente de Home
 import { HomeHeader } from "@/components/screens/home-screen";
 
 interface PetOnboardingFlowProps {
@@ -642,7 +641,7 @@ export default function PetOnboardingFlow({
 
           <div className="size-content">
             <label className="size-label">
-              ¿Cuál es el tamaño de {petData.name || "Maxi"}?
+              ¿Cuál es el tamaño de <strong>{petData.name || "Maxi"}</strong>?
             </label>
             <div className="size-buttons">
               {genders.map((gender) => (
@@ -762,7 +761,7 @@ export default function PetOnboardingFlow({
 
           <div className="weight-content">
             <label className="weight-label">
-              ¿Cuál es el peso de {petData.name || "Maxi"}?
+              ¿Cuál es el peso de <strong>{petData.name || "Maxi"}</strong>?
             </label>
 
             {/* Recuadro gris con sombra para el ajuste de peso */}
@@ -851,7 +850,7 @@ export default function PetOnboardingFlow({
 
           <div className="birthday-content">
             <label className="birthday-label">
-              ¿Cuándo es el cumpleaños de {petData.name || "Maxi"}?
+              ¿Cuándo es el cumpleaños de <strong>{petData.name || "Maxi"}</strong>?
             </label>
             <div className="birthday-selects">
               <div className="birthday-select-wrapper">
@@ -1008,7 +1007,7 @@ export default function PetOnboardingFlow({
 
         <div className="age-content">
           <label className="age-label">
-            ¿Cuál es la edad aproximada de {petData.name || "Maxi"}?
+            ¿Cuál es la edad aproximada de <strong>{petData.name || "Maxi"}</strong>?
           </label>
           <div className="age-buttons">
             <button

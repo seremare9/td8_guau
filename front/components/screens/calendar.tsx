@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image, { StaticImageData } from "next/image"; // Importar StaticImageData
 import { ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import lineSvg from "../images/line.svg";
 import vacunaIcon from "../images/event-icons/vacuna.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";

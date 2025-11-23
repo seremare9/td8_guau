@@ -14,7 +14,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import imgIcon from "../images/img-icon.svg";
 import logoGuau from "../images/guau_logo.svg";
 import "../styles/menu-styles.css";

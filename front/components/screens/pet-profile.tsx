@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X, Scale } from "lucide-react";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import "../styles/pet-profile-styles.css";
 import lineSvg from "../images/line.svg";
 import petEditInfoIcon from "../images/pet-edit-info.svg";

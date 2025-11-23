@@ -5,7 +5,7 @@ import MobileFrame from "./mobile-frame";
 // 1. Importar StaticImageData
 import Image, { StaticImageData } from "next/image";
 import imgIcon from "../images/img-icon.svg";
-import perro from "../images/perro.png";
+import perro from "../images/default-pet-pic.png";
 import logoGuau from "../images/guau_logo.svg";
 import petCardSvg from "../images/pet-card.svg";
 import stockImage1 from "../images/stock-images/dog-img1.jpg";
