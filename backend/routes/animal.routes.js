@@ -18,8 +18,8 @@ const {
 // GET /api/animal - Obtener todos los animales
 router.get("/", getAnimales);
 
-// GET /api/animal/dueño/:id_dueño - Obtener animales de un dueño específico
-router.get("/dueño/:id_dueño", getAnimalesByDueño);
+// GET /api/animal/dueno/:id_dueño - Obtener animales de un dueño específico
+router.get("/dueno/:id_dueño", getAnimalesByDueño);
 
 // GET /api/animal/:id - Obtener un animal por ID
 router.get("/:id", getAnimalById);
