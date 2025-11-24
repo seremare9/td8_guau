@@ -140,9 +140,9 @@ export const animalApi = {
     return fetchApi<Animal[]>('/api/animal');
   },
 
-  // Obtener animales de un dueño específico
-  getByDueño: async (id_dueño: number): Promise<Animal[]> => {
-    return fetchApi<Animal[]>(`/api/animal/dueno/${id_dueño}`);
+  // Obtener animales de un dueno específico
+  getByDueño: async (id_dueno: number): Promise<Animal[]> => {
+    return fetchApi<Animal[]>(`/api/animal/dueno/${id_dueno}`);
   },
 
   // Obtener un animal por ID

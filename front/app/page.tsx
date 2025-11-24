@@ -206,8 +206,10 @@ export default function App() {
 
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
+    // Guardar el tipo de usuario en localStorage para usarlo en registro/login
+    localStorage.setItem("user_type", type);
     setPetOnboardingStartStep(undefined); // Limpiar el estado
-    if (type === "future" || type === "adopted") {
+    if (type === "futuro padre de perro" || type === "acabo de tener un perro") {
       setCurrentScreen("petExperience");
     } else {
       // Tutor actual siempre debe empezar en el paso 1 (Registro)
@@ -243,7 +245,7 @@ export default function App() {
     } else if (currentScreen === "petOnboarding") {
       // Si el paso inicial fue 0 (Oh Oh!) significa que vino de info screens o directamente como future.
       // Regresar a la pantalla de experiencia si es future/adopted, o userType si es Tutor actual.
-      if (userType === "future" || userType === "adopted") {
+      if (userType === "futuro padre de perro" || userType === "acabo de tener un perro") {
         setCurrentScreen("petExperience");
       } else {
         setCurrentScreen("userType");
@@ -338,7 +340,7 @@ export default function App() {
         <PetOnboardingFlow
           userType={userType}
           userName={userName}
-          onBack={petOnboardingStartStep === 1 && userType !== "experienced" ? navigateToMenu : navigateBack}
+          onBack={petOnboardingStartStep === 1 && userType !== "ya conozco bien a mi perro" ? navigateToMenu : navigateBack}
           onFinish={(data) => {
             // Guardar la nueva mascota en localStorage
             const petKey = `pet_data_${data.name}`;

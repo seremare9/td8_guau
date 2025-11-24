@@ -41,9 +41,9 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
         {/* Options */}
         <div className="user-type-options-group">
           <button
-            onClick={() => handleSelect("adopted")}
+            onClick={() => handleSelect("acabo de tener un perro")}
             className={`user-type-button ${
-              selectedOption === "adopted"
+              selectedOption === "acabo de tener un perro"
                 ? "user-type-button-selected"
                 : "user-type-button-unselected"
             }`}
@@ -52,9 +52,9 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
           </button>
 
           <button
-            onClick={() => handleSelect("experienced")}
+            onClick={() => handleSelect("ya conozco bien a mi perro")}
             className={`user-type-button ${
-              selectedOption === "experienced"
+              selectedOption === "ya conozco bien a mi perro"
                 ? "user-type-button-selected"
                 : "user-type-button-unselected"
             }`}
@@ -63,9 +63,9 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
           </button>
 
           <button
-            onClick={() => handleSelect("future")}
+            onClick={() => handleSelect("futuro padre de perro")}
             className={`user-type-button ${
-              selectedOption === "future"
+              selectedOption === "futuro padre de perro"
                 ? "user-type-button-selected"
                 : "user-type-button-unselected"
             }`}

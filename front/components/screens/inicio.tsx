@@ -87,11 +87,13 @@ export default function LoginScreen({
             if (!dueño) {
               // Si no existe, crear uno nuevo
               const nombreCompleto = `${userData.firstName || userData.given_name || ""} ${userData.lastName || userData.family_name || ""}`.trim();
+              // Obtener el tipo de padre desde localStorage o usar valor por defecto
+              const userTypeFromStorage = localStorage.getItem("user_type") || "ya conozco bien a mi perro";
               dueño = await api.dueño.create({
                 nombre: nombreCompleto || userData.firstName || userData.given_name || "Usuario",
                 correo: userData.email || "",
                 contraseña: "", // Los OAuth no requieren contraseña
-                tipo_padre: "actual",
+                tipo_padre: userTypeFromStorage,
                 foto_url: userData.picture || userData.photo || "",
               });
             }

@@ -94,11 +94,13 @@ export default function RegisterScreen({
           try {
             // Crear el dueño en la API
             const nombreCompleto = `${userData.firstName || userData.given_name || ""} ${userData.lastName || userData.family_name || ""}`.trim();
+            // Obtener el tipo de padre desde localStorage o usar valor por defecto
+            const userTypeFromStorage = localStorage.getItem("user_type") || "ya conozco bien a mi perro";
             const nuevoDueño = await api.dueño.create({
               nombre: nombreCompleto || userData.firstName || userData.given_name || "Usuario",
               correo: userData.email || "",
               contraseña: "", // Los OAuth no requieren contraseña
-              tipo_padre: "actual",
+              tipo_padre: userTypeFromStorage,
               foto_url: userData.picture || userData.photo || "",
             });
 
@@ -243,11 +245,13 @@ export default function RegisterScreen({
       try {
         // Crear el dueño en la API
         const nombreCompleto = `${formData.firstName} ${formData.lastName}`.trim();
+        // Obtener el tipo de padre desde localStorage o usar valor por defecto
+        const userTypeFromStorage = localStorage.getItem("user_type") || "ya conozco bien a mi perro";
         const nuevoDueño = await api.dueño.create({
           nombre: nombreCompleto || formData.firstName,
           correo: formData.email,
           contraseña: formData.password,
-          tipo_padre: "actual", // Puedes cambiar esto según tu lógica
+          tipo_padre: userTypeFromStorage,
         });
 
         // Guardar todos los datos del usuario en localStorage incluyendo el id_dueño
