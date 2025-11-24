@@ -86,12 +86,12 @@ async function fetchApi<T>(
 export const dueñoApi = {
   // Obtener todos los dueños
   getAll: async (): Promise<Dueño[]> => {
-    return fetchApi<Dueño[]>('/api/dueño');
+    return fetchApi<Dueño[]>('/api/dueno');
   },
 
   // Obtener un dueño por ID
   getById: async (id: number): Promise<Dueño> => {
-    return fetchApi<Dueño>(`/api/dueño/${id}`);
+    return fetchApi<Dueño>(`/api/dueno/${id}`);
   },
 
   // Crear un nuevo dueño
@@ -103,7 +103,7 @@ export const dueñoApi = {
     foto_url?: string;
     notificaciones_activas?: boolean;
   }): Promise<Dueño> => {
-    return fetchApi<Dueño>('/api/dueño', {
+    return fetchApi<Dueño>('/api/dueno', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -118,7 +118,7 @@ export const dueñoApi = {
     foto_url: string;
     notificaciones_activas: boolean;
   }>): Promise<Dueño> => {
-    return fetchApi<Dueño>(`/api/dueño/${id}`, {
+    return fetchApi<Dueño>(`/api/dueno/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -126,7 +126,7 @@ export const dueñoApi = {
 
   // Eliminar un dueño
   delete: async (id: number): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/api/dueño/${id}`, {
+    return fetchApi<{ message: string }>(`/api/dueno/${id}`, {
       method: 'DELETE',
     });
   },
@@ -142,7 +142,7 @@ export const animalApi = {
 
   // Obtener animales de un dueño específico
   getByDueño: async (id_dueño: number): Promise<Animal[]> => {
-    return fetchApi<Animal[]>(`/api/animal/dueño/${id_dueño}`);
+    return fetchApi<Animal[]>(`/api/animal/dueno/${id_dueño}`);
   },
 
   // Obtener un animal por ID
