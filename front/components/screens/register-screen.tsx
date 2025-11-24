@@ -11,6 +11,7 @@ import { ArrowLeft, Eye, EyeOff, Calendar } from "lucide-react";
 import appleLogo from "../images/apple.svg";
 import googleLogo from "../images/google.svg";
 import facebookLogo from "../images/facebook.svg";
+import { api } from "@/lib/api";
 import "../styles/register-screen-styles.css";
 
 interface RegisterScreenProps {
@@ -84,35 +85,63 @@ export default function RegisterScreen({
       );
 
       // Escuchar mensajes del popup
-      const messageListener = (event: MessageEvent) => {
+      const messageListener = async (event: MessageEvent) => {
         if (event.origin !== window.location.origin) return;
         
         if (event.data.type === "OAUTH_SUCCESS") {
           const userData = event.data.userData;
           
-          // Guardar datos del usuario en localStorage
-          const userDataToSave = {
-            firstName: userData.firstName || userData.given_name || "",
-            lastName: userData.lastName || userData.family_name || "",
-            email: userData.email || "",
-            birthDate: "",
-            phone: "",
-            authProvider: provider,
-            imageURL: userData.picture || userData.photo || "",
-          };
-          
-          localStorage.setItem("user_data", JSON.stringify(userDataToSave));
-          localStorage.setItem("user_email", userDataToSave.email);
+          try {
+            // Crear el dueño en la API
+            const nombreCompleto = `${userData.firstName || userData.given_name || ""} ${userData.lastName || userData.family_name || ""}`.trim();
+            const nuevoDueño = await api.dueño.create({
+              nombre: nombreCompleto || userData.firstName || userData.given_name || "Usuario",
+              correo: userData.email || "",
+              contraseña: "", // Los OAuth no requieren contraseña
+              tipo_padre: "actual",
+              foto_url: userData.picture || userData.photo || "",
+            });
+
+            // Guardar datos del usuario en localStorage incluyendo el id_dueño
+            const userDataToSave = {
+              id_dueño: nuevoDueño.id_dueño,
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              nombre: nuevoDueño.nombre,
+              email: userData.email || "",
+              birthDate: "",
+              phone: "",
+              authProvider: provider,
+              imageURL: userData.picture || userData.photo || "",
+            };
+            
+            localStorage.setItem("user_data", JSON.stringify(userDataToSave));
+            localStorage.setItem("user_email", userDataToSave.email);
+          } catch (error) {
+            console.error("Error al crear cuenta con OAuth:", error);
+            // Si falla la API, guardar solo en localStorage como fallback
+            const userDataToSave = {
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              email: userData.email || "",
+              birthDate: "",
+              phone: "",
+              authProvider: provider,
+              imageURL: userData.picture || userData.photo || "",
+            };
+            localStorage.setItem("user_data", JSON.stringify(userDataToSave));
+            localStorage.setItem("user_email", userDataToSave.email);
+          }
           
           // Llamar al callback
           if (onSocialRegister) {
             onSocialRegister(provider, {
-              firstName: userDataToSave.firstName,
-              lastName: userDataToSave.lastName,
-              email: userDataToSave.email,
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              email: userData.email || "",
             });
           } else {
-            onRegister(userDataToSave.firstName);
+            onRegister(userData.firstName || userData.given_name || "");
           }
           
           window.removeEventListener("message", messageListener);
@@ -173,7 +202,7 @@ export default function RegisterScreen({
   };
 
   // Función de registro que podemos usar en el onClick
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // Validar campos obligatorios
     const newErrors: typeof errors = {};
     
@@ -211,21 +240,49 @@ export default function RegisterScreen({
     
     // Si todo está bien y acepta términos, proceder
     if (acceptTerms) {
-      // Guardar todos los datos del usuario en localStorage
-      const userData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        birthDate: formData.birthDate,
-        phone: formData.phone,
-      };
-      localStorage.setItem("user_data", JSON.stringify(userData));
-      
-      // También guardar el email por separado para compatibilidad
-      if (formData.email) {
-        localStorage.setItem("user_email", formData.email);
+      try {
+        // Crear el dueño en la API
+        const nombreCompleto = `${formData.firstName} ${formData.lastName}`.trim();
+        const nuevoDueño = await api.dueño.create({
+          nombre: nombreCompleto || formData.firstName,
+          correo: formData.email,
+          contraseña: formData.password,
+          tipo_padre: "actual", // Puedes cambiar esto según tu lógica
+        });
+
+        // Guardar todos los datos del usuario en localStorage incluyendo el id_dueño
+        const userData = {
+          id_dueño: nuevoDueño.id_dueño,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          nombre: nuevoDueño.nombre,
+          email: formData.email,
+          birthDate: formData.birthDate,
+          phone: formData.phone,
+        };
+        localStorage.setItem("user_data", JSON.stringify(userData));
+        
+        // También guardar el email por separado para compatibilidad
+        if (formData.email) {
+          localStorage.setItem("user_email", formData.email);
+        }
+        onRegister(formData.firstName);
+      } catch (error) {
+        console.error("Error al crear cuenta:", error);
+        // Si falla la API, guardar solo en localStorage como fallback
+        const userData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          birthDate: formData.birthDate,
+          phone: formData.phone,
+        };
+        localStorage.setItem("user_data", JSON.stringify(userData));
+        if (formData.email) {
+          localStorage.setItem("user_email", formData.email);
+        }
+        onRegister(formData.firstName);
       }
-      onRegister(formData.firstName);
     }
   };
 

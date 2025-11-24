@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import MobileFrame from "@/components/screens/mobile-frame";
+import { api } from "@/lib/api";
 
 import iconUser from "../images/Icon.png";
 import appleLogo from "../images/apple.svg";
@@ -31,6 +32,9 @@ export default function LoginScreen({
   onSocialLogin,
 }: LoginScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   // Función para manejar el login con proveedores sociales
   const handleSocialLogin = async (provider: "google" | "apple" | "facebook") => {
@@ -68,32 +72,67 @@ export default function LoginScreen({
       );
 
       // Escuchar mensajes del popup
-      const messageListener = (event: MessageEvent) => {
+      const messageListener = async (event: MessageEvent) => {
         if (event.origin !== window.location.origin) return;
         
         if (event.data.type === "OAUTH_SUCCESS") {
           const userData = event.data.userData;
           
-          // Guardar datos del usuario en localStorage
-          const userDataToSave = {
-            firstName: userData.firstName || userData.given_name || "",
-            lastName: userData.lastName || userData.family_name || "",
-            email: userData.email || "",
-            birthDate: "",
-            phone: "",
-            authProvider: provider,
-            imageURL: userData.picture || userData.photo || "",
-          };
-          
-          localStorage.setItem("user_data", JSON.stringify(userDataToSave));
-          localStorage.setItem("user_email", userDataToSave.email);
+          try {
+            // Buscar o crear el dueño en la API
+            // Primero intentar buscar por email
+            const dueños = await api.dueño.getAll();
+            let dueño = dueños.find(d => d.correo === userData.email);
+            
+            if (!dueño) {
+              // Si no existe, crear uno nuevo
+              const nombreCompleto = `${userData.firstName || userData.given_name || ""} ${userData.lastName || userData.family_name || ""}`.trim();
+              dueño = await api.dueño.create({
+                nombre: nombreCompleto || userData.firstName || userData.given_name || "Usuario",
+                correo: userData.email || "",
+                contraseña: "", // Los OAuth no requieren contraseña
+                tipo_padre: "actual",
+                foto_url: userData.picture || userData.photo || "",
+              });
+            }
+
+            // Guardar datos del usuario en localStorage incluyendo el id_dueño
+            const userDataToSave = {
+              id_dueño: dueño.id_dueño,
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              nombre: dueño.nombre,
+              email: userData.email || "",
+              birthDate: "",
+              phone: "",
+              authProvider: provider,
+              imageURL: userData.picture || userData.photo || "",
+            };
+            
+            localStorage.setItem("user_data", JSON.stringify(userDataToSave));
+            localStorage.setItem("user_email", userDataToSave.email);
+          } catch (error) {
+            console.error("Error al iniciar sesión con OAuth:", error);
+            // Si falla la API, guardar solo en localStorage como fallback
+            const userDataToSave = {
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              email: userData.email || "",
+              birthDate: "",
+              phone: "",
+              authProvider: provider,
+              imageURL: userData.picture || userData.photo || "",
+            };
+            localStorage.setItem("user_data", JSON.stringify(userDataToSave));
+            localStorage.setItem("user_email", userDataToSave.email);
+          }
           
           // Llamar al callback
           if (onSocialLogin) {
             onSocialLogin(provider, {
-              firstName: userDataToSave.firstName,
-              lastName: userDataToSave.lastName,
-              email: userDataToSave.email,
+              firstName: userData.firstName || userData.given_name || "",
+              lastName: userData.lastName || userData.family_name || "",
+              email: userData.email || "",
             });
           } else {
             onLogin();
@@ -129,6 +168,43 @@ export default function LoginScreen({
     }
   };
 
+  // Función para manejar el login con email y contraseña
+  const handleEmailLogin = async () => {
+    if (!email || !password) {
+      setLoginError("Por favor, completa todos los campos");
+      return;
+    }
+
+    try {
+      setLoginError(null);
+      // Buscar el dueño por email
+      const dueños = await api.dueño.getAll();
+      const dueño = dueños.find(d => d.correo === email);
+      
+      if (!dueño) {
+        setLoginError("Email o contraseña incorrectos");
+        return;
+      }
+
+      // Guardar datos del usuario en localStorage incluyendo el id_dueño
+      const userDataToSave = {
+        id_dueño: dueño.id_dueño,
+        nombre: dueño.nombre,
+        email: dueño.correo,
+        firstName: dueño.nombre.split(' ')[0] || dueño.nombre,
+        lastName: dueño.nombre.split(' ').slice(1).join(' ') || "",
+      };
+      
+      localStorage.setItem("user_data", JSON.stringify(userDataToSave));
+      localStorage.setItem("user_email", userDataToSave.email);
+      
+      onLogin();
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+      setLoginError("Error al conectar con el servidor. Intenta de nuevo.");
+    }
+  };
+
   return (
     <MobileFrame>
       <div className="login-container" aria-hidden>
@@ -150,12 +226,25 @@ export default function LoginScreen({
 
         {/* Inputs */}
         <div className="login-inputs">
-          <Input placeholder="Email" className="login-input" />
+          <Input 
+            placeholder="Email" 
+            className="login-input"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setLoginError(null);
+            }}
+          />
           <div className="relative w-full">
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
               className="login-input"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setLoginError(null);
+              }}
             />
             <button
               type="button"
@@ -172,10 +261,15 @@ export default function LoginScreen({
               )}
             </button>
           </div>
+          {loginError && (
+            <p className="login-error-message" style={{ color: 'red', fontSize: '14px', marginTop: '8px' }}>
+              {loginError}
+            </p>
+          )}
         </div>
 
         {/* Botón principal */}
-        <Button onClick={onLogin} className="login-button">
+        <Button onClick={handleEmailLogin} className="login-button">
           Iniciar sesión
         </Button>
 

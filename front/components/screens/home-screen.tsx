@@ -22,6 +22,8 @@ import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
 import higieneIcon from "../images/event-icons/higiene.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
+import { api } from "@/lib/api";
+import { mapAnimalToFrontend, mapEventoToFrontend } from "@/lib/api-helpers";
 import "../styles/home-screen-styles.css";
 
 // Esta interfaz ya estaba correcta en tu archivo
@@ -178,6 +180,7 @@ export default function HomeScreen({
   const [allPets, setAllPets] = useState<
     Array<{
       id: number;
+      id_animal?: number; // ID real de la base de datos
       name: string;
       breed: string;
       image: string | StaticImageData;
@@ -192,15 +195,67 @@ export default function HomeScreen({
         approximateAge?: string;
         photos?: string[];
         appearance?: string;
+        id_animal?: number; // ID real de la base de datos
       };
     }>
   >([]);
 
   const [events, setEvents] = useState<HomeEvent[]>([]);
+  const [loadingPets, setLoadingPets] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  // Cargar todas las mascotas desde localStorage
+  // Obtener ID del dueño desde localStorage
+  const getDueñoId = (): number | null => {
+    try {
+      const userDataStr = localStorage.getItem('user_data');
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr);
+        return userData.id_dueño || null;
+      }
+    } catch (e) {
+      console.error("Error al obtener ID del dueño:", e);
+    }
+    return null;
+  };
+
+  // Cargar todas las mascotas desde la API o localStorage como fallback
   useEffect(() => {
-    const loadAllPets = () => {
+    const loadAllPets = async () => {
+      const id_dueño = getDueñoId();
+      
+      // Intentar cargar desde la API si tenemos un ID de dueño
+      if (id_dueño) {
+        try {
+          setLoadingPets(true);
+          setApiError(null);
+          const animales = await api.animal.getByDueño(id_dueño);
+          
+          // Mapear animales de la API al formato del frontend
+          // Usar id_animal real (sumar 10000 para distinguirlo de índices de localStorage)
+          const petsArray = animales.map((animal) => {
+            const mapped = mapAnimalToFrontend(animal);
+            return {
+              ...mapped,
+              id: animal.id_animal + 10000, // Sumar 10000 para distinguir IDs reales
+              image: mapped.image || perro,
+            };
+          });
+
+          // Si hay mascotas desde la API, usarlas
+          if (petsArray.length > 0) {
+            setAllPets(petsArray);
+            setLoadingPets(false);
+            return;
+          }
+        } catch (error) {
+          console.error("Error al cargar mascotas desde la API:", error);
+          setApiError(error instanceof Error ? error.message : "Error al conectar con el servidor");
+          // Continuar con el fallback a localStorage
+        }
+      }
+
+      // Fallback: cargar desde localStorage
+      setLoadingPets(false);
       const petsMap = new Map<
         string,
         {
@@ -392,7 +447,7 @@ export default function HomeScreen({
 
   // Cargar eventos de salud - de la mascota visible actualmente
   useEffect(() => {
-    const loadEvents = () => {
+    const loadEvents = async () => {
       const allEvents: HomeEvent[] = [];
 
       // Obtener la mascota que está visible actualmente
@@ -401,150 +456,173 @@ export default function HomeScreen({
       if (activePet && activePet.fullData) {
         const pet = { name: activePet.fullData.name };
         
-        // Cargar vacunas
-        const vaccinesKey = `vaccines_${pet.name}`;
-        const vaccinesStr = localStorage.getItem(vaccinesKey);
-        if (vaccinesStr) {
+        // Intentar cargar eventos desde la API si tenemos el ID del animal
+        // Buscar el id_animal real en fullData o usar el id si es mayor a 10000
+        const petId = activePet.fullData?.id_animal || 
+                     (activePet.id && activePet.id > 10000 ? activePet.id - 10000 : null);
+
+        if (petId) {
           try {
-            const vaccines = JSON.parse(vaccinesStr);
-            vaccines.forEach((vaccine: any) => {
-              allEvents.push({
-                id: vaccine.id,
-                tipo: vaccine.tipo,
-                fecha: vaccine.fecha,
-                horario: vaccine.horario,
-                petName: pet.name,
-                eventType: "vacuna",
-              });
+            const eventos = await api.eventoSalud.getByAnimal(petId);
+            eventos.forEach((evento) => {
+              const mapped = mapEventoToFrontend(evento, pet.name);
+              allEvents.push(mapped);
             });
-          } catch (e) {
-            console.error("Error al parsear vacunas:", e);
+            // Si cargamos eventos desde la API, no necesitamos el fallback
+            // Continuar con el procesamiento de eventos
+          } catch (error) {
+            console.error("Error al cargar eventos desde la API:", error);
+            // Continuar con el fallback a localStorage
           }
         }
 
-        // Cargar higiene
-        const higieneKey = `higiene_${pet.name}`;
-        const higieneStr = localStorage.getItem(higieneKey);
-        if (higieneStr) {
-          try {
-            const higieneEvents = JSON.parse(higieneStr);
-            higieneEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: "higiene",
+        // Fallback: cargar desde localStorage si no hay eventos desde la API o si falló
+        if (allEvents.length === 0) {
+          // Cargar vacunas
+          const vaccinesKey = `vaccines_${pet.name}`;
+          const vaccinesStr = localStorage.getItem(vaccinesKey);
+          if (vaccinesStr) {
+            try {
+              const vaccines = JSON.parse(vaccinesStr);
+              vaccines.forEach((vaccine: any) => {
+                allEvents.push({
+                  id: vaccine.id,
+                  tipo: vaccine.tipo,
+                  fecha: vaccine.fecha,
+                  horario: vaccine.horario,
+                  petName: pet.name,
+                  eventType: "vacuna",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear higiene:", e);
+            } catch (e) {
+              console.error("Error al parsear vacunas:", e);
+            }
           }
-        }
 
-        // Cargar medicina
-        const medicinaKey = `medicina_${pet.name}`;
-        const medicinaStr = localStorage.getItem(medicinaKey);
-        if (medicinaStr) {
-          try {
-            const medicinaEvents = JSON.parse(medicinaStr);
-            medicinaEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: "medicina",
+          // Cargar higiene
+          const higieneKey = `higiene_${pet.name}`;
+          const higieneStr = localStorage.getItem(higieneKey);
+          if (higieneStr) {
+            try {
+              const higieneEvents = JSON.parse(higieneStr);
+              higieneEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: "higiene",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear medicina:", e);
+            } catch (e) {
+              console.error("Error al parsear higiene:", e);
+            }
           }
-        }
 
-        // Cargar antiparasitario
-        const antiparasitarioKey = `antiparasitario_${pet.name}`;
-        const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
-        if (antiparasitarioStr) {
-          try {
-            const antiparasitarioEvents = JSON.parse(antiparasitarioStr);
-            antiparasitarioEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: "antiparasitario",
+          // Cargar medicina
+          const medicinaKey = `medicina_${pet.name}`;
+          const medicinaStr = localStorage.getItem(medicinaKey);
+          if (medicinaStr) {
+            try {
+              const medicinaEvents = JSON.parse(medicinaStr);
+              medicinaEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: "medicina",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear antiparasitario:", e);
+            } catch (e) {
+              console.error("Error al parsear medicina:", e);
+            }
           }
-        }
 
-        // Cargar veterinario
-        const veterinarioKey = `veterinario_${pet.name}`;
-        const veterinarioStr = localStorage.getItem(veterinarioKey);
-        if (veterinarioStr) {
-          try {
-            const veterinarioEvents = JSON.parse(veterinarioStr);
-            veterinarioEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: "veterinario",
+          // Cargar antiparasitario
+          const antiparasitarioKey = `antiparasitario_${pet.name}`;
+          const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
+          if (antiparasitarioStr) {
+            try {
+              const antiparasitarioEvents = JSON.parse(antiparasitarioStr);
+              antiparasitarioEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: "antiparasitario",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear veterinario:", e);
+            } catch (e) {
+              console.error("Error al parsear antiparasitario:", e);
+            }
           }
-        }
 
-        // Cargar otro
-        const otroKey = `otro_${pet.name}`;
-        const otroStr = localStorage.getItem(otroKey);
-        if (otroStr) {
-          try {
-            const otroEvents = JSON.parse(otroStr);
-            otroEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: "otro",
+          // Cargar veterinario
+          const veterinarioKey = `veterinario_${pet.name}`;
+          const veterinarioStr = localStorage.getItem(veterinarioKey);
+          if (veterinarioStr) {
+            try {
+              const veterinarioEvents = JSON.parse(veterinarioStr);
+              veterinarioEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: "veterinario",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear otro:", e);
+            } catch (e) {
+              console.error("Error al parsear veterinario:", e);
+            }
           }
-        }
 
-        // Cargar otros eventos generales
-        const eventsKey = `events_${pet.name}`;
-        const eventsStr = localStorage.getItem(eventsKey);
-        if (eventsStr) {
-          try {
-            const petEvents = JSON.parse(eventsStr);
-            petEvents.forEach((event: any) => {
-              allEvents.push({
-                id: event.id,
-                tipo: event.tipo,
-                fecha: event.fecha,
-                horario: event.horario,
-                petName: pet.name,
-                eventType: event.eventType || "otro",
+          // Cargar otro
+          const otroKey = `otro_${pet.name}`;
+          const otroStr = localStorage.getItem(otroKey);
+          if (otroStr) {
+            try {
+              const otroEvents = JSON.parse(otroStr);
+              otroEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: "otro",
+                });
               });
-            });
-          } catch (e) {
-            console.error("Error al parsear eventos:", e);
+            } catch (e) {
+              console.error("Error al parsear otro:", e);
+            }
+          }
+
+          // Cargar otros eventos generales
+          const eventsKey = `events_${pet.name}`;
+          const eventsStr = localStorage.getItem(eventsKey);
+          if (eventsStr) {
+            try {
+              const petEvents = JSON.parse(eventsStr);
+              petEvents.forEach((event: any) => {
+                allEvents.push({
+                  id: event.id,
+                  tipo: event.tipo,
+                  fecha: event.fecha,
+                  horario: event.horario,
+                  petName: pet.name,
+                  eventType: event.eventType || "otro",
+                });
+              });
+            } catch (e) {
+              console.error("Error al parsear eventos:", e);
+            }
           }
         }
       }
@@ -578,7 +656,7 @@ export default function HomeScreen({
     // Recargar eventos periódicamente
     const interval = setInterval(loadEvents, 5000);
     return () => clearInterval(interval);
-  }, [activePetIndex, pets]);
+  }, [activePetIndex, pets, allPets]);
 
   const [usefulInfo] = useState([
     {

@@ -1,0 +1,21 @@
+{
+  "name": "td8_guau",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd front && npm run dev",
+    "dev:backend": "cd backend && npm start",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev\"",
+    "build": "cd front && npm run build",
+    "start": "cd front && npm run start",
+    "start:backend": "cd backend && npm start",
+    "lint": "cd front && npm run lint",
+    "verify": "node verify-setup.js"
+  },
+  "description": "Proyecto Guau - Frontend y Backend",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
+

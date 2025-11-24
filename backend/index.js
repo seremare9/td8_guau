@@ -11,7 +11,12 @@ const PORT = process.env.PORT || 4001; // Usamos el puerto de .env o 4001
 
 // === Middlewares ===
 // cors: Permite que tu app React (en otro puerto) haga peticiones a este servidor
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // express.json: Permite que el servidor entienda datos JSON enviados en peticiones (ej. POST, PUT)
 app.use(express.json());
