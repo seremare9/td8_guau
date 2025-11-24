@@ -6,7 +6,7 @@ const router = express.Router();
 // Importamos todas las funciones del controlador
 const {
   getAnimales,
-  getAnimalesByDueño,
+  getAnimalesByDueno,
   getAnimalById,
   createAnimal,
   updateAnimal,
@@ -18,8 +18,8 @@ const {
 // GET /api/animal - Obtener todos los animales
 router.get("/", getAnimales);
 
-// GET /api/animal/dueno/:id_dueño - Obtener animales de un dueño específico
-router.get("/dueno/:id_dueño", getAnimalesByDueño);
+// GET /api/animal/dueno/:id_dueno - Obtener animales de un dueno específico
+router.get("/dueno/:id_dueno", getAnimalesByDueno);
 
 // GET /api/animal/:id - Obtener un animal por ID
 router.get("/:id", getAnimalById);

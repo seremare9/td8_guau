@@ -18,18 +18,18 @@ const getAnimales = async (req, res) => {
   }
 };
 
-// 2. Función para obtener animales de un dueño específico
-const getAnimalesByDueño = async (req, res) => {
+// 2. Función para obtener animales de un dueno específico
+const getAnimalesByDueno = async (req, res) => {
   try {
-    const { id_dueño } = req.params;
+    const { id_dueno } = req.params;
     const result = await pool.query(
       `SELECT a.*, r.nombre as raza_nombre, da.es_principal, da.desde
        FROM animal a
        JOIN raza r ON a.id_raza = r.id_raza
-       JOIN dueño_animal da ON a.id_animal = da.id_animal
-       WHERE da.id_dueño = $1
+       JOIN dueno_animal da ON a.id_animal = da.id_animal
+       WHERE da.id_dueno = $1
        ORDER BY da.es_principal DESC, a.creado_en DESC`,
-      [id_dueño]
+      [id_dueno]
     );
     res.json(result.rows);
   } catch (err) {
@@ -83,8 +83,8 @@ const getOrCreateRaza = async (nombreRaza) => {
   }
 };
 
-// 5. Función para mapear tamaño del frontend al backend
-const mapTamaño = (gender) => {
+// 5. Función para mapear tamano del frontend al backend
+const mapTamano = (gender) => {
   const mapping = {
     small: "chico",
     medium: "mediano",
@@ -99,12 +99,12 @@ const mapTamaño = (gender) => {
 // 6. Función para crear un nuevo animal
 const createAnimal = async (req, res) => {
   try {
-    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamaño, foto_url, estado, id_dueño } = req.body;
+    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado, id_dueno } = req.body;
 
     // Validaciones básicas
-    if (!nombre || !raza_nombre || !sexo || !tamaño) {
+    if (!nombre || !raza_nombre || !sexo || !tamano) {
       return res.status(400).json({
-        message: "Faltan campos requeridos: nombre, raza_nombre, sexo, tamaño",
+        message: "Faltan campos requeridos: nombre, raza_nombre, sexo, tamano",
       });
     }
 
@@ -116,27 +116,27 @@ const createAnimal = async (req, res) => {
       return res.status(400).json({ message: "Error al obtener/crear la raza" });
     }
 
-    // Mapear tamaño
-    const tamañoMapeado = mapTamaño(tamaño);
+    // Mapear tamano
+    const tamanoMapeado = mapTamano(tamano);
 
     // Calcular edad si no se proporciona pero sí fecha_nacimiento
     let edadCalculada = edad;
     if (!edad && fecha_nacimiento) {
       const fechaNac = new Date(fecha_nacimiento);
       const hoy = new Date();
-      const años = hoy.getFullYear() - fechaNac.getFullYear();
+      const anos = hoy.getFullYear() - fechaNac.getFullYear();
       const mesActual = hoy.getMonth();
       const mesNac = fechaNac.getMonth();
       if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())) {
-        edadCalculada = años - 1;
+        edadCalculada = anos - 1;
       } else {
-        edadCalculada = años;
+        edadCalculada = anos;
       }
     }
 
     // Insertar el nuevo animal
     const result = await pool.query(
-      `INSERT INTO animal (id_raza, nombre, edad, sexo, fecha_nacimiento, color, tamaño, foto_url, estado) 
+      `INSERT INTO animal (id_raza, nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
        RETURNING *`,
       [
@@ -146,7 +146,7 @@ const createAnimal = async (req, res) => {
         sexo,
         fecha_nacimiento || null,
         color || null,
-        tamañoMapeado,
+        tamanoMapeado,
         foto_url || null,
         estado || "activo",
       ]
@@ -154,17 +154,17 @@ const createAnimal = async (req, res) => {
 
     const nuevoAnimal = result.rows[0];
 
-    // Si se proporciona id_dueño, crear la relación
-    if (id_dueño) {
+    // Si se proporciona id_dueno, crear la relación
+    if (id_dueno) {
       try {
         await pool.query(
-          `INSERT INTO dueño_animal (id_dueño, id_animal, es_principal) 
+          `INSERT INTO dueno_animal (id_dueno, id_animal, es_principal) 
            VALUES ($1, $2, $3) 
-           ON CONFLICT (id_dueño, id_animal) DO NOTHING`,
-          [id_dueño, nuevoAnimal.id_animal, true] // Primera mascota es principal por defecto
+           ON CONFLICT (id_dueno, id_animal) DO NOTHING`,
+          [id_dueno, nuevoAnimal.id_animal, true] // Primera mascota es principal por defecto
         );
       } catch (err) {
-        console.error("Error al crear relación dueño_animal:", err.message);
+        console.error("Error al crear relación dueno_animal:", err.message);
         // No fallar si hay error en la relación, el animal ya está creado
       }
     }
@@ -195,7 +195,7 @@ const createAnimal = async (req, res) => {
 const updateAnimal = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamaño, foto_url, estado } = req.body;
+    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado } = req.body;
 
     // Verificar que el animal exista
     const existingAnimal = await pool.query("SELECT id_animal FROM animal WHERE id_animal = $1", [id]);
@@ -239,12 +239,12 @@ const updateAnimal = async (req, res) => {
       if (fecha_nacimiento) {
         const fechaNac = new Date(fecha_nacimiento);
         const hoy = new Date();
-        const años = hoy.getFullYear() - fechaNac.getFullYear();
+        const anos = hoy.getFullYear() - fechaNac.getFullYear();
         const mesActual = hoy.getMonth();
         const mesNac = fechaNac.getMonth();
-        let edadCalculada = años;
+        let edadCalculada = anos;
         if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())) {
-          edadCalculada = años - 1;
+          edadCalculada = anos - 1;
         }
         campos.push(`edad = $${paramIndex++}`);
         valores.push(edadCalculada);
@@ -254,10 +254,10 @@ const updateAnimal = async (req, res) => {
       campos.push(`color = $${paramIndex++}`);
       valores.push(color);
     }
-    if (tamaño !== undefined) {
-      const tamañoMapeado = mapTamaño(tamaño);
-      campos.push(`tamaño = $${paramIndex++}`);
-      valores.push(tamañoMapeado);
+    if (tamano !== undefined) {
+      const tamanoMapeado = mapTamano(tamano);
+      campos.push(`tamano = $${paramIndex++}`);
+      valores.push(tamanoMapeado);
     }
     if (foto_url !== undefined) {
       campos.push(`foto_url = $${paramIndex++}`);
@@ -324,7 +324,7 @@ const deleteAnimal = async (req, res) => {
 // Exportar todas las funciones
 module.exports = {
   getAnimales,
-  getAnimalesByDueño,
+  getAnimalesByDueno,
   getAnimalById,
   createAnimal,
   updateAnimal,
