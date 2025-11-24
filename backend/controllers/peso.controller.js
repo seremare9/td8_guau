@@ -50,7 +50,9 @@ const getUltimoPesoByAnimal = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No hay registros de peso para este animal" });
+      return res
+        .status(404)
+        .json({ message: "No hay registros de peso para este animal" });
     }
 
     res.json(result.rows[0]);
@@ -64,10 +66,14 @@ const getUltimoPesoByAnimal = async (req, res) => {
 const getPesoById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM peso WHERE id_peso = $1", [id]);
+    const result = await pool.query("SELECT * FROM peso WHERE id_peso = $1", [
+      id,
+    ]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Registro de peso no encontrado" });
+      return res
+        .status(404)
+        .json({ message: "Registro de peso no encontrado" });
     }
 
     res.json(result.rows[0]);
@@ -97,9 +103,10 @@ const createPeso = async (req, res) => {
     }
 
     // Verificar que el animal exista
-    const animalExists = await pool.query("SELECT id_animal FROM animal WHERE id_animal = $1", [
-      id_animal,
-    ]);
+    const animalExists = await pool.query(
+      "SELECT id_animal FROM animal WHERE id_animal = $1",
+      [id_animal]
+    );
 
     if (animalExists.rows.length === 0) {
       return res.status(404).json({ message: "Animal no encontrado" });
@@ -117,9 +124,13 @@ const createPeso = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     if (err.code === "23503") {
-      res.status(400).json({ message: "Error de referencia: verifique el id_animal" });
+      res
+        .status(400)
+        .json({ message: "Error de referencia: verifique el id_animal" });
     } else if (err.code === "23514") {
-      res.status(400).json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
+      res
+        .status(400)
+        .json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
     } else {
       res.status(500).send({ message: "Error en el servidor" });
     }
@@ -133,10 +144,15 @@ const updatePeso = async (req, res) => {
     const { kg, fecha } = req.body;
 
     // Verificar que el registro exista
-    const existingPeso = await pool.query("SELECT id_peso FROM peso WHERE id_peso = $1", [id]);
+    const existingPeso = await pool.query(
+      "SELECT id_peso FROM peso WHERE id_peso = $1",
+      [id]
+    );
 
     if (existingPeso.rows.length === 0) {
-      return res.status(404).json({ message: "Registro de peso no encontrado" });
+      return res
+        .status(404)
+        .json({ message: "Registro de peso no encontrado" });
     }
 
     // Construir la consulta dinámicamente
@@ -160,11 +176,15 @@ const updatePeso = async (req, res) => {
     }
 
     if (campos.length === 0) {
-      return res.status(400).json({ message: "No se proporcionaron campos para actualizar" });
+      return res
+        .status(400)
+        .json({ message: "No se proporcionaron campos para actualizar" });
     }
 
     valores.push(id);
-    const query = `UPDATE peso SET ${campos.join(", ")} WHERE id_peso = $${paramIndex} RETURNING *`;
+    const query = `UPDATE peso SET ${campos.join(
+      ", "
+    )} WHERE id_peso = $${paramIndex} RETURNING *`;
 
     const result = await pool.query(query, valores);
 
@@ -172,7 +192,9 @@ const updatePeso = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     if (err.code === "23514") {
-      res.status(400).json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
+      res
+        .status(400)
+        .json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
     } else {
       res.status(500).send({ message: "Error en el servidor" });
     }
@@ -185,10 +207,15 @@ const deletePeso = async (req, res) => {
     const { id } = req.params;
 
     // Verificar que el registro exista
-    const existingPeso = await pool.query("SELECT id_peso FROM peso WHERE id_peso = $1", [id]);
+    const existingPeso = await pool.query(
+      "SELECT id_peso FROM peso WHERE id_peso = $1",
+      [id]
+    );
 
     if (existingPeso.rows.length === 0) {
-      return res.status(404).json({ message: "Registro de peso no encontrado" });
+      return res
+        .status(404)
+        .json({ message: "Registro de peso no encontrado" });
     }
 
     // Eliminar el registro
@@ -211,6 +238,3 @@ module.exports = {
   updatePeso,
   deletePeso,
 };
-
-
-
