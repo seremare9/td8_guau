@@ -7,19 +7,29 @@ require("dotenv").config();
 require("./config/db.config.js");
 
 const app = express();
-const PORT = process.env.PORT || 4001; // Usamos el puerto de .env o 4001
+const PORT = process.env.PORT || 4000; // Usamos el puerto de .env
 
 // === Middlewares ===
 // cors: Permite que tu app React (en otro puerto) haga peticiones a este servidor
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // express.json: Permite que el servidor entienda datos JSON enviados en peticiones (ej. POST, PUT)
 app.use(express.json());
+
+// Este código imprimirá en la terminal cada vez que alguien toque la puerta
+app.use((req, res, next) => {
+  console.log(`\n📢 PETICIÓN RECIBIDA: ${req.method} ${req.url}`);
+  console.log("📦 Datos recibidos (body):", req.body);
+  console.log("------------------------------------------------");
+  next(); // Importante: deja pasar la petición a las rutas
+});
 
 // === Rutas ===
 // Ruta de prueba para verificar que el servidor funciona
