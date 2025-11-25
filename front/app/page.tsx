@@ -566,7 +566,7 @@ export default function App() {
                 console.log("✅ Mascota eliminada de la base de datos");
               } catch (error) {
                 console.error("Error al eliminar mascota de la base de datos:", error);
-                // Continuar con la eliminación local
+                // Continuar con la eliminación local aunque falle en la BD
               }
             }
 
@@ -653,10 +653,16 @@ export default function App() {
               }
             }
             
-            // 15. Notificar a otros componentes del cambio (disparar múltiples veces para asegurar que se actualice)
+            // 15. Notificar a otros componentes del cambio inmediatamente
+            // Disparar eventos para que los componentes se actualicen
             window.dispatchEvent(new Event("customStorageChange"));
-            // También disparar un evento personalizado con el nombre de la mascota eliminada
             window.dispatchEvent(new CustomEvent("petDeleted", { detail: { petName } }));
+            
+            // También disparar después de un pequeño delay para asegurar que se procese
+            setTimeout(() => {
+              window.dispatchEvent(new Event("customStorageChange"));
+              window.dispatchEvent(new CustomEvent("petDeleted", { detail: { petName } }));
+            }, 100);
             
             // 16. Verificar si hay más mascotas después de la eliminación
             const hasOtherPets = Array.from({ length: localStorage.length }, (_, i) => {

@@ -34,6 +34,7 @@ interface HomeEvent {
   horario?: string;
   petName: string;
   eventType: string;
+  esAplicada?: boolean;
 }
 
 interface HomeHeaderProps {
@@ -241,9 +242,39 @@ export default function HomeScreen({
             };
           });
 
+          // Filtrar mascotas que no existen en localStorage (fueron eliminadas localmente)
+          // Esto asegura que las mascotas eliminadas no aparezcan
+          // También verificar pets_order para asegurarse de que la mascota no fue eliminada
+          const petsOrderKey = "pets_order";
+          const petsOrderStr = localStorage.getItem(petsOrderKey);
+          let petsOrder: string[] = [];
+          if (petsOrderStr) {
+            try {
+              petsOrder = JSON.parse(petsOrderStr);
+            } catch (e) {
+              console.error("Error al parsear orden de mascotas:", e);
+            }
+          }
+
+          const validPetsArray = petsArray.filter((pet) => {
+            if (!pet.fullData || !pet.fullData.name) return false;
+            const petDataStr = localStorage.getItem(`pet_data_${pet.fullData.name}`);
+            // Solo incluir si existe en localStorage Y está en pets_order (no fue eliminada)
+            return petDataStr !== null && (petsOrder.length === 0 || petsOrder.includes(pet.fullData.name));
+          });
+
           // Si hay mascotas desde la API, usarlas
-          if (petsArray.length > 0) {
-            setAllPets(petsArray);
+          if (validPetsArray.length > 0) {
+            setAllPets(validPetsArray);
+            setLoadingPets(false);
+            return;
+          } else if (petsArray.length > 0 && validPetsArray.length === 0) {
+            // Si había mascotas en la API pero ninguna válida en localStorage,
+            // significa que fueron eliminadas, usar el fallback
+            setLoadingPets(false);
+            // Continuar con el fallback a localStorage
+          } else {
+            setAllPets([]);
             setLoadingPets(false);
             return;
           }
@@ -496,6 +527,7 @@ export default function HomeScreen({
                   horario: vaccine.horario,
                   petName: pet.name,
                   eventType: "vacuna",
+                  esAplicada: vaccine.esAplicada !== undefined ? vaccine.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -517,6 +549,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: "higiene",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -538,6 +571,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: "medicina",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -559,6 +593,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: "antiparasitario",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -580,6 +615,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: "veterinario",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -601,6 +637,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: "otro",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -622,6 +659,7 @@ export default function HomeScreen({
                   horario: event.horario,
                   petName: pet.name,
                   eventType: event.eventType || "otro",
+                  esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
                 });
               });
             } catch (e) {
@@ -645,17 +683,31 @@ export default function HomeScreen({
         );
       });
 
-      // Filtrar solo eventos futuros y ordenar
+      // Filtrar solo eventos pendientes (no aplicados y con fecha futura o de hoy)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const upcomingEvents = uniqueEvents
-        .filter((event) => {
-          const eventDate = new Date(
-            event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
-          );
+      const isPending = (event: HomeEvent): boolean => {
+        // Si el evento está aplicado, no es pendiente
+        if (event.esAplicada) return false;
+        
+        // Verificar si la fecha es hoy o futura
+        try {
+          let dateOnly = event.fecha;
+          if (event.fecha.includes('T')) {
+            dateOnly = event.fecha.split('T')[0];
+          }
+          const eventDate = new Date(dateOnly + "T00:00:00");
+          if (isNaN(eventDate.getTime())) return false;
           return eventDate >= today;
-        })
+        } catch (e) {
+          console.error("Error al verificar si está pendiente:", e);
+          return false;
+        }
+      };
+
+      const pendingEvents = uniqueEvents
+        .filter(isPending)
         .sort((a, b) => {
           const dateA = new Date(
             a.fecha + (a.horario ? `T${a.horario}` : "T00:00")
@@ -666,7 +718,7 @@ export default function HomeScreen({
           return dateA.getTime() - dateB.getTime();
         });
 
-      setEvents(upcomingEvents);
+      setEvents(pendingEvents);
     };
 
     loadEvents();
@@ -995,7 +1047,7 @@ export default function HomeScreen({
                   </div>
                 );
               })}
-              {events.length > 2 && (
+              {events.length > 3 && (
                 <button
                   className="home-ver-todos-button"
                   onClick={() => {
@@ -1004,22 +1056,10 @@ export default function HomeScreen({
                     }
                   }}
                 >
-                  Ver todos
+                  Mostrar todos los eventos
                 </button>
               )}
             </div>
-          )}
-          {events.length > 0 && (
-            <button
-              className="home-abrir-calendario-button"
-              onClick={() => {
-                if (onOpenCalendar) {
-                  onOpenCalendar();
-                }
-              }}
-            >
-              Abrir calendario
-            </button>
           )}
         </div>
 

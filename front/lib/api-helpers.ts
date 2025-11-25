@@ -78,6 +78,7 @@ export function mapEventoToFrontend(evento: EventoSalud, petName: string): {
   horario?: string;
   petName: string;
   eventType: string;
+  esAplicada?: boolean;
 } {
   // Mapear tipos de eventos
   const tipoMap: Record<string, string> = {
@@ -95,8 +96,10 @@ export function mapEventoToFrontend(evento: EventoSalud, petName: string): {
     id: evento.id_evento.toString(),
     tipo: evento.nombre,
     fecha: evento.fecha,
+    horario: evento.horario || evento.hora,
     petName,
     eventType,
+    esAplicada: evento.es_aplicada !== undefined ? evento.es_aplicada : false,
   };
 }
 

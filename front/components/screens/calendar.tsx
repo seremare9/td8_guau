@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/lib/api";
+import { mapEventoToFrontend } from "@/lib/api-helpers";
 import "../styles/calendar-styles.css";
 
 interface CalendarProps {
@@ -85,6 +87,7 @@ export default function Calendar({
     Array<{
       name: string;
       imageURL?: string;
+      id_animal?: number;
     }>
   >([]);
   const [showAddEventModal, setShowAddEventModal] = useState(false);
@@ -107,9 +110,42 @@ export default function Calendar({
 
   // Cargar todas las mascotas
   useEffect(() => {
-    const loadAllPets = () => {
-      const petsMap = new Map<string, { name: string; imageURL?: string }>();
+    const loadAllPets = async () => {
+      const petsMap = new Map<string, { name: string; imageURL?: string; id_animal?: number }>();
 
+      // Intentar cargar desde la API si tenemos un ID de dueño
+      const getDueñoId = (): number | null => {
+        try {
+          const userDataStr = localStorage.getItem('user_data');
+          if (userDataStr) {
+            const userData = JSON.parse(userDataStr);
+            return userData.id_dueño || null;
+          }
+        } catch (e) {
+          console.error("Error al obtener ID del dueño:", e);
+        }
+        return null;
+      };
+
+      const id_dueño = getDueñoId();
+      
+      if (id_dueño) {
+        try {
+          const animales = await api.animal.getByDueño(id_dueño);
+          animales.forEach((animal) => {
+            petsMap.set(animal.nombre, {
+              name: animal.nombre,
+              imageURL: animal.foto_url,
+              id_animal: animal.id_animal,
+            });
+          });
+        } catch (error) {
+          console.error("Error al cargar mascotas desde la API:", error);
+          // Continuar con el fallback a localStorage
+        }
+      }
+
+      // Fallback: cargar desde localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith("pet_data_")) {
@@ -123,6 +159,7 @@ export default function Calendar({
                 petsMap.set(petDataObj.name, {
                   name: petDataObj.name,
                   imageURL: petDataObj.imageURL,
+                  id_animal: petDataObj.id_animal,
                 });
               }
             } catch (e) {
@@ -136,6 +173,7 @@ export default function Calendar({
         petsMap.set(petData.name, {
           name: petData.name,
           imageURL: petData.imageURL,
+          id_animal: (petData as any).id_animal,
         });
       }
 
@@ -160,11 +198,32 @@ export default function Calendar({
 
   // Cargar eventos de salud
   useEffect(() => {
-    const loadEvents = () => {
+    const loadEvents = async () => {
       const allEvents: HealthEvent[] = [];
 
       // Cargar eventos de todas las mascotas
-      allPets.forEach((pet) => {
+      for (const pet of allPets) {
+        // Intentar cargar desde la API si tenemos id_animal
+        if (pet.id_animal) {
+          try {
+            const eventos = await api.eventoSalud.getByAnimal(pet.id_animal);
+            eventos.forEach((evento) => {
+              const mapped = mapEventoToFrontend(evento, pet.name);
+              allEvents.push({
+                id: mapped.id,
+                tipo: mapped.tipo,
+                fecha: mapped.fecha,
+                horario: mapped.horario,
+                petName: mapped.petName,
+                eventType: mapped.eventType as HealthEvent["eventType"],
+                esAplicada: mapped.esAplicada,
+              });
+            });
+          } catch (error) {
+            console.error("Error al cargar eventos desde la API:", error);
+            // Continuar con el fallback a localStorage
+          }
+        }
         // Cargar vacunas
         const vaccinesKey = `vaccines_${pet.name}`;
         const vaccinesStr = localStorage.getItem(vaccinesKey);
@@ -223,6 +282,7 @@ export default function Calendar({
                 horario: event.horario,
                 petName: pet.name,
                 eventType: "medicina",
+                esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
               });
             });
           } catch (e) {
@@ -244,6 +304,7 @@ export default function Calendar({
                 horario: event.horario,
                 petName: pet.name,
                 eventType: "antiparasitario",
+                esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
               });
             });
           } catch (e) {
@@ -309,16 +370,32 @@ export default function Calendar({
                 horario: event.horario,
                 petName: pet.name,
                 eventType: event.eventType || "otro",
+                esAplicada: event.esAplicada !== undefined ? event.esAplicada : false,
               });
             });
           } catch (e) {
             console.error("Error al parsear eventos:", e);
           }
         }
+      }
+
+      // Deduplicar eventos (pueden estar tanto en la API como en localStorage)
+      const uniqueEvents = allEvents.filter((event, index, self) => {
+        // Si tiene ID, usar ID para deduplicar
+        if (event.id) {
+          return index === self.findIndex((e) => e.id === event.id);
+        }
+        // Si no tiene ID, usar combinación de fecha, tipo y nombre de mascota
+        return index === self.findIndex((e) => 
+          e.fecha === event.fecha && 
+          e.tipo === event.tipo && 
+          e.petName === event.petName &&
+          e.horario === event.horario
+        );
       });
 
       // Ordenar eventos por fecha
-      allEvents.sort((a, b) => {
+      uniqueEvents.sort((a, b) => {
         const dateA = new Date(
           a.fecha + (a.horario ? `T${a.horario}` : "T00:00")
         );
@@ -328,7 +405,7 @@ export default function Calendar({
         return dateA.getTime() - dateB.getTime();
       });
 
-      setEvents(allEvents);
+      setEvents(uniqueEvents);
     };
 
     if (allPets.length > 0) {

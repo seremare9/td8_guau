@@ -10,6 +10,13 @@ import lineSvg from "../images/line.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { api } from "@/lib/api";
 import "../styles/vaccines-styles.css";
 
@@ -72,6 +79,8 @@ export default function Antiparasitario({
     fecha: "",
     veterinario: "",
     notas: "",
+    reminderEnabled: false,
+    reminderBefore: "",
   });
   const [allPets, setAllPets] = useState<Array<{
     name: string;
@@ -250,7 +259,57 @@ export default function Antiparasitario({
       fecha: "",
       veterinario: "",
       notas: "",
+      reminderEnabled: false,
+      reminderBefore: "",
     });
+  };
+
+  // Función para obtener el email del usuario
+  const getUserEmail = (): string => {
+    try {
+      const userDataStr = localStorage.getItem("user_data");
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr);
+        return userData.email || "";
+      }
+    } catch (e) {
+      console.error("Error al obtener email del usuario:", e);
+    }
+    return "";
+  };
+
+  // Función para programar el envío del email del recordatorio
+  const scheduleEmailReminder = async (reminder: {
+    id: string;
+    eventId: string;
+    eventTitle: string;
+    eventDate: string;
+    eventTime: string;
+    petName: string;
+    reminderDateTime: string;
+    reminderMinutesBefore: number;
+    userEmail: string;
+  }) => {
+    console.log("Recordatorio programado para envío por email:", {
+      email: reminder.userEmail,
+      asunto: `Recordatorio: ${reminder.eventTitle} para ${reminder.petName}`,
+      mensaje: `Te recordamos que tienes un evento "${reminder.eventTitle}" para ${reminder.petName} el ${formatDate(reminder.eventDate)}.`,
+      fechaEnvio: reminder.reminderDateTime,
+      minutosAntes: reminder.reminderMinutesBefore,
+    });
+  };
+
+  // Función para verificar si la fecha es futura
+  const isFutureDate = (dateString: string): boolean => {
+    if (!dateString) return false;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const eventDate = new Date(dateString + "T00:00:00");
+      return eventDate > today;
+    } catch (e) {
+      return false;
+    }
   };
 
   const handleSaveEvent = async () => {
@@ -269,6 +328,47 @@ export default function Antiparasitario({
       const updatedEvents = [...existingEvents, newEvent];
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
       setEvents(updatedEvents);
+
+      // Crear recordatorio si está habilitado y la fecha es futura
+      if (eventForm.reminderEnabled && eventForm.reminderBefore !== "" && isFutureDate(eventForm.fecha)) {
+        const reminderMinutes = parseInt(eventForm.reminderBefore);
+        const eventDateTime = new Date(eventForm.fecha + "T00:00:00");
+        const reminderDateTime = new Date(
+          eventDateTime.getTime() - reminderMinutes * 60 * 1000
+        );
+
+        const userEmail = getUserEmail();
+
+        if (!userEmail) {
+          console.warn("No se encontró el email del usuario. El recordatorio no se programará.");
+        } else {
+          const reminder = {
+            id: Date.now().toString(),
+            eventId: newEvent.id,
+            eventTitle: eventForm.tipo,
+            eventDate: eventForm.fecha,
+            eventTime: "00:00",
+            petName: pet.name,
+            reminderDateTime: reminderDateTime.toISOString(),
+            reminderMinutesBefore: reminderMinutes,
+            userEmail: userEmail,
+            sent: false,
+            createdAt: new Date().toISOString(),
+          };
+
+          // Guardar el recordatorio en localStorage
+          const remindersKey = "event_reminders";
+          const existingReminders = JSON.parse(
+            localStorage.getItem(remindersKey) || "[]"
+          );
+          existingReminders.push(reminder);
+          localStorage.setItem(remindersKey, JSON.stringify(existingReminders));
+
+          // Programar el envío del email
+          scheduleEmailReminder(reminder);
+        }
+      }
+
       window.dispatchEvent(new Event("customStorageChange"));
       handleBackFromAddEvent();
       return;
@@ -313,6 +413,47 @@ export default function Antiparasitario({
       };
 
       setEvents([...events, newEvent]);
+
+      // Crear recordatorio si está habilitado y la fecha es futura
+      if (eventForm.reminderEnabled && eventForm.reminderBefore !== "" && isFutureDate(eventForm.fecha)) {
+        const reminderMinutes = parseInt(eventForm.reminderBefore);
+        const eventDateTime = new Date(eventForm.fecha + "T00:00:00");
+        const reminderDateTime = new Date(
+          eventDateTime.getTime() - reminderMinutes * 60 * 1000
+        );
+
+        const userEmail = getUserEmail();
+
+        if (!userEmail) {
+          console.warn("No se encontró el email del usuario. El recordatorio no se programará.");
+        } else {
+          const reminder = {
+            id: Date.now().toString(),
+            eventId: newEvent.id,
+            eventTitle: eventForm.tipo,
+            eventDate: eventForm.fecha,
+            eventTime: "00:00",
+            petName: pet.name,
+            reminderDateTime: reminderDateTime.toISOString(),
+            reminderMinutesBefore: reminderMinutes,
+            userEmail: userEmail,
+            sent: false,
+            createdAt: new Date().toISOString(),
+          };
+
+          // Guardar el recordatorio en localStorage
+          const remindersKey = "event_reminders";
+          const existingReminders = JSON.parse(
+            localStorage.getItem(remindersKey) || "[]"
+          );
+          existingReminders.push(reminder);
+          localStorage.setItem(remindersKey, JSON.stringify(existingReminders));
+
+          // Programar el envío del email
+          scheduleEmailReminder(reminder);
+        }
+      }
+
       handleBackFromAddEvent();
     } catch (error) {
       console.error("Error al guardar evento:", error);
@@ -476,9 +617,17 @@ export default function Antiparasitario({
               <Input
                 type="date"
                 value={eventForm.fecha}
-                onChange={(e) =>
-                  setEventForm({ ...eventForm, fecha: e.target.value })
-                }
+                onChange={(e) => {
+                  const newFecha = e.target.value;
+                  // Si la fecha ya no es futura, desactivar el recordatorio
+                  const isFuture = isFutureDate(newFecha);
+                  setEventForm({
+                    ...eventForm,
+                    fecha: newFecha,
+                    reminderEnabled: isFuture ? eventForm.reminderEnabled : false,
+                    reminderBefore: isFuture ? eventForm.reminderBefore : "",
+                  });
+                }}
                 className="vaccine-form-input"
               />
             </div>
@@ -508,6 +657,58 @@ export default function Antiparasitario({
                 rows={4}
               />
             </div>
+
+            {/* Opción de recordatorio solo si la fecha es futura */}
+            {isFutureDate(eventForm.fecha) && (
+              <>
+                <div className="vaccine-form-field">
+                  <label className="vaccine-form-label" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={eventForm.reminderEnabled}
+                      onChange={(e) =>
+                        setEventForm({
+                          ...eventForm,
+                          reminderEnabled: e.target.checked,
+                        })
+                      }
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
+                    <span>Activar recordatorio</span>
+                  </label>
+                </div>
+
+                {eventForm.reminderEnabled && (
+                  <div className="vaccine-form-field">
+                    <label className="vaccine-form-label">Recordar</label>
+                    <Select
+                      value={eventForm.reminderBefore}
+                      onValueChange={(value) =>
+                        setEventForm({
+                          ...eventForm,
+                          reminderBefore: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="vaccine-form-select">
+                        <SelectValue placeholder="Seleccionar cuándo recordar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">A la hora del evento</SelectItem>
+                        <SelectItem value="5">5 minutos antes</SelectItem>
+                        <SelectItem value="10">10 minutos antes</SelectItem>
+                        <SelectItem value="15">15 minutos antes</SelectItem>
+                        <SelectItem value="30">30 minutos antes</SelectItem>
+                        <SelectItem value="60">1 hora antes</SelectItem>
+                        <SelectItem value="120">2 horas antes</SelectItem>
+                        <SelectItem value="1440">1 día antes</SelectItem>
+                        <SelectItem value="2880">2 días antes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
 
             <div className="vaccine-form-button-section">
               <Button

@@ -154,9 +154,37 @@ export default function MenuScreen({
             };
           });
 
+          // Filtrar mascotas que no existen en localStorage (fueron eliminadas localmente)
+          // Esto asegura que las mascotas eliminadas no aparezcan
+          // También verificar pets_order para asegurarse de que la mascota no fue eliminada
+          const petsOrderKey = "pets_order";
+          const petsOrderStr = localStorage.getItem(petsOrderKey);
+          let petsOrder: string[] = [];
+          if (petsOrderStr) {
+            try {
+              petsOrder = JSON.parse(petsOrderStr);
+            } catch (e) {
+              console.error("Error al parsear orden de mascotas:", e);
+            }
+          }
+
+          const validPetsArray = petsArray.filter((pet) => {
+            if (!pet.fullData || !pet.name) return false;
+            const petDataStr = localStorage.getItem(`pet_data_${pet.name}`);
+            // Solo incluir si existe en localStorage Y está en pets_order (no fue eliminada)
+            return petDataStr !== null && (petsOrder.length === 0 || petsOrder.includes(pet.name));
+          });
+
           // Si hay mascotas desde la API, usarlas
-          if (petsArray.length > 0) {
-            setPets(petsArray);
+          if (validPetsArray.length > 0) {
+            setPets(validPetsArray);
+            return;
+          } else if (petsArray.length > 0 && validPetsArray.length === 0) {
+            // Si había mascotas en la API pero ninguna válida en localStorage,
+            // significa que fueron eliminadas, usar el fallback
+            // Continuar con el fallback a localStorage
+          } else {
+            setPets([]);
             return;
           }
         } catch (error) {

@@ -270,6 +270,9 @@ export default function Peso({
         localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
       }
 
+      // Notificar cambios para que otros componentes se actualicen
+      window.dispatchEvent(new Event("customStorageChange"));
+
       handleBackFromAddRecord();
       return;
     }
@@ -298,7 +301,13 @@ export default function Peso({
       if (onUpdatePetData && petData) {
         const updatedPetData = { ...petData, weight: `${recordForm.peso} kg` };
         onUpdatePetData(updatedPetData);
+        // También actualizar en localStorage
+        const petDataKey = `pet_data_${pet.name}`;
+        localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
       }
+
+      // Notificar cambios para que otros componentes se actualicen
+      window.dispatchEvent(new Event("customStorageChange"));
 
       handleBackFromAddRecord();
     } catch (error) {
@@ -354,6 +363,9 @@ export default function Peso({
           localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
         }
       }
+
+      // Notificar cambios para que otros componentes se actualicen
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedRecord(null);
       return;
@@ -376,13 +388,22 @@ export default function Peso({
         if (onUpdatePetData && petData) {
           const updatedPetData = { ...petData, weight: `${mostRecent.peso} kg` };
           onUpdatePetData(updatedPetData);
+          // También actualizar en localStorage
+          const petDataKey = `pet_data_${pet.name}`;
+          localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
         }
       } else {
         if (onUpdatePetData && petData) {
           const updatedPetData = { ...petData, weight: undefined };
           onUpdatePetData(updatedPetData);
+          // También actualizar en localStorage
+          const petDataKey = `pet_data_${pet.name}`;
+          localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
         }
       }
+
+      // Notificar cambios para que otros componentes se actualicen
+      window.dispatchEvent(new Event("customStorageChange"));
       
       setSelectedRecord(null);
     } catch (error) {

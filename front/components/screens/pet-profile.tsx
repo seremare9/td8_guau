@@ -83,6 +83,7 @@ export default function PetProfile({
   const [appearanceText, setAppearanceText] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+  const [latestWeight, setLatestWeight] = useState<string>("");
   const [allPets, setAllPets] = useState<Array<{
     name: string;
     breed: string;
@@ -397,9 +398,36 @@ export default function PetProfile({
     }
   }, [petData?.appearance]);
 
-  // Función para obtener el peso más reciente desde los registros
-  const getLatestWeight = (): string => {
-    const petName = petData?.name || "Maxi";
+  // Función para cargar el peso más reciente desde los registros
+  const loadLatestWeight = async () => {
+    if (!petData) {
+      setLatestWeight("0,0 kg");
+      return;
+    }
+
+    const petName = petData.name || "Maxi";
+    
+    // Intentar cargar desde la API si hay id_animal
+    if (petData.id_animal) {
+      try {
+        const pesos = await api.peso.getByAnimal(petData.id_animal);
+        if (pesos.length > 0) {
+          // Ordenar por fecha (más reciente primero)
+          const sortedPesos = [...pesos].sort((a, b) => {
+            const dateA = new Date(a.fecha + "T00:00:00");
+            const dateB = new Date(b.fecha + "T00:00:00");
+            return dateB.getTime() - dateA.getTime();
+          });
+          setLatestWeight(`${sortedPesos[0].peso} kg`);
+          return;
+        }
+      } catch (error) {
+        console.error("Error al cargar peso desde la API:", error);
+        // Continuar con el fallback a localStorage
+      }
+    }
+
+    // Fallback: cargar desde localStorage
     const recordsKey = `peso_${petName}`;
     const recordsStr = localStorage.getItem(recordsKey);
     if (recordsStr) {
@@ -412,15 +440,35 @@ export default function PetProfile({
             const dateB = new Date(b.fecha + "T00:00:00");
             return dateB.getTime() - dateA.getTime();
           });
-          return `${sortedRecords[0].peso} kg`;
+          setLatestWeight(`${sortedRecords[0].peso} kg`);
+          return;
         }
       } catch (e) {
         console.error("Error al parsear registros de peso:", e);
       }
     }
+    
     // Si no hay registros, usar el peso de petData o un valor por defecto
-    return petData?.weight ? `${petData.weight} kg` : "0,0 kg";
+    setLatestWeight(petData.weight ? `${petData.weight} kg` : "0,0 kg");
   };
+
+  // Cargar el peso más reciente cuando cambie petData o cuando se actualice localStorage
+  useEffect(() => {
+    loadLatestWeight();
+
+    // Escuchar cambios en localStorage para actualizar el peso
+    const handleStorageChange = () => {
+      loadLatestWeight();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
+  }, [petData?.name, petData?.id_animal]);
 
   const pet = {
     name: petData?.name || "Maxi",
@@ -428,7 +476,7 @@ export default function PetProfile({
     image: petData?.imageURL || perro,
     sex: getSexLabel(petData?.sex),
     size: getSizeLabel(petData?.gender),
-    weight: getLatestWeight(),
+    weight: latestWeight || (petData?.weight ? `${petData.weight} kg` : "0,0 kg"),
     age: getAgeDisplay(),
     appearance: petData?.appearance || "Brown-Dark-White mix, with light eyebrows shape and a heart shaped patch on left paw.",
   };
