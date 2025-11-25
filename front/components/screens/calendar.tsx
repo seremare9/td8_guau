@@ -460,27 +460,11 @@ export default function Calendar({
   const getEventsForDate = (date: Date | null): HealthEvent[] => {
     if (!date) return [];
     const dateStr = date.toISOString().split("T")[0];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     
+    // Mostrar TODOS los eventos (pendientes y aplicados) en el calendario
     return events.filter((event) => {
-      // Filtrar por fecha
-      if (event.fecha !== dateStr) return false;
-      
-      // Solo mostrar eventos pendientes (no aplicados y con fecha futura o de hoy)
-      if (event.esAplicada) return false;
-      
-      try {
-        let dateOnly = event.fecha;
-        if (event.fecha.includes('T')) {
-          dateOnly = event.fecha.split('T')[0];
-        }
-        const eventDate = new Date(dateOnly + "T00:00:00");
-        if (isNaN(eventDate.getTime())) return false;
-        return eventDate >= today;
-      } catch (e) {
-        return false;
-      }
+      // Solo filtrar por fecha
+      return event.fecha === dateStr;
     });
   };
 
