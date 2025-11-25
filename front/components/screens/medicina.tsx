@@ -52,6 +52,7 @@ interface MedicinaEvent {
   veterinario?: string;
   notas?: string;
   petName: string;
+  esAplicada?: boolean;
 }
 
 export default function Medicina({
@@ -136,6 +137,7 @@ export default function Medicina({
             veterinario: veterinario || e.veterinario,
             notas: notas,
             petName: pet.name,
+            esAplicada: e.es_aplicada !== undefined ? e.es_aplicada : false,
           };
         });
         setEvents(mappedEvents);
@@ -381,10 +383,22 @@ export default function Medicina({
     }
   };
 
-  const getYear = (dateString: string): number => {
+  const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
-    const date = new Date(dateString + "T00:00:00");
-    return date.getFullYear();
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      if (isNaN(date.getTime())) {
+        return new Date().getFullYear();
+      }
+      const year = date.getFullYear();
+      // Verificar que el año sea válido (entre 1900 y 2100)
+      if (year >= 1900 && year <= 2100) {
+        return year;
+      }
+      return new Date().getFullYear();
+    } catch (e) {
+      return new Date().getFullYear();
+    }
   };
 
   const filteredEvents = events.filter((event) => {
@@ -403,6 +417,7 @@ export default function Medicina({
 
   const sortedYears = Object.keys(eventsByYear)
     .map(Number)
+    .filter((year) => !isNaN(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => b - a);
 
   sortedYears.forEach((year) => {
@@ -631,6 +646,7 @@ export default function Medicina({
                 <h3 className="vaccines-year-title">{year}</h3>
                 <div className="vaccines-list">
                   {eventsByYear[year].map((event) => {
+                    // Los eventos de medicina siempre son registrados (ya aplicados)
                     return (
                       <div
                         key={event.id}

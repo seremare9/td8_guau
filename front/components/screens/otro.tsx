@@ -431,10 +431,22 @@ export default function Otro({
     return timeString;
   };
 
-  const getYear = (dateString: string): number => {
+  const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
-    const date = new Date(dateString + "T00:00:00");
-    return date.getFullYear();
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      if (isNaN(date.getTime())) {
+        return new Date().getFullYear();
+      }
+      const year = date.getFullYear();
+      // Verificar que el año sea válido (entre 1900 y 2100)
+      if (year >= 1900 && year <= 2100) {
+        return year;
+      }
+      return new Date().getFullYear();
+    } catch (e) {
+      return new Date().getFullYear();
+    }
   };
 
   const isPending = (event: OtroEvent): boolean => {
@@ -462,6 +474,7 @@ export default function Otro({
 
   const sortedYears = Object.keys(eventsByYear)
     .map(Number)
+    .filter((year) => !isNaN(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => b - a);
 
   sortedYears.forEach((year) => {

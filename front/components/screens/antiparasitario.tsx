@@ -52,6 +52,7 @@ interface AntiparasitarioEvent {
   veterinario?: string;
   notas?: string;
   petName: string;
+  esAplicada?: boolean;
 }
 
 export default function Antiparasitario({
@@ -136,6 +137,7 @@ export default function Antiparasitario({
             veterinario: veterinario || e.veterinario,
             notas: notas,
             petName: pet.name,
+            esAplicada: e.es_aplicada !== undefined ? e.es_aplicada : false,
           };
         });
         setEvents(mappedEvents);
@@ -378,10 +380,22 @@ export default function Antiparasitario({
     }
   };
 
-  const getYear = (dateString: string): number => {
+  const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
-    const date = new Date(dateString + "T00:00:00");
-    return date.getFullYear();
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      if (isNaN(date.getTime())) {
+        return new Date().getFullYear();
+      }
+      const year = date.getFullYear();
+      // Verificar que el año sea válido (entre 1900 y 2100)
+      if (year >= 1900 && year <= 2100) {
+        return year;
+      }
+      return new Date().getFullYear();
+    } catch (e) {
+      return new Date().getFullYear();
+    }
   };
 
   const filteredEvents = events.filter((event) => {
@@ -400,6 +414,7 @@ export default function Antiparasitario({
 
   const sortedYears = Object.keys(eventsByYear)
     .map(Number)
+    .filter((year) => !isNaN(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => b - a);
 
   sortedYears.forEach((year) => {

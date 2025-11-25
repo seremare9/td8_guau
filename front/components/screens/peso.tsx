@@ -381,19 +381,40 @@ export default function Peso({
     }
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
-    const date = new Date(dateString + "T00:00:00");
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      // Verificar si la fecha es válida
+      if (isNaN(date.getTime())) {
+        return "";
+      }
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return "";
+    }
   };
 
-  const getYear = (dateString: string): number => {
+  const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
-    const date = new Date(dateString + "T00:00:00");
-    return date.getFullYear();
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      if (isNaN(date.getTime())) {
+        return new Date().getFullYear();
+      }
+      const year = date.getFullYear();
+      // Verificar que el año sea válido (entre 1900 y 2100)
+      if (year >= 1900 && year <= 2100) {
+        return year;
+      }
+      return new Date().getFullYear();
+    } catch (e) {
+      return new Date().getFullYear();
+    }
   };
 
   const filteredRecords = records.filter((record) => {
@@ -412,6 +433,7 @@ export default function Peso({
 
   const sortedYears = Object.keys(recordsByYear)
     .map(Number)
+    .filter((year) => !isNaN(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => b - a);
 
   sortedYears.forEach((year) => {

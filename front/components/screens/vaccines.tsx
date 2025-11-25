@@ -525,6 +525,7 @@ export default function Vaccines({
   // Ordenar años de mayor a menor
   const sortedYears = Object.keys(vaccinesByYear)
     .map(Number)
+    .filter((year) => !isNaN(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => b - a);
 
   // Ordenar vacunas dentro de cada año por fecha del turno (más recientes primero)
