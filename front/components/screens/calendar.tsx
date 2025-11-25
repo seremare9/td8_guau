@@ -460,7 +460,28 @@ export default function Calendar({
   const getEventsForDate = (date: Date | null): HealthEvent[] => {
     if (!date) return [];
     const dateStr = date.toISOString().split("T")[0];
-    return events.filter((event) => event.fecha === dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return events.filter((event) => {
+      // Filtrar por fecha
+      if (event.fecha !== dateStr) return false;
+      
+      // Solo mostrar eventos pendientes (no aplicados y con fecha futura o de hoy)
+      if (event.esAplicada) return false;
+      
+      try {
+        let dateOnly = event.fecha;
+        if (event.fecha.includes('T')) {
+          dateOnly = event.fecha.split('T')[0];
+        }
+        const eventDate = new Date(dateOnly + "T00:00:00");
+        if (isNaN(eventDate.getTime())) return false;
+        return eventDate >= today;
+      } catch (e) {
+        return false;
+      }
+    });
   };
 
   const getEventColor = (eventType: string): string => {
@@ -560,12 +581,34 @@ export default function Calendar({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return events
-      .filter((event) => {
-        const eventDate = new Date(
-          event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
-        );
+    const isPending = (event: HealthEvent): boolean => {
+      // Si el evento está aplicado, no es pendiente
+      if (event.esAplicada) return false;
+      
+      // Verificar si la fecha es hoy o futura
+      try {
+        let dateOnly = event.fecha;
+        if (event.fecha.includes('T')) {
+          dateOnly = event.fecha.split('T')[0];
+        }
+        const eventDate = new Date(dateOnly + "T00:00:00");
+        if (isNaN(eventDate.getTime())) return false;
         return eventDate >= today;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    return events
+      .filter(isPending)
+      .sort((a, b) => {
+        const dateA = new Date(
+          a.fecha + (a.horario ? `T${a.horario}` : "T00:00")
+        );
+        const dateB = new Date(
+          b.fecha + (b.horario ? `T${b.horario}` : "T00:00")
+        );
+        return dateA.getTime() - dateB.getTime();
       })
       .slice(0, 10); // Máximo 10 eventos próximos
   };

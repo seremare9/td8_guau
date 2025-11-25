@@ -409,31 +409,24 @@
   background-color: #F3F4F6;
 }
 
-.home-ver-todos-button {
-  border-radius: 0.75rem;
+.home-ver-todos-text-button {
+  width: 100%;
   text-align: center;
   font-size: 0.875rem;
   font-weight: 600;
   color: #39434F;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: color 0.2s;
   font-family: "Noto Sans", sans-serif;
-  flex-shrink: 0;
-  padding: 1rem;
-  background-color: white;
-  border: 1px solid #E5E7EB;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-  width: calc(100% - 1.5rem);
-  min-width: calc(100% - 1.5rem);
-  margin-right: 0.75rem;
+  background: none;
+  border: none;
+  padding: 1rem 0 0 0;
+  margin-top: 0.5rem;
 }
 
-.home-ver-todos-button:hover {
-  background-color: #F9FAFB;
-  border-color: #D1D5DB;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+.home-ver-todos-text-button:hover {
+  color: #2d3439;
+  text-decoration: underline;
 }
 
 .home-abrir-calendario-button {

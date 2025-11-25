@@ -1047,19 +1047,19 @@ export default function HomeScreen({
                   </div>
                 );
               })}
-              {events.length > 3 && (
-                <button
-                  className="home-ver-todos-button"
-                  onClick={() => {
-                    if (onOpenCalendar) {
-                      onOpenCalendar();
-                    }
-                  }}
-                >
-                  Mostrar todos los eventos
-                </button>
-              )}
             </div>
+          )}
+          {events.length > 3 && (
+            <button
+              className="home-ver-todos-text-button"
+              onClick={() => {
+                if (onOpenCalendar) {
+                  onOpenCalendar();
+                }
+              }}
+            >
+              Ver en calendario
+            </button>
           )}
         </div>
 
