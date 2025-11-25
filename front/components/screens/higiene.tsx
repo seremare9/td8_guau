@@ -279,6 +279,27 @@ export default function Higiene({
   };
 
   const handleSaveEvent = async () => {
+    // Validar fecha según el tipo de registro
+    if (eventForm.fecha) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(eventForm.fecha + "T00:00:00");
+      
+      if (isEventApplied) {
+        // Si es "registrar evento aplicado", solo permitir fechas pasadas o actuales
+        if (selectedDate > today) {
+          alert("No se puede registrar un evento aplicado con fecha futura. Por favor, selecciona una fecha de hoy o anterior.");
+          return;
+        }
+      } else {
+        // Si es "registrar turno", solo permitir fechas futuras o actuales
+        if (selectedDate < today) {
+          alert("No se puede registrar un turno con fecha pasada. Por favor, selecciona una fecha de hoy o posterior.");
+          return;
+        }
+      }
+    }
+
     if (!pet.id_animal) {
       const newEvent: HigieneEvent = {
         id: Date.now().toString(),
@@ -555,6 +576,8 @@ export default function Higiene({
                   onChange={(e) =>
                     setEventForm({ ...eventForm, fecha: e.target.value })
                   }
+                  max={isEventApplied ? new Date().toISOString().split('T')[0] : undefined}
+                  min={!isEventApplied ? new Date().toISOString().split('T')[0] : undefined}
                   className="vaccine-form-datetime-input"
                 />
                 {!isEventApplied && (

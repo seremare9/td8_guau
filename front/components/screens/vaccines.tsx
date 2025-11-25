@@ -296,6 +296,27 @@ export default function Vaccines({
   };
 
   const handleSaveVaccine = async () => {
+    // Validar fecha según el tipo de registro
+    if (vaccineForm.fecha) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(vaccineForm.fecha + "T00:00:00");
+      
+      if (isVaccineApplied) {
+        // Si es "registrar vacuna aplicada", solo permitir fechas pasadas o actuales
+        if (selectedDate > today) {
+          alert("No se puede registrar una vacuna aplicada con fecha futura. Por favor, selecciona una fecha de hoy o anterior.");
+          return;
+        }
+      } else {
+        // Si es "registrar turno", solo permitir fechas futuras o actuales
+        if (selectedDate < today) {
+          alert("No se puede registrar un turno con fecha pasada. Por favor, selecciona una fecha de hoy o posterior.");
+          return;
+        }
+      }
+    }
+
     if (!pet.id_animal) {
       // Fallback a localStorage si no hay id_animal
       const proximaDosis = calculateNextDose(vaccineForm.fecha);
@@ -630,6 +651,8 @@ export default function Vaccines({
                   onChange={(e) =>
                     setVaccineForm({ ...vaccineForm, fecha: e.target.value })
                   }
+                  max={isVaccineApplied ? new Date().toISOString().split('T')[0] : undefined}
+                  min={!isVaccineApplied ? new Date().toISOString().split('T')[0] : undefined}
                   className="vaccine-form-datetime-input"
                 />
                 {!isVaccineApplied && (
