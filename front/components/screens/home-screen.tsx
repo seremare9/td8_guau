@@ -468,17 +468,15 @@ export default function HomeScreen({
               const mapped = mapEventoToFrontend(evento, pet.name);
               allEvents.push(mapped);
             });
-            // Si cargamos eventos desde la API, no necesitamos el fallback
-            // Continuar con el procesamiento de eventos
           } catch (error) {
             console.error("Error al cargar eventos desde la API:", error);
             // Continuar con el fallback a localStorage
           }
         }
 
-        // Fallback: cargar desde localStorage si no hay eventos desde la API o si falló
-        if (allEvents.length === 0) {
-          // Cargar vacunas
+        // Siempre cargar desde localStorage también para incluir eventos nuevos creados localmente
+        // Esto asegura que los eventos creados desde las pantallas de salud o el calendario se muestren
+        // Cargar vacunas
           const vaccinesKey = `vaccines_${pet.name}`;
           const vaccinesStr = localStorage.getItem(vaccinesKey);
           if (vaccinesStr) {
@@ -624,14 +622,28 @@ export default function HomeScreen({
               console.error("Error al parsear eventos:", e);
             }
           }
-        }
       }
+
+      // Deduplicar eventos (pueden estar tanto en la API como en localStorage)
+      const uniqueEvents = allEvents.filter((event, index, self) => {
+        // Si tiene ID, usar ID para deduplicar
+        if (event.id) {
+          return index === self.findIndex((e) => e.id === event.id);
+        }
+        // Si no tiene ID, usar combinación de fecha, tipo y nombre de mascota
+        return index === self.findIndex((e) => 
+          e.fecha === event.fecha && 
+          e.tipo === event.tipo && 
+          e.petName === event.petName &&
+          e.horario === event.horario
+        );
+      });
 
       // Filtrar solo eventos futuros y ordenar
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const upcomingEvents = allEvents
+      const upcomingEvents = uniqueEvents
         .filter((event) => {
           const eventDate = new Date(
             event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
@@ -653,9 +665,22 @@ export default function HomeScreen({
 
     loadEvents();
 
+    // Escuchar cambios en localStorage para recargar eventos
+    const handleStorageChange = () => {
+      loadEvents();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
     // Recargar eventos periódicamente
     const interval = setInterval(loadEvents, 5000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
   }, [activePetIndex, pets, allPets]);
 
   const [usefulInfo] = useState([
