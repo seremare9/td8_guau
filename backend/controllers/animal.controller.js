@@ -102,7 +102,8 @@ const mapTamano = (gender) => {
 // 6. Función para crear un nuevo animal
 const createAnimal = async (req, res) => {
   try {
-    const {
+    // 1. Recibir datos: Aceptamos 'tamano' o 'tamaño' para evitar errores
+    let {
       nombre,
       raza_nombre,
       edad,
@@ -110,14 +111,24 @@ const createAnimal = async (req, res) => {
       fecha_nacimiento,
       color,
       tamano,
+      tamaño,
       foto_url,
       estado,
       id_dueno,
     } = req.body;
 
-    if (!nombre || !raza_nombre || !sexo || !tamano) {
+    // Unificamos el tamaño
+    const sizeValue = tamano || tamaño;
+
+    if (!nombre || !raza_nombre || !sexo || !sizeValue) {
+      console.error("❌ Faltan campos:", {
+        nombre,
+        raza_nombre,
+        sexo,
+        sizeValue,
+      });
       return res.status(400).json({
-        message: "Faltan campos requeridos: nombre, raza_nombre, sexo, tamano",
+        message: "Faltan campos requeridos: nombre, raza, sexo, tamaño",
       });
     }
 
@@ -203,23 +214,19 @@ const createAnimal = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     if (err.code === "23503") {
-      res
-        .status(400)
-        .json({
-          message: "Error de referencia: verifique los datos proporcionados",
-        });
+      res.status(400).json({
+        message: "Error de referencia: verifique los datos proporcionados",
+      });
     } else if (err.code === "23514") {
       res
         .status(400)
         .json({ message: "Datos inválidos: verifique las restricciones" });
     } else if (err.code === "42703") {
       // Este es el error de columna no existente
-      res
-        .status(500)
-        .send({
-          message:
-            "Error de base de datos: Columna no encontrada (posiblemente ñ vs n)",
-        });
+      res.status(500).send({
+        message:
+          "Error de base de datos: Columna no encontrada (posiblemente ñ vs n)",
+      });
     } else {
       res.status(500).send({ message: "Error en el servidor: " + err.message });
     }
@@ -238,10 +245,12 @@ const updateAnimal = async (req, res) => {
       fecha_nacimiento,
       color,
       tamano,
+      tamaño,
       foto_url,
       estado,
     } = req.body;
 
+    const sizeValue = tamano || tamaño;
     const existingAnimal = await pool.query(
       "SELECT id_animal FROM animal WHERE id_animal = $1",
       [id]
@@ -307,11 +316,10 @@ const updateAnimal = async (req, res) => {
       campos.push(`color = $${paramIndex++}`);
       valores.push(color);
     }
-    if (tamano !== undefined) {
-      const tamanoMapeado = mapTamano(tamano);
-      // ⚠️ CORRECCIÓN AQUÍ: Cambiado 'tamano' por 'tamaño'
+    if (sizeValue !== undefined) {
+      const t = mapTamano(sizeValue);
       campos.push(`tamaño = $${paramIndex++}`);
-      valores.push(tamanoMapeado);
+      valores.push(t);
     }
     if (foto_url !== undefined) {
       campos.push(`foto_url = $${paramIndex++}`);
