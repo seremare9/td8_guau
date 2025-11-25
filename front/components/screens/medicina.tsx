@@ -368,7 +368,14 @@ export default function Medicina({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      const date = new Date(dateString + "T00:00:00");
+      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
+      let dateOnly = dateString;
+      if (dateString.includes('T')) {
+        dateOnly = dateString.split('T')[0];
+      }
+      
+      // Si ya está en formato YYYY-MM-DD, usarlo directamente
+      const date = new Date(dateOnly + "T00:00:00");
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
@@ -660,7 +667,7 @@ export default function Medicina({
                           </h4>
                           <div className="vaccine-card-date">
                             <Calendar className="vaccine-card-calendar-icon" />
-                            <span>{formatDate(event.fecha)}</span>
+                            <span>{formatDate(event.fecha) || "Sin fecha"}</span>
                             <span className="vaccine-card-applied-label">
                               Registrado
                             </span>

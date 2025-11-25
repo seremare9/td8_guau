@@ -411,7 +411,14 @@ export default function Veterinario({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      const date = new Date(dateString + "T00:00:00");
+      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
+      let dateOnly = dateString;
+      if (dateString.includes('T')) {
+        dateOnly = dateString.split('T')[0];
+      }
+      
+      // Si ya está en formato YYYY-MM-DD, usarlo directamente
+      const date = new Date(dateOnly + "T00:00:00");
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
@@ -452,10 +459,21 @@ export default function Veterinario({
   const isPending = (event: VeterinarioEvent): boolean => {
     if (event.esAplicada) return false;
     if (!event.fecha) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const eventDate = new Date(event.fecha + "T00:00:00");
-    return eventDate >= today;
+    try {
+      // Extraer solo la parte de la fecha si viene en formato ISO
+      let dateOnly = event.fecha;
+      if (event.fecha.includes('T')) {
+        dateOnly = event.fecha.split('T')[0];
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const eventDate = new Date(dateOnly + "T00:00:00");
+      if (isNaN(eventDate.getTime())) return false;
+      return eventDate >= today;
+    } catch (e) {
+      console.error("Error al verificar si está pendiente:", e);
+      return false;
+    }
   };
 
   const filteredEvents = events.filter((event) => {
@@ -779,10 +797,10 @@ export default function Veterinario({
                           </h4>
                           <div className="vaccine-card-date">
                             <Calendar className="vaccine-card-calendar-icon" />
-                            <span>{formatDate(event.fecha)}</span>
+                            <span>{formatDate(event.fecha) || "Sin fecha"}</span>
                             {pending && (
                               <span className="vaccine-card-pending-label">
-                                Turno pendiente
+                                Pendiente
                               </span>
                             )}
                             {event.esAplicada && !pending && (

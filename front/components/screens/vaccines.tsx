@@ -437,11 +437,18 @@ export default function Vaccines({
     }
   };
 
-  // Función para formatear fecha de YYYY-MM-DD a DD.MM.YYYY
+  // Función para formatear fecha de YYYY-MM-DD o ISO a DD.MM.YYYY
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      const date = new Date(dateString + "T00:00:00");
+      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
+      let dateOnly = dateString;
+      if (dateString.includes('T')) {
+        dateOnly = dateString.split('T')[0];
+      }
+      
+      // Si ya está en formato YYYY-MM-DD, usarlo directamente
+      const date = new Date(dateOnly + "T00:00:00");
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
@@ -485,9 +492,15 @@ export default function Vaccines({
     if (!vaccine.fecha) return false;
     
     try {
+      // Extraer solo la parte de la fecha si viene en formato ISO
+      let dateOnly = vaccine.fecha;
+      if (vaccine.fecha.includes('T')) {
+        dateOnly = vaccine.fecha.split('T')[0];
+      }
+      
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const turnoDate = new Date(vaccine.fecha + "T00:00:00");
+      const turnoDate = new Date(dateOnly + "T00:00:00");
       
       // Verificar si la fecha es válida
       if (isNaN(turnoDate.getTime())) return false;
@@ -870,13 +883,7 @@ export default function Vaccines({
                           </h4>
                           <div className="vaccine-card-date">
                             <Calendar className="vaccine-card-calendar-icon" />
-                            {displayDate && formatDate(displayDate) ? (
-                              <span>{formatDate(displayDate)}</span>
-                            ) : displayDate ? (
-                              <span style={{ color: '#808B9A' }}>{displayDate}</span>
-                            ) : (
-                              <span style={{ color: '#808B9A' }}>Sin fecha</span>
-                            )}
+                            <span>{formatDate(displayDate) || "Sin fecha"}</span>
                             {pending && (
                               <span className="vaccine-card-pending-label">
                                 Pendiente
