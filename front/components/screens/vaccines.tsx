@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/lib/api";
 import "../styles/vaccines-styles.css";
 
 interface VaccinesProps {
@@ -33,6 +34,7 @@ interface VaccinesProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   } | null;
   onBack: () => void;
   onUpdatePetData?: (petData: { 
@@ -46,11 +48,13 @@ interface VaccinesProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => void;
 }
 
 interface Vaccine {
   id: string;
+  id_evento?: number;
   tipo: string;
   fecha: string; // Fecha de aplicación o turno (YYYY-MM-DD)
   horario?: string; // Horario del turno (HH:MM)
@@ -94,34 +98,64 @@ export default function Vaccines({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }>>([]);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pet = {
     name: petData?.name || "Maxi",
     image: petData?.imageURL || perro,
+    id_animal: petData?.id_animal,
   };
 
-  // Cargar vacunas desde localStorage
+  // Cargar vacunas desde la API
   useEffect(() => {
-    const loadVaccines = () => {
-      const vaccinesKey = `vaccines_${pet.name}`;
-      const vaccinesStr = localStorage.getItem(vaccinesKey);
-      if (vaccinesStr) {
-        try {
-          const vaccinesData = JSON.parse(vaccinesStr);
-          setVaccines(vaccinesData);
-        } catch (e) {
-          console.error("Error al parsear vacunas:", e);
+    const loadVaccines = async () => {
+      if (!pet.id_animal) {
+        // Fallback a localStorage si no hay id_animal
+        const vaccinesKey = `vaccines_${pet.name}`;
+        const vaccinesStr = localStorage.getItem(vaccinesKey);
+        if (vaccinesStr) {
+          try {
+            const vaccinesData = JSON.parse(vaccinesStr);
+            setVaccines(vaccinesData);
+          } catch (e) {
+            console.error("Error al parsear vacunas:", e);
+            setVaccines([]);
+          }
+        } else {
           setVaccines([]);
         }
-      } else {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const eventos = await api.eventoSalud.getByAnimal(pet.id_animal, 'vacunacion');
+        const mappedVaccines: Vaccine[] = eventos.map((e) => ({
+          id: e.id_evento.toString(),
+          id_evento: e.id_evento,
+          tipo: e.nombre,
+          fecha: e.fecha,
+          horario: undefined, // El backend no tiene horario separado
+          veterinario: e.veterinario,
+          notas: e.descripcion,
+          proximaDosis: e.proxima_fecha || "",
+          petName: pet.name,
+          esAplicada: e.es_aplicada || false,
+        }));
+        setVaccines(mappedVaccines);
+      } catch (error) {
+        console.error("Error al cargar vacunas:", error);
         setVaccines([]);
+      } finally {
+        setLoading(false);
       }
     };
     
     loadVaccines();
-  }, [pet.name]);
+  }, [pet.name, pet.id_animal]);
 
   // Cargar todas las mascotas desde localStorage
   useEffect(() => {
@@ -149,7 +183,10 @@ export default function Vaccines({
             try {
               const petDataObj = JSON.parse(petDataStr);
               if (petDataObj.name && !petsMap.has(petDataObj.name)) {
-                petsMap.set(petDataObj.name, petDataObj);
+                petsMap.set(petDataObj.name, {
+                  ...petDataObj,
+                  id_animal: petDataObj.id_animal,
+                });
               }
             } catch (e) {
               console.error("Error al parsear datos de mascota:", e);
@@ -204,6 +241,7 @@ export default function Vaccines({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => {
     if (onUpdatePetData) {
       onUpdatePetData(selectedPet);
@@ -244,39 +282,79 @@ export default function Vaccines({
     return `${year}-${month}-${day}`;
   };
 
-  const handleSaveVaccine = () => {
-    // Calcular automáticamente la próxima dosis (1 año después de la fecha de aplicación)
-    const proximaDosis = calculateNextDose(vaccineForm.fecha);
-    
-    // Crear nueva vacuna
-    const newVaccine: Vaccine = {
-      id: Date.now().toString(),
-      tipo: vaccineForm.tipo,
-      fecha: vaccineForm.fecha,
-      horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined), // Solo horario si es turno
-      veterinario: vaccineForm.veterinario || undefined,
-      notas: vaccineForm.notas || undefined,
-      proximaDosis: proximaDosis,
-      petName: pet.name,
-      esAplicada: isVaccineApplied, // Marcar si es aplicada o turno
-    };
+  const handleSaveVaccine = async () => {
+    if (!pet.id_animal) {
+      // Fallback a localStorage si no hay id_animal
+      const proximaDosis = calculateNextDose(vaccineForm.fecha);
+      const newVaccine: Vaccine = {
+        id: Date.now().toString(),
+        tipo: vaccineForm.tipo,
+        fecha: vaccineForm.fecha,
+        horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined),
+        veterinario: vaccineForm.veterinario || undefined,
+        notas: vaccineForm.notas || undefined,
+        proximaDosis: proximaDosis,
+        petName: pet.name,
+        esAplicada: isVaccineApplied,
+      };
 
-    // Guardar en localStorage
-    const vaccinesKey = `vaccines_${pet.name}`;
-    const existingVaccines = vaccines.length > 0 ? vaccines : [];
-    const updatedVaccines = [...existingVaccines, newVaccine];
-    localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
-    setVaccines(updatedVaccines);
-    
-    // Notificar a otros componentes del cambio
-    window.dispatchEvent(new Event("customStorageChange"));
+      const vaccinesKey = `vaccines_${pet.name}`;
+      const existingVaccines = vaccines.length > 0 ? vaccines : [];
+      const updatedVaccines = [...existingVaccines, newVaccine];
+      localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
+      setVaccines(updatedVaccines);
+      window.dispatchEvent(new Event("customStorageChange"));
 
-    // Mostrar el cartel de confirmación solo si es un turno
-    if (!isVaccineApplied) {
-      setShowSuccessModal(true);
-    } else {
-      // Si es vacuna aplicada, volver directamente a la lista
-      handleBackFromAddVaccine();
+      if (!isVaccineApplied) {
+        setShowSuccessModal(true);
+      } else {
+        handleBackFromAddVaccine();
+      }
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const proximaDosis = calculateNextDose(vaccineForm.fecha);
+      
+      const nuevoEvento = await api.eventoSalud.create({
+        id_animal: pet.id_animal,
+        tipo: 'vacunacion',
+        nombre: vaccineForm.tipo,
+        fecha: vaccineForm.fecha,
+        descripcion: vaccineForm.notas || undefined,
+        veterinario: vaccineForm.veterinario || undefined,
+        proxima_fecha: proximaDosis,
+        es_recurrente: true,
+        frecuencia_dias: 365,
+        es_aplicada: isVaccineApplied,
+      });
+
+      const newVaccine: Vaccine = {
+        id: nuevoEvento.id_evento.toString(),
+        id_evento: nuevoEvento.id_evento,
+        tipo: nuevoEvento.nombre,
+        fecha: nuevoEvento.fecha,
+        horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined),
+        veterinario: nuevoEvento.veterinario,
+        notas: nuevoEvento.descripcion,
+        proximaDosis: nuevoEvento.proxima_fecha || "",
+        petName: pet.name,
+        esAplicada: nuevoEvento.es_aplicada || false,
+      };
+
+      setVaccines([...vaccines, newVaccine]);
+
+      if (!isVaccineApplied) {
+        setShowSuccessModal(true);
+      } else {
+        handleBackFromAddVaccine();
+      }
+    } catch (error) {
+      console.error("Error al guardar vacuna:", error);
+      alert("Error al guardar la vacuna. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -295,21 +373,36 @@ export default function Vaccines({
     setSelectedVaccine(null);
   };
 
-  const handleDeleteVaccine = (vaccineId: string) => {
-    // Confirmar eliminación
-    if (window.confirm("¿Estás seguro de que querés eliminar este turno?")) {
+  const handleDeleteVaccine = async (vaccineId: string) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar este turno?")) {
+      return;
+    }
+
+    const vaccine = vaccines.find((v) => v.id === vaccineId);
+    if (!vaccine) return;
+
+    if (!pet.id_animal || !vaccine.id_evento) {
+      // Fallback a localStorage si no hay id_animal o id_evento
       const updatedVaccines = vaccines.filter((v) => v.id !== vaccineId);
       setVaccines(updatedVaccines);
-      
-      // Actualizar localStorage
       const vaccinesKey = `vaccines_${pet.name}`;
       localStorage.setItem(vaccinesKey, JSON.stringify(updatedVaccines));
-      
-      // Notificar a otros componentes del cambio
       window.dispatchEvent(new Event("customStorageChange"));
-      
-      // Cerrar el modal
       setSelectedVaccine(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.eventoSalud.delete(vaccine.id_evento);
+      const updatedVaccines = vaccines.filter((v) => v.id !== vaccineId);
+      setVaccines(updatedVaccines);
+      setSelectedVaccine(null);
+    } catch (error) {
+      console.error("Error al eliminar vacuna:", error);
+      alert("Error al eliminar la vacuna. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -513,10 +606,11 @@ export default function Vaccines({
                 className="vaccine-form-save-button"
                 disabled={
                   !vaccineForm.tipo ||
-                  !vaccineForm.fecha
+                  !vaccineForm.fecha ||
+                  loading
                 }
               >
-                Guardar
+                {loading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </div>

@@ -9,6 +9,7 @@ import lupaIcon from "../images/lupa.svg";
 import lineSvg from "../images/line.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import "../styles/vaccines-styles.css";
 
 interface PesoProps {
@@ -24,6 +25,7 @@ interface PesoProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   } | null;
   onBack: () => void;
   onUpdatePetData?: (petData: { 
@@ -37,11 +39,13 @@ interface PesoProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => void;
 }
 
 interface PesoRecord {
   id: string;
+  id_peso?: number;
   peso: string; // Peso en kilos
   fecha: string; // Fecha del registro (YYYY-MM-DD)
   petName: string;
@@ -76,33 +80,59 @@ export default function Peso({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }>>([]);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pet = {
     name: petData?.name || "Maxi",
     image: petData?.imageURL || perro,
+    id_animal: petData?.id_animal,
   };
 
   useEffect(() => {
-    const loadRecords = () => {
-      const recordsKey = `peso_${pet.name}`;
-      const recordsStr = localStorage.getItem(recordsKey);
-      if (recordsStr) {
-        try {
-          const recordsData = JSON.parse(recordsStr);
-          setRecords(recordsData);
-        } catch (e) {
-          console.error("Error al parsear registros:", e);
+    const loadRecords = async () => {
+      if (!pet.id_animal) {
+        // Fallback a localStorage si no hay id_animal
+        const recordsKey = `peso_${pet.name}`;
+        const recordsStr = localStorage.getItem(recordsKey);
+        if (recordsStr) {
+          try {
+            const recordsData = JSON.parse(recordsStr);
+            setRecords(recordsData);
+          } catch (e) {
+            console.error("Error al parsear registros:", e);
+            setRecords([]);
+          }
+        } else {
           setRecords([]);
         }
-      } else {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const pesos = await api.peso.getByAnimal(pet.id_animal);
+        const mappedRecords: PesoRecord[] = pesos.map((p) => ({
+          id: p.id_peso.toString(),
+          id_peso: p.id_peso,
+          peso: p.peso.toString(),
+          fecha: p.fecha,
+          petName: pet.name,
+          notas: p.notas,
+        }));
+        setRecords(mappedRecords);
+      } catch (error) {
+        console.error("Error al cargar registros de peso:", error);
         setRecords([]);
+      } finally {
+        setLoading(false);
       }
     };
     
     loadRecords();
-  }, [pet.name]);
+  }, [pet.name, pet.id_animal]);
 
   useEffect(() => {
     const loadAllPets = () => {
@@ -129,7 +159,10 @@ export default function Peso({
             try {
               const petDataObj = JSON.parse(petDataStr);
               if (petDataObj.name && !petsMap.has(petDataObj.name)) {
-                petsMap.set(petDataObj.name, petDataObj);
+                petsMap.set(petDataObj.name, {
+                  ...petDataObj,
+                  id_animal: petDataObj.id_animal,
+                });
               }
             } catch (e) {
               console.error("Error al parsear datos de mascota:", e);
@@ -180,6 +213,7 @@ export default function Peso({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => {
     if (onUpdatePetData) {
       onUpdatePetData(selectedPet);
@@ -200,32 +234,67 @@ export default function Peso({
     });
   };
 
-  const handleSaveRecord = () => {
-    const newRecord: PesoRecord = {
-      id: Date.now().toString(),
-      peso: recordForm.peso,
-      fecha: recordForm.fecha,
-      notas: recordForm.notas || undefined,
-      petName: pet.name,
-    };
+  const handleSaveRecord = async () => {
+    if (!pet.id_animal) {
+      // Fallback a localStorage si no hay id_animal
+      const newRecord: PesoRecord = {
+        id: Date.now().toString(),
+        peso: recordForm.peso,
+        fecha: recordForm.fecha,
+        notas: recordForm.notas || undefined,
+        petName: pet.name,
+      };
 
-    const recordsKey = `peso_${pet.name}`;
-    const existingRecords = records.length > 0 ? records : [];
-    const updatedRecords = [...existingRecords, newRecord];
-    localStorage.setItem(recordsKey, JSON.stringify(updatedRecords));
-    setRecords(updatedRecords);
+      const recordsKey = `peso_${pet.name}`;
+      const existingRecords = records.length > 0 ? records : [];
+      const updatedRecords = [...existingRecords, newRecord];
+      localStorage.setItem(recordsKey, JSON.stringify(updatedRecords));
+      setRecords(updatedRecords);
 
-    // Actualizar el peso más reciente en petData
-    if (onUpdatePetData && petData) {
-      const updatedPetData = { ...petData, weight: `${recordForm.peso} kg` };
-      onUpdatePetData(updatedPetData);
-      
-      // Guardar también en localStorage
-      const petDataKey = `pet_data_${pet.name}`;
-      localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
+      if (onUpdatePetData && petData) {
+        const updatedPetData = { ...petData, weight: `${recordForm.peso} kg` };
+        onUpdatePetData(updatedPetData);
+        const petDataKey = `pet_data_${pet.name}`;
+        localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
+      }
+
+      handleBackFromAddRecord();
+      return;
     }
 
-    handleBackFromAddRecord();
+    try {
+      setLoading(true);
+      const nuevoPeso = await api.peso.create({
+        id_animal: pet.id_animal,
+        peso: parseFloat(recordForm.peso),
+        fecha: recordForm.fecha,
+        notas: recordForm.notas || undefined,
+      });
+
+      const newRecord: PesoRecord = {
+        id: nuevoPeso.id_peso.toString(),
+        id_peso: nuevoPeso.id_peso,
+        peso: nuevoPeso.peso.toString(),
+        fecha: nuevoPeso.fecha,
+        notas: nuevoPeso.notas,
+        petName: pet.name,
+      };
+
+      setRecords([...records, newRecord]);
+
+      // Actualizar el peso más reciente en petData
+      if (onUpdatePetData && petData) {
+        const updatedPetData = { ...petData, weight: `${recordForm.peso} kg` };
+        onUpdatePetData(updatedPetData);
+      }
+
+      handleBackFromAddRecord();
+    } catch (error) {
+      console.error("Error al guardar registro de peso:", error);
+      alert("Error al guardar el registro. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRecordClick = (record: PesoRecord) => {
@@ -236,15 +305,22 @@ export default function Peso({
     setSelectedRecord(null);
   };
 
-  const handleDeleteRecord = (recordId: string) => {
-    if (window.confirm("¿Estás seguro de que querés eliminar este registro?")) {
+  const handleDeleteRecord = async (recordId: string) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar este registro?")) {
+      return;
+    }
+
+    const record = records.find((r) => r.id === recordId);
+    if (!record) return;
+
+    if (!pet.id_animal || !record.id_peso) {
+      // Fallback a localStorage si no hay id_animal o id_peso
       const updatedRecords = records.filter((r) => r.id !== recordId);
       setRecords(updatedRecords);
       
       const recordsKey = `peso_${pet.name}`;
       localStorage.setItem(recordsKey, JSON.stringify(updatedRecords));
       
-      // Si se eliminó el registro más reciente, actualizar el peso en petData
       if (updatedRecords.length > 0) {
         const sortedRecords = [...updatedRecords].sort((a, b) => {
           const dateA = new Date(a.fecha + "T00:00:00");
@@ -259,7 +335,6 @@ export default function Peso({
           localStorage.setItem(petDataKey, JSON.stringify(updatedPetData));
         }
       } else {
-        // Si no hay registros, limpiar el peso
         if (onUpdatePetData && petData) {
           const updatedPetData = { ...petData, weight: undefined };
           onUpdatePetData(updatedPetData);
@@ -269,6 +344,40 @@ export default function Peso({
       }
       
       setSelectedRecord(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.peso.delete(record.id_peso);
+      const updatedRecords = records.filter((r) => r.id !== recordId);
+      setRecords(updatedRecords);
+      
+      // Si se eliminó el registro más reciente, actualizar el peso en petData
+      if (updatedRecords.length > 0) {
+        const sortedRecords = [...updatedRecords].sort((a, b) => {
+          const dateA = new Date(a.fecha + "T00:00:00");
+          const dateB = new Date(b.fecha + "T00:00:00");
+          return dateB.getTime() - dateA.getTime();
+        });
+        const mostRecent = sortedRecords[0];
+        if (onUpdatePetData && petData) {
+          const updatedPetData = { ...petData, weight: `${mostRecent.peso} kg` };
+          onUpdatePetData(updatedPetData);
+        }
+      } else {
+        if (onUpdatePetData && petData) {
+          const updatedPetData = { ...petData, weight: undefined };
+          onUpdatePetData(updatedPetData);
+        }
+      }
+      
+      setSelectedRecord(null);
+    } catch (error) {
+      console.error("Error al eliminar registro de peso:", error);
+      alert("Error al eliminar el registro. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -380,10 +489,11 @@ export default function Peso({
                 className="vaccine-form-save-button"
                 disabled={
                   !recordForm.peso ||
-                  !recordForm.fecha
+                  !recordForm.fecha ||
+                  loading
                 }
               >
-                Guardar
+                {loading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </div>

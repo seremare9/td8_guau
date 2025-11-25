@@ -10,6 +10,7 @@ import lineSvg from "../images/line.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import "../styles/vaccines-styles.css";
 
 interface MedicinaProps {
@@ -25,6 +26,7 @@ interface MedicinaProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   } | null;
   onBack: () => void;
   onUpdatePetData?: (petData: { 
@@ -38,11 +40,13 @@ interface MedicinaProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => void;
 }
 
 interface MedicinaEvent {
   id: string;
+  id_evento?: number;
   tipo: string;
   fecha: string;
   veterinario?: string;
@@ -79,33 +83,59 @@ export default function Medicina({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }>>([]);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pet = {
     name: petData?.name || "Maxi",
     image: petData?.imageURL || perro,
+    id_animal: petData?.id_animal,
   };
 
   useEffect(() => {
-    const loadEvents = () => {
-      const eventsKey = `medicina_${pet.name}`;
-      const eventsStr = localStorage.getItem(eventsKey);
-      if (eventsStr) {
-        try {
-          const eventsData = JSON.parse(eventsStr);
-          setEvents(eventsData);
-        } catch (e) {
-          console.error("Error al parsear eventos:", e);
+    const loadEvents = async () => {
+      if (!pet.id_animal) {
+        const eventsKey = `medicina_${pet.name}`;
+        const eventsStr = localStorage.getItem(eventsKey);
+        if (eventsStr) {
+          try {
+            const eventsData = JSON.parse(eventsStr);
+            setEvents(eventsData);
+          } catch (e) {
+            console.error("Error al parsear eventos:", e);
+            setEvents([]);
+          }
+        } else {
           setEvents([]);
         }
-      } else {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const eventos = await api.eventoSalud.getByAnimal(pet.id_animal, 'medicina');
+        const mappedEvents: MedicinaEvent[] = eventos.map((e) => ({
+          id: e.id_evento.toString(),
+          id_evento: e.id_evento,
+          tipo: e.nombre,
+          fecha: e.fecha,
+          veterinario: e.veterinario,
+          notas: e.descripcion,
+          petName: pet.name,
+        }));
+        setEvents(mappedEvents);
+      } catch (error) {
+        console.error("Error al cargar eventos:", error);
         setEvents([]);
+      } finally {
+        setLoading(false);
       }
     };
     
     loadEvents();
-  }, [pet.name]);
+  }, [pet.name, pet.id_animal]);
 
   useEffect(() => {
     const loadAllPets = () => {
@@ -132,7 +162,10 @@ export default function Medicina({
             try {
               const petDataObj = JSON.parse(petDataStr);
               if (petDataObj.name && !petsMap.has(petDataObj.name)) {
-                petsMap.set(petDataObj.name, petDataObj);
+                petsMap.set(petDataObj.name, {
+                  ...petDataObj,
+                  id_animal: petDataObj.id_animal,
+                });
               }
             } catch (e) {
               console.error("Error al parsear datos de mascota:", e);
@@ -186,6 +219,7 @@ export default function Medicina({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => {
     if (onUpdatePetData) {
       onUpdatePetData(selectedPet);
@@ -207,26 +241,56 @@ export default function Medicina({
     });
   };
 
-  const handleSaveEvent = () => {
-    const newEvent: MedicinaEvent = {
-      id: Date.now().toString(),
-      tipo: eventForm.tipo,
-      fecha: eventForm.fecha,
-      veterinario: eventForm.veterinario || undefined,
-      notas: eventForm.notas || undefined,
-      petName: pet.name,
-    };
+  const handleSaveEvent = async () => {
+    if (!pet.id_animal) {
+      const newEvent: MedicinaEvent = {
+        id: Date.now().toString(),
+        tipo: eventForm.tipo,
+        fecha: eventForm.fecha,
+        veterinario: eventForm.veterinario || undefined,
+        notas: eventForm.notas || undefined,
+        petName: pet.name,
+      };
 
-    const eventsKey = `medicina_${pet.name}`;
-    const existingEvents = events.length > 0 ? events : [];
-    const updatedEvents = [...existingEvents, newEvent];
-    localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
-    setEvents(updatedEvents);
-    
-    // Notificar a otros componentes del cambio
-    window.dispatchEvent(new Event("customStorageChange"));
+      const eventsKey = `medicina_${pet.name}`;
+      const existingEvents = events.length > 0 ? events : [];
+      const updatedEvents = [...existingEvents, newEvent];
+      localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
+      setEvents(updatedEvents);
+      window.dispatchEvent(new Event("customStorageChange"));
+      handleBackFromAddEvent();
+      return;
+    }
 
-    handleBackFromAddEvent();
+    try {
+      setLoading(true);
+      const nuevoEvento = await api.eventoSalud.create({
+        id_animal: pet.id_animal,
+        tipo: 'medicina',
+        nombre: eventForm.tipo,
+        fecha: eventForm.fecha,
+        descripcion: eventForm.notas || undefined,
+        veterinario: eventForm.veterinario || undefined,
+      });
+
+      const newEvent: MedicinaEvent = {
+        id: nuevoEvento.id_evento.toString(),
+        id_evento: nuevoEvento.id_evento,
+        tipo: nuevoEvento.nombre,
+        fecha: nuevoEvento.fecha,
+        veterinario: nuevoEvento.veterinario,
+        notas: nuevoEvento.descripcion,
+        petName: pet.name,
+      };
+
+      setEvents([...events, newEvent]);
+      handleBackFromAddEvent();
+    } catch (error) {
+      console.error("Error al guardar evento:", error);
+      alert("Error al guardar el evento. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEventClick = (event: MedicinaEvent) => {
@@ -237,18 +301,35 @@ export default function Medicina({
     setSelectedEvent(null);
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    if (window.confirm("¿Estás seguro de que querés eliminar este evento?")) {
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar este evento?")) {
+      return;
+    }
+
+    const event = events.find((e) => e.id === eventId);
+    if (!event) return;
+
+    if (!pet.id_animal || !event.id_evento) {
       const updatedEvents = events.filter((e) => e.id !== eventId);
       setEvents(updatedEvents);
-      
       const eventsKey = `medicina_${pet.name}`;
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
-      
-      // Notificar a otros componentes del cambio
       window.dispatchEvent(new Event("customStorageChange"));
-      
       setSelectedEvent(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.eventoSalud.delete(event.id_evento);
+      const updatedEvents = events.filter((e) => e.id !== eventId);
+      setEvents(updatedEvents);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error("Error al eliminar evento:", error);
+      alert("Error al eliminar el evento. Por favor, intenta nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -376,10 +457,11 @@ export default function Medicina({
                 className="vaccine-form-save-button"
                 disabled={
                   !eventForm.tipo ||
-                  !eventForm.fecha
+                  !eventForm.fecha ||
+                  loading
                 }
               >
-                Guardar
+                {loading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </div>
