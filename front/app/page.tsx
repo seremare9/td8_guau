@@ -585,7 +585,22 @@ export default function App() {
             // 6. Eliminar fotos
             localStorage.removeItem(`pet_photos_${petName}`);
             
-            // 7. Eliminar recordatorios relacionados con esta mascota
+            // 7. Eliminar higiene
+            localStorage.removeItem(`higiene_${petName}`);
+            
+            // 8. Eliminar medicina
+            localStorage.removeItem(`medicina_${petName}`);
+            
+            // 9. Eliminar antiparasitario
+            localStorage.removeItem(`antiparasitario_${petName}`);
+            
+            // 10. Eliminar veterinario
+            localStorage.removeItem(`veterinario_${petName}`);
+            
+            // 11. Eliminar otro
+            localStorage.removeItem(`otro_${petName}`);
+            
+            // 12. Eliminar recordatorios relacionados con esta mascota
             const remindersKey = "event_reminders";
             const existingReminders = JSON.parse(
               localStorage.getItem(remindersKey) || "[]"
@@ -595,7 +610,7 @@ export default function App() {
             );
             localStorage.setItem(remindersKey, JSON.stringify(updatedReminders));
             
-            // 8. Actualizar pets_order para remover la mascota eliminada
+            // 13. Actualizar pets_order para remover la mascota eliminada
             const petsOrderKey = "pets_order";
             const petsOrderStr = localStorage.getItem(petsOrderKey);
             if (petsOrderStr) {
@@ -608,7 +623,7 @@ export default function App() {
               }
             }
             
-            // 9. Si la mascota eliminada era la seleccionada, limpiar petData
+            // 14. Si la mascota eliminada era la seleccionada, limpiar petData
             if (petData && petData.name === petName) {
               setPetData(null);
               // Si hay otras mascotas, seleccionar la primera disponible
@@ -638,21 +653,51 @@ export default function App() {
               }
             }
             
-            // 10. Notificar a otros componentes del cambio
+            // 15. Notificar a otros componentes del cambio (disparar múltiples veces para asegurar que se actualice)
             window.dispatchEvent(new Event("customStorageChange"));
+            // También disparar un evento personalizado con el nombre de la mascota eliminada
+            window.dispatchEvent(new CustomEvent("petDeleted", { detail: { petName } }));
             
-            // 11. Si no hay más mascotas, volver al home (o onboarding si no hay ninguna)
+            // 16. Verificar si hay más mascotas después de la eliminación
             const hasOtherPets = Array.from({ length: localStorage.length }, (_, i) => {
               const key = localStorage.key(i);
               return key && key.startsWith("pet_data_");
             }).some(Boolean);
             
+            // 17. Si no hay más mascotas, volver al onboarding
             if (!hasOtherPets) {
               setPetData(null);
               setCurrentScreen("petOnboarding");
               setPetOnboardingStartStep(0);
             } else {
-              navigateToHome();
+              // Si hay otras mascotas, asegurarse de que petData apunte a una mascota válida
+              // y navegar al home para que se actualice la lista
+              if (!petData || petData.name === petName) {
+                // Buscar la primera mascota disponible
+                for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key && key.startsWith("pet_data_")) {
+                    const petDataStr = localStorage.getItem(key);
+                    if (petDataStr) {
+                      try {
+                        const petDataObj = JSON.parse(petDataStr);
+                        if (petDataObj.name && petDataObj.name !== petName) {
+                          setPetData(petDataObj);
+                          break;
+                        }
+                      } catch (e) {
+                        console.error("Error al parsear datos de mascota:", e);
+                      }
+                    }
+                  }
+                }
+              }
+              // Cerrar el menú si está abierto y navegar al home
+              if (currentScreen === "menu") {
+                setCurrentScreen("home");
+              } else {
+                navigateToHome();
+              }
             }
           }}
         />

@@ -377,17 +377,23 @@ export default function HomeScreen({
 
     loadAllPets();
 
-    // Escuchar cambios en localStorage
+    // Escuchar cambios en localStorage y eventos de eliminación
     const handleStorageChange = () => {
+      loadAllPets();
+    };
+
+    const handlePetDeleted = () => {
       loadAllPets();
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("customStorageChange", handleStorageChange);
+    window.addEventListener("petDeleted", handlePetDeleted);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("customStorageChange", handleStorageChange);
+      window.removeEventListener("petDeleted", handlePetDeleted);
     };
   }, [petData]);
 
