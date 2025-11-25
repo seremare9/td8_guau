@@ -116,15 +116,28 @@ export default function Medicina({
       try {
         setLoading(true);
         const eventos = await api.eventoSalud.getByAnimal(pet.id_animal, 'medicina');
-        const mappedEvents: MedicinaEvent[] = eventos.map((e) => ({
-          id: e.id_evento.toString(),
-          id_evento: e.id_evento,
-          tipo: e.nombre,
-          fecha: e.fecha,
-          veterinario: e.veterinario,
-          notas: e.descripcion,
-          petName: pet.name,
-        }));
+        const mappedEvents: MedicinaEvent[] = eventos.map((e: any) => {
+          // Extraer veterinario de las notas si existe
+          let veterinario: string | undefined;
+          let notas: string | undefined = e.notas || e.descripcion;
+          if (notas && notas.includes('Veterinario:')) {
+            const vetMatch = notas.match(/Veterinario:\s*(.+?)(?:\n|$)/);
+            if (vetMatch) {
+              veterinario = vetMatch[1].trim();
+              notas = notas.replace(/Veterinario:\s*.+?(?:\n|$)/, '').trim() || undefined;
+            }
+          }
+          
+          return {
+            id: e.id_evento.toString(),
+            id_evento: e.id_evento,
+            tipo: e.nombre,
+            fecha: e.fecha,
+            veterinario: veterinario || e.veterinario,
+            notas: notas,
+            petName: pet.name,
+          };
+        });
         setEvents(mappedEvents);
       } catch (error) {
         console.error("Error al cargar eventos:", error);
@@ -273,13 +286,30 @@ export default function Medicina({
         veterinario: eventForm.veterinario || undefined,
       });
 
+      // Extraer veterinario de las notas si existe
+      let veterinario: string | undefined = eventForm.veterinario || undefined;
+      let notas: string | undefined = eventForm.notas || undefined;
+      if (nuevoEvento.notas) {
+        if (nuevoEvento.notas.includes('Veterinario:')) {
+          const vetMatch = nuevoEvento.notas.match(/Veterinario:\s*(.+?)(?:\n|$)/);
+          if (vetMatch) {
+            veterinario = vetMatch[1].trim();
+            notas = nuevoEvento.notas.replace(/Veterinario:\s*.+?(?:\n|$)/, '').trim() || undefined;
+          } else {
+            notas = nuevoEvento.notas;
+          }
+        } else {
+          notas = nuevoEvento.notas;
+        }
+      }
+
       const newEvent: MedicinaEvent = {
         id: nuevoEvento.id_evento.toString(),
         id_evento: nuevoEvento.id_evento,
         tipo: nuevoEvento.nombre,
         fecha: nuevoEvento.fecha,
-        veterinario: nuevoEvento.veterinario,
-        notas: nuevoEvento.descripcion,
+        veterinario: veterinario,
+        notas: notas,
         petName: pet.name,
       };
 

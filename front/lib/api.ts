@@ -34,13 +34,18 @@ export interface EventoSalud {
   tipo: string;
   nombre: string;
   fecha: string;
-  descripcion?: string;
+  hora?: string; // Campo del backend
+  horario?: string; // Alias para compatibilidad con frontend
+  descripcion?: string; // Campo del frontend
+  notas?: string; // Campo del backend (se mapea a descripcion)
   veterinario?: string;
   costo?: number;
   proxima_fecha?: string;
   es_recurrente?: boolean;
   frecuencia_dias?: number;
   es_aplicada?: boolean;
+  repetir?: string; // Campo del backend (frecuencia)
+  foto_url?: string;
 }
 
 export interface Peso {
@@ -231,6 +236,7 @@ export const eventoSaludApi = {
     tipo: string;
     nombre: string;
     fecha: string;
+    horario?: string;
     descripcion?: string;
     veterinario?: string;
     costo?: number;

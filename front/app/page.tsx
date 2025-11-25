@@ -20,6 +20,7 @@ import Peso from "@/components/screens/peso";
 import Calendar from "@/components/screens/calendar";
 import HelpScreen from "@/components/screens/help-screen";
 import Account from "@/components/screens/account";
+import { api } from "@/lib/api";
 
 // Las importaciones de componentes deben usar mayúscula inicial para JSX
 import MedicinaInfoScreen from "@/components/screens/medicinaInfo-screen";
@@ -72,6 +73,7 @@ export default function App() {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   } | null>(null);
 
   // Función para verificar si hay mascotas registradas
@@ -341,10 +343,110 @@ export default function App() {
           userType={userType}
           userName={userName}
           onBack={petOnboardingStartStep === 1 && userType !== "ya conozco bien a mi perro" ? navigateToMenu : navigateBack}
-          onFinish={(data) => {
-            // Guardar la nueva mascota en localStorage
+          onFinish={async (data) => {
+            // Función helper para convertir fecha de cumpleaños a formato ISO
+            const convertBirthdayToISO = (birthday: string): string | undefined => {
+              if (!birthday) return undefined;
+              
+              // Formato esperado: "15 de Enero de 2025"
+              const match = birthday.match(/(\d+)\s+de\s+(\w+)\s+de\s+(\d+)/);
+              if (!match) return undefined;
+              
+              const day = parseInt(match[1]);
+              const monthName = match[2];
+              const year = parseInt(match[3]);
+              
+              const monthsMap: { [key: string]: number } = {
+                "Enero": 1, "Febrero": 2, "Marzo": 3, "Abril": 4,
+                "Mayo": 5, "Junio": 6, "Julio": 7, "Agosto": 8,
+                "Septiembre": 9, "Octubre": 10, "Noviembre": 11, "Diciembre": 12
+              };
+              
+              const month = monthsMap[monthName];
+              if (!month) return undefined;
+              
+              return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            };
+
+            // Función helper para convertir tamaño
+            const convertSize = (gender?: string): string => {
+              if (gender === "small") return "chico";
+              if (gender === "medium") return "mediano";
+              if (gender === "large") return "grande";
+              return "mediano"; // default
+            };
+
+            // Obtener id_dueño de localStorage
+            const userDataStr = localStorage.getItem("user_data");
+            let id_dueño: number | undefined;
+            
+            if (userDataStr) {
+              try {
+                const userData = JSON.parse(userDataStr);
+                id_dueño = userData.id_dueño;
+              } catch (e) {
+                console.error("Error al parsear datos de usuario:", e);
+              }
+            }
+
+            // Intentar guardar en el backend si hay id_dueño
+            let animalData = { ...data };
+            
+            if (id_dueño) {
+              try {
+                // Convertir peso de "15,5" a número
+                const pesoNumero = data.weight ? parseFloat(data.weight.replace(",", ".")) : undefined;
+                
+                // Preparar datos para el backend
+                const animalPayload = {
+                  nombre: data.name,
+                  raza_nombre: data.breed,
+                  sexo: data.sex || "macho",
+                  tamaño: convertSize(data.gender),
+                  foto_url: data.imageURL || undefined,
+                  fecha_nacimiento: data.birthday ? convertBirthdayToISO(data.birthday) : undefined,
+                  color: (data as any).appearance || undefined,
+                  estado: "activo",
+                  id_dueno: id_dueño,
+                };
+
+                // Si hay peso, agregarlo
+                if (pesoNumero && !isNaN(pesoNumero)) {
+                  // El peso se guardará después como un registro de peso
+                }
+
+                // Crear el animal en el backend
+                const nuevoAnimal = await api.animal.create(animalPayload);
+                
+                // Guardar el id_animal en los datos de la mascota
+                animalData = { ...data, id_animal: nuevoAnimal.id_animal } as typeof data & { id_animal: number };
+
+                // Si hay peso, crear un registro de peso
+                if (pesoNumero && !isNaN(pesoNumero) && nuevoAnimal.id_animal) {
+                  try {
+                    await api.peso.create({
+                      id_animal: nuevoAnimal.id_animal,
+                      peso: pesoNumero,
+                      fecha: new Date().toISOString().split('T')[0], // Fecha actual
+                    });
+                  } catch (error) {
+                    console.error("Error al guardar peso inicial:", error);
+                    // No bloqueamos el flujo si falla el peso
+                  }
+                }
+
+                console.log("✅ Animal guardado en el backend:", nuevoAnimal);
+              } catch (error) {
+                console.error("Error al guardar animal en el backend:", error);
+                // Continuar con localStorage como fallback
+              }
+            } else {
+              console.warn("⚠️ No se encontró id_dueño, guardando solo en localStorage");
+            }
+
+            // Guardar la nueva mascota en localStorage (siempre, como backup)
             const petKey = `pet_data_${data.name}`;
-            localStorage.setItem(petKey, JSON.stringify(data));
+            localStorage.setItem(petKey, JSON.stringify(animalData));
             
             // Actualizar el orden de las mascotas
             const petsOrderKey = "pets_order";
@@ -369,7 +471,7 @@ export default function App() {
             
             // Si es la primera mascota, actualizar el estado principal
             if (!petData) {
-              setPetData(data);
+              setPetData(animalData);
             }
             
             navigateToHome();

@@ -15,6 +15,7 @@ import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
 import higieneIcon from "../images/event-icons/higiene.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
+import { api } from "@/lib/api";
 
 interface PetProfileProps {
   userName?: string;
@@ -29,6 +30,7 @@ interface PetProfileProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   } | null;
   onBack: () => void;
   onUpdatePetData?: (petData: { 
@@ -42,6 +44,7 @@ interface PetProfileProps {
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => void;
   onOpenVaccines?: () => void;
   onOpenHigiene?: () => void;
@@ -90,6 +93,7 @@ export default function PetProfile({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const profileImageInputRef = useRef<HTMLInputElement>(null);
@@ -200,6 +204,7 @@ export default function PetProfile({
     approximateAge?: string;
     photos?: string[];
     appearance?: string;
+    id_animal?: number;
   }) => {
     if (onUpdatePetData) {
       onUpdatePetData(selectedPet);
@@ -362,10 +367,22 @@ export default function PetProfile({
   };
 
   // Función para guardar la apariencia
-  const handleSaveAppearance = () => {
+  const handleSaveAppearance = async () => {
     if (onUpdatePetData && petData) {
       const updatedPetData = { ...petData, appearance: appearanceText };
       onUpdatePetData(updatedPetData);
+      
+      // Si hay id_animal, actualizar en el backend (el campo 'color' se usa para apariencia)
+      if (petData.id_animal) {
+        try {
+          await api.animal.update(petData.id_animal, {
+            color: appearanceText || undefined,
+          });
+        } catch (error) {
+          console.error("Error al actualizar apariencia en el backend:", error);
+          // Continuar con localStorage como fallback
+        }
+      }
       
       // Guardar también en localStorage
       const storageKey = `pet_data_${petData.name || "default"}`;
@@ -432,12 +449,24 @@ export default function PetProfile({
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const imageDataUrl = reader.result as string;
         // Actualizar petData con la nueva imagen
         if (onUpdatePetData && petData) {
           const updatedPetData = { ...petData, imageURL: imageDataUrl };
           onUpdatePetData(updatedPetData);
+          
+          // Si hay id_animal, actualizar en el backend
+          if (petData.id_animal) {
+            try {
+              await api.animal.update(petData.id_animal, {
+                foto_url: imageDataUrl,
+              });
+            } catch (error) {
+              console.error("Error al actualizar imagen en el backend:", error);
+              // Continuar con localStorage como fallback
+            }
+          }
           
           // Guardar también en localStorage
           const storageKey = `pet_data_${petData.name || "default"}`;

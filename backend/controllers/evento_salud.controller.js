@@ -72,8 +72,10 @@ const getEventosByAnimal = async (req, res) => {
     let paramIndex = 2;
 
     if (tipo) {
+      // Mapear el tipo del frontend al tipo de la base de datos
+      const tipoMapeado = mapTipoEvento(tipo);
       query += ` AND tipo = $${paramIndex++}`;
-      params.push(tipo);
+      params.push(tipoMapeado);
     }
 
     query += " ORDER BY fecha DESC, creado_en DESC";
@@ -110,13 +112,19 @@ const createEventoSalud = async (req, res) => {
       id_animal,
       nombre,
       fecha,
-      hora,
-      notas,
+      hora, // Campo del backend
+      horario, // Campo del frontend (se mapea a hora)
+      notas, // Campo del backend
+      descripcion, // Campo del frontend (se mapea a notas)
+      veterinario, // Campo del frontend (se puede incluir en notas)
       foto_url,
       tipo_componente, // Tipo del componente frontend (vacunas, medicina, etc.)
       tipo, // Tipo directo del enum (opcional, si se proporciona tiene prioridad)
-      repetir,
+      repetir, // Campo del backend
+      es_recurrente, // Campo del frontend
+      frecuencia_dias, // Campo del frontend
       proxima_fecha,
+      es_aplicada, // Campo del frontend (no se guarda directamente, pero se puede usar para lógica)
     } = req.body;
 
     // Validaciones básicas
@@ -138,8 +146,41 @@ const createEventoSalud = async (req, res) => {
     // Mapear tipo de evento
     const tipoEvento = tipo || mapTipoEvento(tipo_componente);
 
-    // Mapear frecuencia
-    const frecuenciaMapeada = mapFrecuencia(repetir);
+    // Mapear hora: usar horario del frontend si existe, sino usar hora
+    const horaMapeada = horario || hora || null;
+
+    // Mapear notas: combinar descripcion, veterinario y notas
+    let notasMapeadas = notas || descripcion || null;
+    if (veterinario) {
+      const vetInfo = `Veterinario: ${veterinario}`;
+      notasMapeadas = notasMapeadas 
+        ? `${notasMapeadas}\n${vetInfo}` 
+        : vetInfo;
+    }
+
+    // Mapear frecuencia: si viene es_recurrente y frecuencia_dias, calcular repetir
+    let frecuenciaMapeada = repetir || "nunca";
+    if (es_recurrente && frecuencia_dias) {
+      // Mapear frecuencia_dias a repetir
+      if (frecuencia_dias === 365) {
+        frecuenciaMapeada = "anualmente";
+      } else if (frecuencia_dias === 180) {
+        frecuenciaMapeada = "cada_6_meses";
+      } else if (frecuencia_dias === 60) {
+        frecuenciaMapeada = "cada_2_meses";
+      } else if (frecuencia_dias === 30) {
+        frecuenciaMapeada = "mensualmente";
+      } else if (frecuencia_dias === 15) {
+        frecuenciaMapeada = "quincenalmente";
+      } else if (frecuencia_dias === 7) {
+        frecuenciaMapeada = "semanalmente";
+      } else if (frecuencia_dias === 1) {
+        frecuenciaMapeada = "diario";
+      }
+    } else if (es_recurrente && !frecuencia_dias) {
+      // Si es recurrente pero no hay frecuencia, usar anualmente por defecto
+      frecuenciaMapeada = "anualmente";
+    }
 
     // Insertar el nuevo evento
     const result = await pool.query(
@@ -150,8 +191,8 @@ const createEventoSalud = async (req, res) => {
         id_animal,
         nombre,
         fecha,
-        hora || null,
-        notas || null,
+        horaMapeada,
+        notasMapeadas,
         foto_url || null,
         tipoEvento,
         frecuenciaMapeada,
@@ -167,7 +208,7 @@ const createEventoSalud = async (req, res) => {
     } else if (err.code === "23514") {
       res.status(400).json({ message: "Datos inválidos: verifique las restricciones" });
     } else {
-      res.status(500).send({ message: "Error en el servidor" });
+      res.status(500).send({ message: "Error en el servidor: " + err.message });
     }
   }
 };
@@ -176,8 +217,22 @@ const createEventoSalud = async (req, res) => {
 const updateEventoSalud = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, fecha, hora, notas, foto_url, tipo_componente, tipo, repetir, proxima_fecha } =
-      req.body;
+    const { 
+      nombre, 
+      fecha, 
+      hora, 
+      horario, // Campo del frontend
+      notas, 
+      descripcion, // Campo del frontend
+      veterinario, // Campo del frontend
+      foto_url, 
+      tipo_componente, 
+      tipo, 
+      repetir,
+      es_recurrente, // Campo del frontend
+      frecuencia_dias, // Campo del frontend
+      proxima_fecha 
+    } = req.body;
 
     // Verificar que el evento exista
     const existingEvento = await pool.query("SELECT id_evento FROM evento_salud WHERE id_evento = $1", [id]);
@@ -199,13 +254,22 @@ const updateEventoSalud = async (req, res) => {
       campos.push(`fecha = $${paramIndex++}`);
       valores.push(fecha);
     }
-    if (hora !== undefined) {
+    if (hora !== undefined || horario !== undefined) {
+      const horaMapeada = horario || hora;
       campos.push(`hora = $${paramIndex++}`);
-      valores.push(hora);
+      valores.push(horaMapeada || null);
     }
-    if (notas !== undefined) {
+    if (notas !== undefined || descripcion !== undefined || veterinario !== undefined) {
+      // Si viene veterinario, combinarlo con notas/descripcion
+      let notasMapeadas = notas || descripcion;
+      if (veterinario) {
+        const vetInfo = `Veterinario: ${veterinario}`;
+        notasMapeadas = notasMapeadas 
+          ? `${notasMapeadas}\n${vetInfo}` 
+          : vetInfo;
+      }
       campos.push(`notas = $${paramIndex++}`);
-      valores.push(notas);
+      valores.push(notasMapeadas || null);
     }
     if (foto_url !== undefined) {
       campos.push(`foto_url = $${paramIndex++}`);
@@ -216,8 +280,32 @@ const updateEventoSalud = async (req, res) => {
       campos.push(`tipo = $${paramIndex++}`);
       valores.push(tipoEvento);
     }
-    if (repetir !== undefined) {
-      const frecuenciaMapeada = mapFrecuencia(repetir);
+    if (repetir !== undefined || es_recurrente !== undefined) {
+      let frecuenciaMapeada = repetir;
+      if (es_recurrente && frecuencia_dias) {
+        // Mapear frecuencia_dias a repetir
+        if (frecuencia_dias === 365) {
+          frecuenciaMapeada = "anualmente";
+        } else if (frecuencia_dias === 180) {
+          frecuenciaMapeada = "cada_6_meses";
+        } else if (frecuencia_dias === 60) {
+          frecuenciaMapeada = "cada_2_meses";
+        } else if (frecuencia_dias === 30) {
+          frecuenciaMapeada = "mensualmente";
+        } else if (frecuencia_dias === 15) {
+          frecuenciaMapeada = "quincenalmente";
+        } else if (frecuencia_dias === 7) {
+          frecuenciaMapeada = "semanalmente";
+        } else if (frecuencia_dias === 1) {
+          frecuenciaMapeada = "diario";
+        } else {
+          frecuenciaMapeada = repetir || "anualmente";
+        }
+      } else if (es_recurrente && !frecuencia_dias) {
+        frecuenciaMapeada = repetir || "anualmente";
+      } else if (!es_recurrente) {
+        frecuenciaMapeada = "nunca";
+      }
       campos.push(`repetir = $${paramIndex++}`);
       valores.push(frecuenciaMapeada);
     }
@@ -243,7 +331,7 @@ const updateEventoSalud = async (req, res) => {
     } else if (err.code === "23514") {
       res.status(400).json({ message: "Datos inválidos" });
     } else {
-      res.status(500).send({ message: "Error en el servidor" });
+      res.status(500).send({ message: "Error en el servidor: " + err.message });
     }
   }
 };

@@ -133,18 +133,31 @@ export default function Vaccines({
       try {
         setLoading(true);
         const eventos = await api.eventoSalud.getByAnimal(pet.id_animal, 'vacunacion');
-        const mappedVaccines: Vaccine[] = eventos.map((e) => ({
-          id: e.id_evento.toString(),
-          id_evento: e.id_evento,
-          tipo: e.nombre,
-          fecha: e.fecha,
-          horario: undefined, // El backend no tiene horario separado
-          veterinario: e.veterinario,
-          notas: e.descripcion,
-          proximaDosis: e.proxima_fecha || "",
-          petName: pet.name,
-          esAplicada: e.es_aplicada || false,
-        }));
+        const mappedVaccines: Vaccine[] = eventos.map((e: any) => {
+          // Extraer veterinario de las notas si existe
+          let veterinario: string | undefined;
+          let notas: string | undefined = e.notas || e.descripcion;
+          if (notas && notas.includes('Veterinario:')) {
+            const vetMatch = notas.match(/Veterinario:\s*(.+?)(?:\n|$)/);
+            if (vetMatch) {
+              veterinario = vetMatch[1].trim();
+              notas = notas.replace(/Veterinario:\s*.+?(?:\n|$)/, '').trim() || undefined;
+            }
+          }
+          
+          return {
+            id: e.id_evento.toString(),
+            id_evento: e.id_evento,
+            tipo: e.nombre,
+            fecha: e.fecha,
+            horario: e.hora || undefined,
+            veterinario: veterinario || e.veterinario,
+            notas: notas,
+            proximaDosis: e.proxima_fecha || "",
+            petName: pet.name,
+            esAplicada: e.es_aplicada || false,
+          };
+        });
         setVaccines(mappedVaccines);
       } catch (error) {
         console.error("Error al cargar vacunas:", error);
@@ -322,6 +335,7 @@ export default function Vaccines({
         tipo: 'vacunacion',
         nombre: vaccineForm.tipo,
         fecha: vaccineForm.fecha,
+        horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined),
         descripcion: vaccineForm.notas || undefined,
         veterinario: vaccineForm.veterinario || undefined,
         proxima_fecha: proximaDosis,
@@ -330,17 +344,34 @@ export default function Vaccines({
         es_aplicada: isVaccineApplied,
       });
 
+      // Extraer veterinario de las notas si existe
+      let veterinario: string | undefined = vaccineForm.veterinario || undefined;
+      let notas: string | undefined = vaccineForm.notas || undefined;
+      if (nuevoEvento.notas) {
+        if (nuevoEvento.notas.includes('Veterinario:')) {
+          const vetMatch = nuevoEvento.notas.match(/Veterinario:\s*(.+?)(?:\n|$)/);
+          if (vetMatch) {
+            veterinario = vetMatch[1].trim();
+            notas = nuevoEvento.notas.replace(/Veterinario:\s*.+?(?:\n|$)/, '').trim() || undefined;
+          } else {
+            notas = nuevoEvento.notas;
+          }
+        } else {
+          notas = nuevoEvento.notas;
+        }
+      }
+
       const newVaccine: Vaccine = {
         id: nuevoEvento.id_evento.toString(),
         id_evento: nuevoEvento.id_evento,
         tipo: nuevoEvento.nombre,
         fecha: nuevoEvento.fecha,
-        horario: isVaccineApplied ? undefined : (vaccineForm.horario || undefined),
-        veterinario: nuevoEvento.veterinario,
-        notas: nuevoEvento.descripcion,
+        horario: (nuevoEvento.hora || nuevoEvento.horario) || (isVaccineApplied ? undefined : (vaccineForm.horario || undefined)),
+        veterinario: veterinario,
+        notas: notas,
         proximaDosis: nuevoEvento.proxima_fecha || "",
         petName: pet.name,
-        esAplicada: nuevoEvento.es_aplicada || false,
+        esAplicada: isVaccineApplied,
       };
 
       setVaccines([...vaccines, newVaccine]);
