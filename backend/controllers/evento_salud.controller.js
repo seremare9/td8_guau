@@ -200,13 +200,24 @@ const createEventoSalud = async (req, res) => {
       ]
     );
 
-    res.status(201).json(result.rows[0]);
+    // Mapear la respuesta para incluir campos del frontend
+    const eventoResponse = {
+      ...result.rows[0],
+      horario: result.rows[0].hora || null,
+      descripcion: result.rows[0].notas || null,
+      es_aplicada: es_aplicada || false, // Incluir el campo es_aplicada en la respuesta
+    };
+
+    res.status(201).json(eventoResponse);
   } catch (err) {
-    console.error(err.message);
+    console.error("Error al crear evento:", err.message);
+    console.error("Stack:", err.stack);
     if (err.code === "23503") {
       res.status(400).json({ message: "Error de referencia: verifique el id_animal" });
     } else if (err.code === "23514") {
-      res.status(400).json({ message: "Datos inválidos: verifique las restricciones" });
+      res.status(400).json({ message: "Datos inválidos: verifique las restricciones. Tipo de evento: " + tipoEvento });
+    } else if (err.code === "42703") {
+      res.status(500).json({ message: "Error de base de datos: columna no encontrada" });
     } else {
       res.status(500).send({ message: "Error en el servidor: " + err.message });
     }

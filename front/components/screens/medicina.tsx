@@ -131,8 +131,8 @@ export default function Medicina({
           return {
             id: e.id_evento.toString(),
             id_evento: e.id_evento,
-            tipo: e.nombre,
-            fecha: e.fecha,
+            tipo: e.nombre || "",
+            fecha: e.fecha || "",
             veterinario: veterinario || e.veterinario,
             notas: notas,
             petName: pet.name,
@@ -363,13 +363,22 @@ export default function Medicina({
     }
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
-    const date = new Date(dateString + "T00:00:00");
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      // Verificar si la fecha es válida
+      if (isNaN(date.getTime())) {
+        return "";
+      }
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return "";
+    }
   };
 
   const getYear = (dateString: string): number => {

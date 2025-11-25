@@ -145,13 +145,13 @@ export default function Veterinario({
           return {
             id: e.id_evento.toString(),
             id_evento: e.id_evento,
-            tipo: e.nombre,
-            fecha: e.fecha,
-            horario: e.hora || undefined,
+            tipo: e.nombre || "",
+            fecha: e.fecha || "",
+            horario: e.hora || e.horario || undefined,
             veterinario: veterinario || e.veterinario,
             notas: notas,
             petName: pet.name,
-            esAplicada: e.es_aplicada || false,
+            esAplicada: e.es_aplicada !== undefined ? e.es_aplicada : false,
           };
         });
         setEvents(mappedEvents);
@@ -310,7 +310,7 @@ export default function Veterinario({
       setLoading(true);
       const nuevoEvento = await api.eventoSalud.create({
         id_animal: pet.id_animal,
-        tipo: 'veterinario',
+        tipo_componente: 'veterinario',
         nombre: eventForm.tipo,
         fecha: eventForm.fecha,
         horario: isEventApplied ? undefined : (eventForm.horario || undefined),
@@ -408,13 +408,22 @@ export default function Veterinario({
     }
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
-    const date = new Date(dateString + "T00:00:00");
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    try {
+      const date = new Date(dateString + "T00:00:00");
+      // Verificar si la fecha es válida
+      if (isNaN(date.getTime())) {
+        return "";
+      }
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return "";
+    }
   };
 
   const formatTime = (timeString: string): string => {

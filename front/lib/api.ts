@@ -56,6 +56,13 @@ export interface Peso {
   notas?: string;
 }
 
+export interface AnimalFoto {
+  id_foto: number;
+  id_animal: number;
+  foto_url: string;
+  creado_en?: string;
+}
+
 // Función helper para hacer peticiones
 async function fetchApi<T>(
   endpoint: string,
@@ -233,7 +240,8 @@ export const eventoSaludApi = {
   // Crear un nuevo evento
   create: async (data: {
     id_animal: number;
-    tipo: string;
+    tipo?: string;
+    tipo_componente?: string; // Tipo del componente frontend (vacunas, medicina, higiene, etc.)
     nombre: string;
     fecha: string;
     horario?: string;
@@ -339,11 +347,62 @@ export const pesoApi = {
   },
 };
 
+// ========== API de Fotos de Animales ==========
+
+export const animalFotoApi = {
+  // Obtener todas las fotos de un animal
+  getByAnimal: async (id_animal: number): Promise<AnimalFoto[]> => {
+    return fetchApi<AnimalFoto[]>(`/api/animal-foto/animal/${id_animal}`);
+  },
+
+  // Obtener una foto por ID
+  getById: async (id: number): Promise<AnimalFoto> => {
+    return fetchApi<AnimalFoto>(`/api/animal-foto/${id}`);
+  },
+
+  // Crear una nueva foto
+  create: async (data: {
+    id_animal: number;
+    foto_url: string;
+  }): Promise<AnimalFoto> => {
+    return fetchApi<AnimalFoto>('/api/animal-foto', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Crear múltiples fotos a la vez
+  createMultiple: async (data: {
+    id_animal: number;
+    fotos: string[]; // Array de foto_url
+  }): Promise<AnimalFoto[]> => {
+    return fetchApi<AnimalFoto[]>('/api/animal-foto/multiple', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Eliminar una foto
+  delete: async (id: number): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/api/animal-foto/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Eliminar todas las fotos de un animal
+  deleteByAnimal: async (id_animal: number): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/api/animal-foto/animal/${id_animal}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 // Exportar todas las APIs juntas
 export const api = {
   dueño: dueñoApi,
   animal: animalApi,
   eventoSalud: eventoSaludApi,
   peso: pesoApi,
+  animalFoto: animalFotoApi,
 };
 

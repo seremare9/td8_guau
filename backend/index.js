@@ -42,6 +42,7 @@ app.use("/api/dueno", require("./routes/dueno.routes.js"));
 app.use("/api/animal", require("./routes/animal.routes.js"));
 app.use("/api/evento-salud", require("./routes/evento_salud.routes.js"));
 app.use("/api/peso", require("./routes/peso.routes.js"));
+app.use("/api/animal-foto", require("./routes/animal_foto.routes.js"));
 
 // === Iniciar el servidor ===
 app.listen(PORT, () => {

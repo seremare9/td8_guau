@@ -214,36 +214,102 @@ export default function PetProfile({
 
   // Cargar fotos guardadas al montar el componente o cuando cambia petData
   useEffect(() => {
-    if (petData?.photos && petData.photos.length > 0) {
-      setPhotos(petData.photos);
-    } else {
-      // Intentar cargar desde localStorage como respaldo
-      const storageKey = getStorageKey();
-      const savedPhotos = localStorage.getItem(storageKey);
-      if (savedPhotos) {
+    const loadPhotos = async () => {
+      // Si hay id_animal, cargar desde la base de datos
+      if (petData?.id_animal) {
         try {
-          const parsedPhotos = JSON.parse(savedPhotos);
-          if (Array.isArray(parsedPhotos) && parsedPhotos.length > 0) {
-            setPhotos(parsedPhotos);
-            // Sincronizar con petData si es posible
+          const fotos = await api.animalFoto.getByAnimal(petData.id_animal);
+          const fotoUrls = fotos.map((f) => f.foto_url);
+          if (fotoUrls.length > 0) {
+            setPhotos(fotoUrls);
+            // Sincronizar con petData
             if (onUpdatePetData && petData) {
-              onUpdatePetData({ ...petData, photos: parsedPhotos });
+              onUpdatePetData({ ...petData, photos: fotoUrls });
             }
+            return;
           }
-        } catch (e) {
-          console.error("Error al cargar fotos desde localStorage:", e);
+        } catch (error) {
+          console.error("Error al cargar fotos desde el backend:", error);
+          // Continuar con localStorage como fallback
         }
-      } else {
-        // Si no hay fotos guardadas, limpiar el estado
-        setPhotos([]);
       }
-    }
+
+      // Fallback a localStorage o petData.photos
+      if (petData?.photos && petData.photos.length > 0) {
+        setPhotos(petData.photos);
+      } else {
+        // Intentar cargar desde localStorage como respaldo
+        const storageKey = getStorageKey();
+        const savedPhotos = localStorage.getItem(storageKey);
+        if (savedPhotos) {
+          try {
+            const parsedPhotos = JSON.parse(savedPhotos);
+            if (Array.isArray(parsedPhotos) && parsedPhotos.length > 0) {
+              setPhotos(parsedPhotos);
+              // Sincronizar con petData si es posible
+              if (onUpdatePetData && petData) {
+                onUpdatePetData({ ...petData, photos: parsedPhotos });
+              }
+            }
+          } catch (e) {
+            console.error("Error al cargar fotos desde localStorage:", e);
+          }
+        } else {
+          // Si no hay fotos guardadas, limpiar el estado
+          setPhotos([]);
+        }
+      }
+    };
+
+    loadPhotos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [petData?.name, petData?.photos]); // Ejecutar cuando cambia el nombre o las fotos de la mascota
+  }, [petData?.name, petData?.id_animal]); // Ejecutar cuando cambia el nombre o el id_animal
 
   // Función para guardar fotos
-  const savePhotos = (newPhotos: string[]) => {
+  const savePhotos = async (newPhotos: string[]) => {
     setPhotos(newPhotos);
+    
+    // Si hay id_animal, guardar en la base de datos
+    if (petData?.id_animal) {
+      try {
+        // Obtener las fotos actuales del backend
+        const fotosActuales = await api.animalFoto.getByAnimal(petData.id_animal);
+        const urlsActuales = fotosActuales.map((f) => f.foto_url);
+        
+        // Identificar fotos nuevas (que no están en el backend)
+        const fotosNuevas = newPhotos.filter((url) => !urlsActuales.includes(url));
+        
+        // Identificar fotos eliminadas (que están en el backend pero no en newPhotos)
+        const fotosEliminadas = fotosActuales.filter(
+          (f) => !newPhotos.includes(f.foto_url)
+        );
+        
+        // Eliminar fotos que ya no están
+        for (const foto of fotosEliminadas) {
+          try {
+            await api.animalFoto.delete(foto.id_foto);
+          } catch (error) {
+            console.error("Error al eliminar foto:", error);
+          }
+        }
+        
+        // Agregar fotos nuevas
+        if (fotosNuevas.length > 0) {
+          try {
+            await api.animalFoto.createMultiple({
+              id_animal: petData.id_animal,
+              fotos: fotosNuevas,
+            });
+          } catch (error) {
+            console.error("Error al guardar fotos en el backend:", error);
+            // Continuar con localStorage como fallback
+          }
+        }
+      } catch (error) {
+        console.error("Error al sincronizar fotos con el backend:", error);
+        // Continuar con localStorage como fallback
+      }
+    }
     
     // Guardar en localStorage
     const storageKey = getStorageKey();
@@ -425,9 +491,9 @@ export default function PetProfile({
         });
       });
 
-      Promise.all(promises).then((newPhotos) => {
+      Promise.all(promises).then(async (newPhotos) => {
         const updatedPhotos = [...photos, ...newPhotos];
-        savePhotos(updatedPhotos);
+        await savePhotos(updatedPhotos);
         // Si es la primera foto, establecer el índice en 0
         if (photos.length === 0) {
           setCurrentPhotoIndex(0);
@@ -459,9 +525,11 @@ export default function PetProfile({
           // Si hay id_animal, actualizar en el backend
           if (petData.id_animal) {
             try {
+              // Actualizar foto_url en la tabla animal
               await api.animal.update(petData.id_animal, {
                 foto_url: imageDataUrl,
               });
+              console.log("✅ Foto de perfil guardada en foto_url");
             } catch (error) {
               console.error("Error al actualizar imagen en el backend:", error);
               // Continuar con localStorage como fallback
@@ -511,13 +579,30 @@ export default function PetProfile({
     setCurrentPhotoIndex(index);
   };
 
-  const handleDeletePhoto = (index: number, event?: React.MouseEvent) => {
+  const handleDeletePhoto = async (index: number, event?: React.MouseEvent) => {
     if (event) {
       event.stopPropagation();
     }
     if (photos.length === 0) return;
     
+    const photoUrlToDelete = photos[index];
     const newPhotos = photos.filter((_, i) => i !== index);
+    
+    // Si hay id_animal, eliminar la foto de la base de datos
+    if (petData?.id_animal && photoUrlToDelete) {
+      try {
+        // Buscar la foto en el backend por su URL
+        const fotos = await api.animalFoto.getByAnimal(petData.id_animal);
+        const fotoEnBD = fotos.find((f) => f.foto_url === photoUrlToDelete);
+        if (fotoEnBD) {
+          await api.animalFoto.delete(fotoEnBD.id_foto);
+          console.log("✅ Foto eliminada de la base de datos");
+        }
+      } catch (error) {
+        console.error("Error al eliminar foto del backend:", error);
+        // Continuar con la eliminación local
+      }
+    }
     
     // Cerrar modal si estaba abierto
     if (selectedPhotoIndex === index) {
@@ -538,7 +623,7 @@ export default function PetProfile({
     }
     
     setCurrentPhotoIndex(newIndex);
-    savePhotos(newPhotos);
+    await savePhotos(newPhotos);
   };
 
   return (
