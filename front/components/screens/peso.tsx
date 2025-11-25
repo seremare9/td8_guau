@@ -396,7 +396,14 @@ export default function Peso({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      const date = new Date(dateString + "T00:00:00");
+      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
+      let dateOnly = dateString;
+      if (dateString.includes('T')) {
+        dateOnly = dateString.split('T')[0];
+      }
+      
+      // Si ya está en formato YYYY-MM-DD, usarlo directamente
+      const date = new Date(dateOnly + "T00:00:00");
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
@@ -414,7 +421,12 @@ export default function Peso({
   const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
     try {
-      const date = new Date(dateString + "T00:00:00");
+      // Extraer solo la parte de la fecha si viene en formato ISO
+      let dateOnly = dateString;
+      if (dateString.includes('T')) {
+        dateOnly = dateString.split('T')[0];
+      }
+      const date = new Date(dateOnly + "T00:00:00");
       if (isNaN(date.getTime())) {
         return new Date().getFullYear();
       }
@@ -672,7 +684,7 @@ export default function Peso({
                           </h4>
                           <div className="vaccine-card-date">
                             <Calendar className="vaccine-card-calendar-icon" />
-                            <span>{formatDate(record.fecha)}</span>
+                            <span>{formatDate(record.fecha) || "Sin fecha"}</span>
                           </div>
                         </div>
                       </div>
