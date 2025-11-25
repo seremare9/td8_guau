@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 });
 
 // Rutas de la API
-app.use("/api/dueno", require("./routes/dueño.routes.js"));
+app.use("/api/dueno", require("./routes/dueno.routes.js"));
 app.use("/api/animal", require("./routes/animal.routes.js"));
 app.use("/api/evento-salud", require("./routes/evento_salud.routes.js"));
 app.use("/api/peso", require("./routes/peso.routes.js"));

@@ -22,12 +22,14 @@ const getAnimales = async (req, res) => {
 const getAnimalesByDueno = async (req, res) => {
   try {
     const { id_dueno } = req.params;
+
+    // Mantenemos dueño_animal con ñ como arreglamos antes
     const result = await pool.query(
       `SELECT a.*, r.nombre as raza_nombre, da.es_principal, da.desde
        FROM animal a
        JOIN raza r ON a.id_raza = r.id_raza
-       JOIN dueno_animal da ON a.id_animal = da.id_animal
-       WHERE da.id_dueno = $1
+       JOIN dueño_animal da ON a.id_animal = da.id_animal 
+       WHERE da.id_dueño = $1
        ORDER BY da.es_principal DESC, a.creado_en DESC`,
       [id_dueno]
     );
@@ -64,14 +66,15 @@ const getAnimalById = async (req, res) => {
 // 4. Función auxiliar para obtener o crear una raza por nombre
 const getOrCreateRaza = async (nombreRaza) => {
   try {
-    // Primero intentar encontrar la raza
-    let result = await pool.query("SELECT id_raza FROM raza WHERE nombre = $1", [nombreRaza]);
+    let result = await pool.query(
+      "SELECT id_raza FROM raza WHERE nombre = $1",
+      [nombreRaza]
+    );
 
     if (result.rows.length > 0) {
       return result.rows[0].id_raza;
     }
 
-    // Si no existe, crearla
     result = await pool.query(
       "INSERT INTO raza (nombre) VALUES ($1) RETURNING id_raza",
       [nombreRaza]
@@ -83,7 +86,7 @@ const getOrCreateRaza = async (nombreRaza) => {
   }
 };
 
-// 5. Función para mapear tamano del frontend al backend
+// 5. Función para mapear tamano (del inglés/frontend al español de BD)
 const mapTamano = (gender) => {
   const mapping = {
     small: "chico",
@@ -99,44 +102,63 @@ const mapTamano = (gender) => {
 // 6. Función para crear un nuevo animal
 const createAnimal = async (req, res) => {
   try {
-    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado, id_dueno } = req.body;
+    const {
+      nombre,
+      raza_nombre,
+      edad,
+      sexo,
+      fecha_nacimiento,
+      color,
+      tamano,
+      foto_url,
+      estado,
+      id_dueno,
+    } = req.body;
 
-    // Validaciones básicas
     if (!nombre || !raza_nombre || !sexo || !tamano) {
       return res.status(400).json({
         message: "Faltan campos requeridos: nombre, raza_nombre, sexo, tamano",
       });
     }
 
-    // Obtener o crear la raza
     let id_raza;
     try {
       id_raza = await getOrCreateRaza(raza_nombre);
     } catch (err) {
-      return res.status(400).json({ message: "Error al obtener/crear la raza" });
+      return res
+        .status(400)
+        .json({ message: "Error al obtener/crear la raza" });
     }
 
-    // Mapear tamano
     const tamanoMapeado = mapTamano(tamano);
 
-    // Calcular edad si no se proporciona pero sí fecha_nacimiento
+    // Cálculo de edad
     let edadCalculada = edad;
     if (!edad && fecha_nacimiento) {
-      const fechaNac = new Date(fecha_nacimiento);
-      const hoy = new Date();
-      const anos = hoy.getFullYear() - fechaNac.getFullYear();
-      const mesActual = hoy.getMonth();
-      const mesNac = fechaNac.getMonth();
-      if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())) {
-        edadCalculada = anos - 1;
-      } else {
-        edadCalculada = anos;
+      // Intentar calcular edad si es una fecha válida
+      try {
+        const fechaNac = new Date(fecha_nacimiento);
+        const hoy = new Date();
+        const anos = hoy.getFullYear() - fechaNac.getFullYear();
+        const mesActual = hoy.getMonth();
+        const mesNac = fechaNac.getMonth();
+        if (
+          mesActual < mesNac ||
+          (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())
+        ) {
+          edadCalculada = anos - 1;
+        } else {
+          edadCalculada = anos;
+        }
+        // Si da negativo o NaN (fecha invalida), dejarlo null o 0
+        if (isNaN(edadCalculada) || edadCalculada < 0) edadCalculada = null;
+      } catch (e) {
+        edadCalculada = null;
       }
     }
 
-    // Insertar el nuevo animal
     const result = await pool.query(
-      `INSERT INTO animal (id_raza, nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado) 
+      `INSERT INTO animal (id_raza, nombre, edad, sexo, fecha_nacimiento, color, tamaño, foto_url, estado) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
        RETURNING *`,
       [
@@ -157,19 +179,18 @@ const createAnimal = async (req, res) => {
     // Si se proporciona id_dueno, crear la relación
     if (id_dueno) {
       try {
+        // Mantenemos dueño_animal e id_dueño con ñ
         await pool.query(
-          `INSERT INTO dueno_animal (id_dueno, id_animal, es_principal) 
+          `INSERT INTO dueño_animal (id_dueño, id_animal, es_principal) 
            VALUES ($1, $2, $3) 
-           ON CONFLICT (id_dueno, id_animal) DO NOTHING`,
-          [id_dueno, nuevoAnimal.id_animal, true] // Primera mascota es principal por defecto
+           ON CONFLICT (id_dueño, id_animal) DO NOTHING`,
+          [id_dueno, nuevoAnimal.id_animal, true]
         );
       } catch (err) {
         console.error("Error al crear relación dueno_animal:", err.message);
-        // No fallar si hay error en la relación, el animal ya está creado
       }
     }
 
-    // Obtener el animal completo con la raza
     const animalCompleto = await pool.query(
       `SELECT a.*, r.nombre as raza_nombre 
        FROM animal a 
@@ -182,11 +203,25 @@ const createAnimal = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     if (err.code === "23503") {
-      res.status(400).json({ message: "Error de referencia: verifique los datos proporcionados" });
+      res
+        .status(400)
+        .json({
+          message: "Error de referencia: verifique los datos proporcionados",
+        });
     } else if (err.code === "23514") {
-      res.status(400).json({ message: "Datos inválidos: verifique las restricciones" });
+      res
+        .status(400)
+        .json({ message: "Datos inválidos: verifique las restricciones" });
+    } else if (err.code === "42703") {
+      // Este es el error de columna no existente
+      res
+        .status(500)
+        .send({
+          message:
+            "Error de base de datos: Columna no encontrada (posiblemente ñ vs n)",
+        });
     } else {
-      res.status(500).send({ message: "Error en el servidor" });
+      res.status(500).send({ message: "Error en el servidor: " + err.message });
     }
   }
 };
@@ -195,16 +230,27 @@ const createAnimal = async (req, res) => {
 const updateAnimal = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, raza_nombre, edad, sexo, fecha_nacimiento, color, tamano, foto_url, estado } = req.body;
+    const {
+      nombre,
+      raza_nombre,
+      edad,
+      sexo,
+      fecha_nacimiento,
+      color,
+      tamano,
+      foto_url,
+      estado,
+    } = req.body;
 
-    // Verificar que el animal exista
-    const existingAnimal = await pool.query("SELECT id_animal FROM animal WHERE id_animal = $1", [id]);
+    const existingAnimal = await pool.query(
+      "SELECT id_animal FROM animal WHERE id_animal = $1",
+      [id]
+    );
 
     if (existingAnimal.rows.length === 0) {
       return res.status(404).json({ message: "Animal no encontrado" });
     }
 
-    // Construir la consulta dinámicamente
     const campos = [];
     const valores = [];
     let paramIndex = 1;
@@ -214,13 +260,14 @@ const updateAnimal = async (req, res) => {
       valores.push(nombre);
     }
     if (raza_nombre !== undefined) {
-      // Obtener o crear la raza
       try {
         const id_raza = await getOrCreateRaza(raza_nombre);
         campos.push(`id_raza = $${paramIndex++}`);
         valores.push(id_raza);
       } catch (err) {
-        return res.status(400).json({ message: "Error al obtener/crear la raza" });
+        return res
+          .status(400)
+          .json({ message: "Error al obtener/crear la raza" });
       }
     }
     if (edad !== undefined) {
@@ -234,20 +281,26 @@ const updateAnimal = async (req, res) => {
     if (fecha_nacimiento !== undefined) {
       campos.push(`fecha_nacimiento = $${paramIndex++}`);
       valores.push(fecha_nacimiento);
-      
-      // Recalcular edad si se actualiza fecha_nacimiento
+
       if (fecha_nacimiento) {
-        const fechaNac = new Date(fecha_nacimiento);
-        const hoy = new Date();
-        const anos = hoy.getFullYear() - fechaNac.getFullYear();
-        const mesActual = hoy.getMonth();
-        const mesNac = fechaNac.getMonth();
-        let edadCalculada = anos;
-        if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())) {
-          edadCalculada = anos - 1;
-        }
-        campos.push(`edad = $${paramIndex++}`);
-        valores.push(edadCalculada);
+        try {
+          const fechaNac = new Date(fecha_nacimiento);
+          const hoy = new Date();
+          const anos = hoy.getFullYear() - fechaNac.getFullYear();
+          const mesActual = hoy.getMonth();
+          const mesNac = fechaNac.getMonth();
+          let edadCalculada = anos;
+          if (
+            mesActual < mesNac ||
+            (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())
+          ) {
+            edadCalculada = anos - 1;
+          }
+          if (!isNaN(edadCalculada) && edadCalculada >= 0) {
+            campos.push(`edad = $${paramIndex++}`);
+            valores.push(edadCalculada);
+          }
+        } catch (e) {}
       }
     }
     if (color !== undefined) {
@@ -256,7 +309,8 @@ const updateAnimal = async (req, res) => {
     }
     if (tamano !== undefined) {
       const tamanoMapeado = mapTamano(tamano);
-      campos.push(`tamano = $${paramIndex++}`);
+      // ⚠️ CORRECCIÓN AQUÍ: Cambiado 'tamano' por 'tamaño'
+      campos.push(`tamaño = $${paramIndex++}`);
       valores.push(tamanoMapeado);
     }
     if (foto_url !== undefined) {
@@ -269,15 +323,18 @@ const updateAnimal = async (req, res) => {
     }
 
     if (campos.length === 0) {
-      return res.status(400).json({ message: "No se proporcionaron campos para actualizar" });
+      return res
+        .status(400)
+        .json({ message: "No se proporcionaron campos para actualizar" });
     }
 
     valores.push(id);
-    const query = `UPDATE animal SET ${campos.join(", ")} WHERE id_animal = $${paramIndex} RETURNING *`;
+    const query = `UPDATE animal SET ${campos.join(
+      ", "
+    )} WHERE id_animal = $${paramIndex} RETURNING *`;
 
     const result = await pool.query(query, valores);
 
-    // Obtener el animal completo con la raza
     const animalCompleto = await pool.query(
       `SELECT a.*, r.nombre as raza_nombre 
        FROM animal a 
@@ -303,17 +360,14 @@ const updateAnimal = async (req, res) => {
 const deleteAnimal = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Verificar que el animal exista
-    const existingAnimal = await pool.query("SELECT id_animal FROM animal WHERE id_animal = $1", [id]);
-
+    const existingAnimal = await pool.query(
+      "SELECT id_animal FROM animal WHERE id_animal = $1",
+      [id]
+    );
     if (existingAnimal.rows.length === 0) {
       return res.status(404).json({ message: "Animal no encontrado" });
     }
-
-    // Eliminar el animal (las relaciones se eliminarán en cascada)
     await pool.query("DELETE FROM animal WHERE id_animal = $1", [id]);
-
     res.json({ message: "Animal eliminado correctamente" });
   } catch (err) {
     console.error(err.message);
@@ -321,7 +375,6 @@ const deleteAnimal = async (req, res) => {
   }
 };
 
-// Exportar todas las funciones
 module.exports = {
   getAnimales,
   getAnimalesByDueno,
@@ -330,6 +383,3 @@ module.exports = {
   updateAnimal,
   deleteAnimal,
 };
-
-
-

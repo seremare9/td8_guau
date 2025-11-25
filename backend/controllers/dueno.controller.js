@@ -6,9 +6,9 @@ const pool = require("../config/db.config.js");
 // 2. Función para obtener todos los duenos
 const getDuenos = async (req, res) => {
   try {
-    // 3. Ejecutamos la consulta SQL (Tabla 'dueno' y columna 'id_dueno')
+    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Busca en tabla 'dueño' (con ñ)
     const result = await pool.query(
-      "SELECT id_dueno, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueno ORDER BY creado_en DESC"
+      "SELECT id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueño ORDER BY creado_en DESC"
     );
 
     // 4. Respondemos al frontend con los resultados
@@ -23,8 +23,9 @@ const getDuenos = async (req, res) => {
 const getDuenoById = async (req, res) => {
   try {
     const { id } = req.params;
+    // ⚠️ CAMBIO: Busca por 'id_dueño' (con ñ)
     const result = await pool.query(
-      "SELECT id_dueno, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueno WHERE id_dueno = $1",
+      "SELECT id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueño WHERE id_dueño = $1",
       [id]
     );
 
@@ -42,7 +43,7 @@ const getDuenoById = async (req, res) => {
 // 4. Función para crear un nuevo dueno
 const createDueno = async (req, res) => {
   console.log(
-    "✅ ¡ENTRÓ AL CONTROLADOR! Intentando guardar dueno en tabla 'dueno'..."
+    "✅ ¡ENTRÓ AL CONTROLADOR! Intentando guardar en tabla 'dueño'..."
   );
 
   try {
@@ -55,7 +56,6 @@ const createDueno = async (req, res) => {
       notificaciones_activas,
     } = req.body;
 
-    // Validaciones básicas
     if (!nombre || !correo || !contraseña || !tipo_padre) {
       return res.status(400).json({
         message:
@@ -63,9 +63,9 @@ const createDueno = async (req, res) => {
       });
     }
 
-    // Verificar que el correo no esté ya registrado
+    // ⚠️ CAMBIO: Busca 'id_dueño' en tabla 'dueño'
     const existingDueno = await pool.query(
-      "SELECT id_dueno FROM dueno WHERE correo = $1",
+      "SELECT id_dueño FROM dueño WHERE correo = $1",
       [correo]
     );
 
@@ -73,11 +73,11 @@ const createDueno = async (req, res) => {
       return res.status(400).json({ message: "El correo ya está registrado" });
     }
 
-    // Insertar el nuevo dueno
+    // ⚠️ CAMBIO: Insertar en tabla 'dueño'
     const result = await pool.query(
-      `INSERT INTO dueno (nombre, correo, contraseña, tipo_padre, foto_url, notificaciones_activas) 
+      `INSERT INTO dueño (nombre, correo, contraseña, tipo_padre, foto_url, notificaciones_activas) 
        VALUES ($1, $2, $3, $4, $5, $6) 
-       RETURNING id_dueno, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas`,
+       RETURNING id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas`,
       [
         nombre,
         correo,
@@ -92,10 +92,8 @@ const createDueno = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     if (err.code === "23505") {
-      // Violación de restricción única
       res.status(400).json({ message: "El correo ya está registrado" });
     } else if (err.code === "23514") {
-      // Violación de constraint check
       res
         .status(400)
         .json({ message: "Datos inválidos. Verifique el formato del correo." });
@@ -118,9 +116,8 @@ const updateDueno = async (req, res) => {
       notificaciones_activas,
     } = req.body;
 
-    // Verificar que el dueno exista
     const existingDueno = await pool.query(
-      "SELECT id_dueno FROM dueno WHERE id_dueno = $1",
+      "SELECT id_dueño FROM dueño WHERE id_dueño = $1",
       [id]
     );
 
@@ -128,10 +125,9 @@ const updateDueno = async (req, res) => {
       return res.status(404).json({ message: "Dueno no encontrado" });
     }
 
-    // Si se intenta cambiar el correo, verificar que no esté en uso
     if (correo) {
       const correoExistente = await pool.query(
-        "SELECT id_dueno FROM dueno WHERE correo = $1 AND id_dueno != $2",
+        "SELECT id_dueño FROM dueño WHERE correo = $1 AND id_dueño != $2",
         [correo, id]
       );
 
@@ -142,7 +138,6 @@ const updateDueno = async (req, res) => {
       }
     }
 
-    // Construir la consulta dinámicamente según los campos proporcionados
     const campos = [];
     const valores = [];
     let paramIndex = 1;
@@ -179,9 +174,10 @@ const updateDueno = async (req, res) => {
     }
 
     valores.push(id);
-    const query = `UPDATE dueno SET ${campos.join(
+    // ⚠️ CAMBIO: Update en tabla 'dueño'
+    const query = `UPDATE dueño SET ${campos.join(
       ", "
-    )} WHERE id_dueno = $${paramIndex} RETURNING id_dueno, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas`;
+    )} WHERE id_dueño = $${paramIndex} RETURNING id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas`;
 
     const result = await pool.query(query, valores);
 
@@ -205,9 +201,8 @@ const deleteDueno = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Verificar que el dueno exista
     const existingDueno = await pool.query(
-      "SELECT id_dueno FROM dueno WHERE id_dueno = $1",
+      "SELECT id_dueño FROM dueño WHERE id_dueño = $1",
       [id]
     );
 
@@ -215,8 +210,8 @@ const deleteDueno = async (req, res) => {
       return res.status(404).json({ message: "Dueno no encontrado" });
     }
 
-    // Eliminar el dueno
-    await pool.query("DELETE FROM dueno WHERE id_dueno = $1", [id]);
+    // ⚠️ CAMBIO: Delete en tabla 'dueño'
+    await pool.query("DELETE FROM dueño WHERE id_dueño = $1", [id]);
 
     res.json({ message: "Dueno eliminado correctamente" });
   } catch (err) {
