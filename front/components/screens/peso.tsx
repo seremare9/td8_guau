@@ -235,6 +235,18 @@ export default function Peso({
   };
 
   const handleSaveRecord = async () => {
+    // Validar que la fecha no sea futura
+    if (recordForm.fecha) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(recordForm.fecha + "T00:00:00");
+      
+      if (selectedDate > today) {
+        alert("No se puede registrar un peso con fecha futura. Por favor, selecciona una fecha de hoy o anterior.");
+        return;
+      }
+    }
+
     if (!pet.id_animal) {
       // Fallback a localStorage si no hay id_animal
       const newRecord: PesoRecord = {
@@ -485,6 +497,7 @@ export default function Peso({
               <Input
                 type="date"
                 value={recordForm.fecha}
+                max={new Date().toISOString().split('T')[0]} // Limitar a hoy o anterior
                 onChange={(e) =>
                   setRecordForm({ ...recordForm, fecha: e.target.value })
                 }

@@ -363,14 +363,14 @@
 }
 
 .vaccine-card-pending {
-  background-color: #E6F3FF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
-  /* border-color: #B3D9FF; */
+  background-color: #FDF2F8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #FBCFE8;
 }
 
 .vaccine-card-pending:hover {
-  box-shadow: 0 2px 8px rgba(49, 49, 49, 0.1);
-  border-color: #93C5FD;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #F9A8D4;
 }
 
 .vaccine-card-completed {
@@ -416,7 +416,7 @@
 .vaccine-card-pending-label {
   margin-left: auto;
   font-size: 0.875rem;
-  color: #3B82F6;
+  color: #EC4899;
   font-weight: 500;
   font-family: "Noto Sans", sans-serif;
 }

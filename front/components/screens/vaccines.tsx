@@ -479,14 +479,25 @@ export default function Vaccines({
   // Función para determinar si una vacuna está pendiente
   const isPending = (vaccine: Vaccine): boolean => {
     // Si es una vacuna ya aplicada, nunca está pendiente
-    if (vaccine.esAplicada) return false;
+    if (vaccine.esAplicada === true) return false;
     
-    // Si es un turno, verificar si la fecha es futura
+    // Si es un turno (no aplicado), verificar si la fecha es futura o es hoy
     if (!vaccine.fecha) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const turnoDate = new Date(vaccine.fecha + "T00:00:00");
-    return turnoDate >= today;
+    
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const turnoDate = new Date(vaccine.fecha + "T00:00:00");
+      
+      // Verificar si la fecha es válida
+      if (isNaN(turnoDate.getTime())) return false;
+      
+      // Está pendiente si la fecha es hoy o futura
+      return turnoDate >= today;
+    } catch (e) {
+      console.error("Error al verificar si está pendiente:", e);
+      return false;
+    }
   };
 
   // Función para obtener el nombre completo del tipo de vacuna
@@ -859,10 +870,16 @@ export default function Vaccines({
                           </h4>
                           <div className="vaccine-card-date">
                             <Calendar className="vaccine-card-calendar-icon" />
-                            <span>{formatDate(displayDate)}</span>
+                            {displayDate && formatDate(displayDate) ? (
+                              <span>{formatDate(displayDate)}</span>
+                            ) : displayDate ? (
+                              <span style={{ color: '#808B9A' }}>{displayDate}</span>
+                            ) : (
+                              <span style={{ color: '#808B9A' }}>Sin fecha</span>
+                            )}
                             {pending && (
                               <span className="vaccine-card-pending-label">
-                                Turno pendiente
+                                Pendiente
                               </span>
                             )}
                             {vaccine.esAplicada && !pending && (

@@ -528,18 +528,64 @@ export default function App() {
             setPetOnboardingStartStep(1);
             setCurrentScreen("petOnboarding");
           }}
-          onDeletePet={(petName) => {
-            // Eliminar todos los datos de la mascota
-            // 1. Eliminar datos de la mascota
+          onDeletePet={async (petName) => {
+            // Buscar la mascota a eliminar para obtener su id_animal si existe
+            let id_animal: number | undefined;
+            const petDataToDelete = petData && petData.name === petName ? petData : null;
+            
+            // Buscar en localStorage si no está en petData
+            if (!petDataToDelete) {
+              const petDataStr = localStorage.getItem(`pet_data_${petName}`);
+              if (petDataStr) {
+                try {
+                  const petDataObj = JSON.parse(petDataStr);
+                  id_animal = petDataObj.id_animal;
+                } catch (e) {
+                  console.error("Error al parsear datos de mascota:", e);
+                }
+              }
+            } else {
+              id_animal = petDataToDelete.id_animal;
+            }
+
+            // 1. Eliminar de la base de datos si tiene id_animal
+            if (id_animal) {
+              try {
+                // Eliminar fotos del animal
+                try {
+                  const fotos = await api.animalFoto.getByAnimal(id_animal);
+                  for (const foto of fotos) {
+                    await api.animalFoto.delete(foto.id_foto);
+                  }
+                } catch (error) {
+                  console.error("Error al eliminar fotos:", error);
+                }
+
+                // Eliminar el animal
+                await api.animal.delete(id_animal);
+                console.log("✅ Mascota eliminada de la base de datos");
+              } catch (error) {
+                console.error("Error al eliminar mascota de la base de datos:", error);
+                // Continuar con la eliminación local
+              }
+            }
+
+            // 2. Eliminar datos de la mascota de localStorage
             localStorage.removeItem(`pet_data_${petName}`);
             
-            // 2. Eliminar vacunas
+            // 3. Eliminar vacunas
             localStorage.removeItem(`vaccines_${petName}`);
             
-            // 3. Eliminar eventos
+            // 4. Eliminar eventos
             localStorage.removeItem(`events_${petName}`);
             
-            // 4. Eliminar recordatorios relacionados con esta mascota
+            // 5. Eliminar peso
+            localStorage.removeItem(`peso_${petName}`);
+            
+            // 6. Eliminar fotos
+            localStorage.removeItem(`pet_photos_${petName}`);
+            
+            // 7. Eliminar recordatorios relacionados con esta mascota
             const remindersKey = "event_reminders";
             const existingReminders = JSON.parse(
               localStorage.getItem(remindersKey) || "[]"
@@ -549,7 +595,20 @@ export default function App() {
             );
             localStorage.setItem(remindersKey, JSON.stringify(updatedReminders));
             
-            // 5. Si la mascota eliminada era la seleccionada, limpiar petData
+            // 8. Actualizar pets_order para remover la mascota eliminada
+            const petsOrderKey = "pets_order";
+            const petsOrderStr = localStorage.getItem(petsOrderKey);
+            if (petsOrderStr) {
+              try {
+                const petsOrder: string[] = JSON.parse(petsOrderStr);
+                const updatedOrder = petsOrder.filter((name) => name !== petName);
+                localStorage.setItem(petsOrderKey, JSON.stringify(updatedOrder));
+              } catch (e) {
+                console.error("Error al actualizar pets_order:", e);
+              }
+            }
+            
+            // 9. Si la mascota eliminada era la seleccionada, limpiar petData
             if (petData && petData.name === petName) {
               setPetData(null);
               // Si hay otras mascotas, seleccionar la primera disponible
@@ -579,10 +638,10 @@ export default function App() {
               }
             }
             
-            // 6. Notificar a otros componentes del cambio
+            // 10. Notificar a otros componentes del cambio
             window.dispatchEvent(new Event("customStorageChange"));
             
-            // 7. Si no hay más mascotas, volver al home (o onboarding si no hay ninguna)
+            // 11. Si no hay más mascotas, volver al home (o onboarding si no hay ninguna)
             const hasOtherPets = Array.from({ length: localStorage.length }, (_, i) => {
               const key = localStorage.key(i);
               return key && key.startsWith("pet_data_");

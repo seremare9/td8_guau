@@ -74,16 +74,19 @@ export default function PetOnboardingFlow({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Función para manejar la selección de imagen
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // Almacena la imagen como Base64 string
-        setPetData((prev) => ({ ...prev, imageURL: reader.result as string }));
-      };
-      // Convierte el archivo a Base64
-      reader.readAsDataURL(file);
+      try {
+        // Importar la función de compresión
+        const { compressImage } = await import("@/lib/utils");
+        // Comprimir la imagen antes de convertirla a base64
+        const compressedImage = await compressImage(file, 1920, 1920, 0.8);
+        setPetData((prev) => ({ ...prev, imageURL: compressedImage }));
+      } catch (error) {
+        console.error("Error al procesar la imagen:", error);
+        alert("Error al procesar la imagen. Por favor, intenta con una imagen más pequeña.");
+      }
     }
   };
 

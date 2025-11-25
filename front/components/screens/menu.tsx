@@ -117,9 +117,55 @@ export default function MenuScreen({
     }>
   >([]);
 
-  // Cargar todas las mascotas desde localStorage
+  // Cargar todas las mascotas desde la API o localStorage como fallback
   useEffect(() => {
-    const loadAllPets = () => {
+    const loadAllPets = async () => {
+      // Obtener ID del dueño desde localStorage
+      const getDueñoId = (): number | null => {
+        try {
+          const userDataStr = localStorage.getItem('user_data');
+          if (userDataStr) {
+            const userData = JSON.parse(userDataStr);
+            return userData.id_dueño || null;
+          }
+        } catch (e) {
+          console.error("Error al obtener ID del dueño:", e);
+        }
+        return null;
+      };
+
+      const id_dueño = getDueñoId();
+      
+      // Intentar cargar desde la API si tenemos un ID de dueño
+      if (id_dueño) {
+        try {
+          const { api } = await import("@/lib/api");
+          const { mapAnimalToFrontend } = await import("@/lib/api-helpers");
+          const animales = await api.animal.getByDueño(id_dueño);
+          
+          // Mapear animales de la API al formato del frontend
+          const petsArray = animales.map((animal, index) => {
+            const mapped = mapAnimalToFrontend(animal);
+            return {
+              id: animal.id_animal + 10000, // Sumar 10000 para distinguir IDs reales
+              name: mapped.name,
+              image: mapped.image || perro,
+              fullData: mapped.fullData,
+            };
+          });
+
+          // Si hay mascotas desde la API, usarlas
+          if (petsArray.length > 0) {
+            setPets(petsArray);
+            return;
+          }
+        } catch (error) {
+          console.error("Error al cargar mascotas desde la API:", error);
+          // Continuar con el fallback a localStorage
+        }
+      }
+
+      // Fallback: cargar desde localStorage
       const petsMap = new Map<
         string,
         {
@@ -133,6 +179,7 @@ export default function MenuScreen({
           approximateAge?: string;
           photos?: string[];
           appearance?: string;
+          id_animal?: number;
         }
       >();
 
@@ -161,17 +208,71 @@ export default function MenuScreen({
         petsMap.set(petData.name, petData);
       }
 
-      // Convertir el Map a array con todos los datos
-      const allPets = Array.from(petsMap.values()).map((pet, index) => ({
-        id: index + 1,
-        name: pet.name,
-        image: pet.imageURL || perro,
-        fullData: pet,
-      }));
+      // Obtener el orden de las mascotas desde localStorage (igual que home-screen)
+      const petsOrderKey = "pets_order";
+      let petsOrder: string[] = [];
+      const petsOrderStr = localStorage.getItem(petsOrderKey);
+      if (petsOrderStr) {
+        try {
+          petsOrder = JSON.parse(petsOrderStr);
+        } catch (e) {
+          console.error("Error al parsear orden de mascotas:", e);
+        }
+      }
+
+      // Si no hay orden guardado, crear uno basado en las mascotas existentes
+      if (petsOrder.length === 0) {
+        petsOrder = Array.from(petsMap.keys());
+        localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
+      }
+
+      // Agregar nuevas mascotas al final del orden si no están en la lista
+      const allPetNames = Array.from(petsMap.keys());
+      allPetNames.forEach((petName) => {
+        if (!petsOrder.includes(petName)) {
+          petsOrder.push(petName);
+        }
+      });
+
+      // Filtrar el orden para incluir solo mascotas que existen
+      petsOrder = petsOrder.filter((petName) => petsMap.has(petName));
+
+      // Guardar el orden actualizado
+      localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
+
+      // Ordenar las mascotas según el orden guardado
+      const allPetsArray = petsOrder
+        .map((petName) => {
+          const pet = petsMap.get(petName);
+          if (!pet) return null;
+          return {
+            id: petsOrder.indexOf(petName) + 1,
+            name: pet.name,
+            image: pet.imageURL || perro,
+            fullData: pet,
+          };
+        })
+        .filter((pet) => pet !== null) as Array<{
+        id: number;
+        name: string;
+        image: string | StaticImageData;
+        fullData?: {
+          name: string;
+          breed: string;
+          imageURL?: string;
+          sex?: string;
+          gender?: string;
+          weight?: string;
+          birthday?: string;
+          approximateAge?: string;
+          photos?: string[];
+          appearance?: string;
+        };
+      }>;
 
       // Si no hay mascotas, agregar la actual como default
-      if (allPets.length === 0 && petData) {
-        allPets.push({
+      if (allPetsArray.length === 0 && petData) {
+        allPetsArray.push({
           id: 1,
           name: petData.name || "Maxi",
           image: petData.imageURL || perro,
@@ -179,7 +280,7 @@ export default function MenuScreen({
         });
       }
 
-      setPets(allPets);
+      setPets(allPetsArray);
     };
 
     loadAllPets();

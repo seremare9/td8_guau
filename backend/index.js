@@ -21,7 +21,9 @@ app.use(
 );
 
 // express.json: Permite que el servidor entienda datos JSON enviados en peticiones (ej. POST, PUT)
-app.use(express.json());
+// Aumentamos el límite a 50MB para permitir imágenes en base64
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Este código imprimirá en la terminal cada vez que alguien toque la puerta
 app.use((req, res, next) => {

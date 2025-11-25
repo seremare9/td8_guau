@@ -16,6 +16,7 @@ import otroIcon from "../images/event-icons/otro.svg";
 import higieneIcon from "../images/event-icons/higiene.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
 import { api } from "@/lib/api";
+import { compressImage } from "@/lib/utils";
 
 interface PetProfileProps {
   userName?: string;
@@ -477,18 +478,14 @@ export default function PetProfile({
     setIsEditingAppearance(false);
   };
 
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       const promises = fileArray.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve(reader.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
+        // Comprimir la imagen antes de convertirla a base64
+        return compressImage(file, 1920, 1920, 0.8);
       });
 
       Promise.all(promises).then(async (newPhotos) => {
@@ -498,6 +495,9 @@ export default function PetProfile({
         if (photos.length === 0) {
           setCurrentPhotoIndex(0);
         }
+      }).catch((error) => {
+        console.error("Error al procesar imágenes:", error);
+        alert("Error al procesar las imágenes. Por favor, intenta con imágenes más pequeñas.");
       });
     }
     // Reset input para permitir seleccionar la misma imagen nuevamente
@@ -511,12 +511,12 @@ export default function PetProfile({
   };
 
   // Función para manejar el cambio de la foto principal de la mascota
-  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const imageDataUrl = reader.result as string;
+      try {
+        // Comprimir la imagen antes de convertirla a base64
+        const imageDataUrl = await compressImage(file, 1920, 1920, 0.8);
         // Actualizar petData con la nueva imagen
         if (onUpdatePetData && petData) {
           const updatedPetData = { ...petData, imageURL: imageDataUrl };
@@ -553,8 +553,10 @@ export default function PetProfile({
             localStorage.setItem(storageKey, JSON.stringify(newData));
           }
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error al procesar la imagen:", error);
+        alert("Error al procesar la imagen. Por favor, intenta con una imagen más pequeña.");
+      }
     }
     // Reset input para permitir seleccionar la misma imagen nuevamente
     if (profileImageInputRef.current) {

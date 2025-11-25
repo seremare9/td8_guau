@@ -94,12 +94,14 @@ export default function Account({
   };
 
   // Función para manejar el cambio de la foto de perfil
-  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageDataUrl = reader.result as string;
+      try {
+        // Importar la función de compresión
+        const { compressImage } = await import("@/lib/utils");
+        // Comprimir la imagen antes de convertirla a base64
+        const imageDataUrl = await compressImage(file, 1920, 1920, 0.8);
         const updatedData = { ...userData, imageURL: imageDataUrl };
         setUserData(updatedData);
         
@@ -109,8 +111,10 @@ export default function Account({
         if (onUpdateUserData) {
           onUpdateUserData(updatedData);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error al procesar la imagen:", error);
+        alert("Error al procesar la imagen. Por favor, intenta con una imagen más pequeña.");
+      }
     }
     if (profileImageInputRef.current) {
       profileImageInputRef.current.value = '';
