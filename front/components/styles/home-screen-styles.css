@@ -237,6 +237,14 @@
   font-family: "Noto Sans", sans-serif;
 }
 
+.home-pet-click-text {
+  font-size: 0.75rem;
+  color: white;
+  margin: 0.5rem 0 0 0;
+  font-weight: 700;
+  font-family: "Noto Sans", sans-serif;
+}
+
 .home-pet-image-wrapper {
   position: relative;
   z-index: 4;

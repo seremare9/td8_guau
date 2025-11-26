@@ -438,6 +438,10 @@ export default function HomeScreen({
 
   // Estado para rastrear qué mascota está visible
   const [activePetIndex, setActivePetIndex] = useState(0);
+  const [activeEventIndex, setActiveEventIndex] = useState(0);
+  const [activeInfoIndex, setActiveInfoIndex] = useState(0);
+  const eventsScrollRef = useRef<HTMLDivElement>(null);
+  const infoScrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0); // 0 = completamente en una card, 1 = completamente en la siguiente
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -452,7 +456,7 @@ export default function HomeScreen({
     },
   ];
 
-  // Efecto para actualizar el índice activo cuando cambia el scroll
+  // Efecto para actualizar el índice activo cuando cambia el scroll de pets
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container || pets.length === 0) return;
@@ -489,6 +493,41 @@ export default function HomeScreen({
     
     return () => container.removeEventListener('scroll', handleScroll);
   }, [pets.length, activePetIndex]);
+
+  // Efecto para actualizar el índice activo cuando cambia el scroll de eventos
+  useEffect(() => {
+    const container = eventsScrollRef.current;
+    if (!container || events.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      // Cada card tiene width: calc(100% - 1.5rem) = containerWidth - 24px
+      // margin-right: 0.75rem = 12px
+      // scroll-padding: 1.5rem = 24px (afecta el scrollLeft inicial)
+      const cardWidth = containerWidth - 24; // Ancho real de la card
+      const gap = 12; // margin-right
+      const scrollPadding = 24; // scroll-padding
+      const totalCardWidth = cardWidth + gap;
+      
+      // Ajustar scrollLeft considerando el scroll-padding
+      const adjustedScrollLeft = Math.max(0, scrollLeft - scrollPadding);
+      const exactIndex = adjustedScrollLeft / totalCardWidth;
+      const roundedIndex = Math.round(exactIndex);
+      const clampedIndex = Math.max(0, Math.min(roundedIndex, events.length - 1));
+      
+      if (clampedIndex !== activeEventIndex) {
+        setActiveEventIndex(clampedIndex);
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    handleScroll(); // Llamar una vez para establecer el índice inicial
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [events.length, activeEventIndex]);
 
   // Cargar eventos de salud - de la mascota visible actualmente
   useEffect(() => {
@@ -977,6 +1016,41 @@ export default function HomeScreen({
     return allUsefulInfo;
   }, [userType, userExperience, isPuppy, allPets.length]);
 
+  // Efecto para actualizar el índice activo cuando cambia el scroll de información útil
+  useEffect(() => {
+    const container = infoScrollRef.current;
+    if (!container || usefulInfo.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      // Cada card tiene width: calc(100% - 1.5rem) = containerWidth - 24px
+      // margin-right: 0.75rem = 12px
+      // scroll-padding: 1.5rem = 24px (afecta el scrollLeft inicial)
+      const cardWidth = containerWidth - 24; // Ancho real de la card
+      const gap = 12; // margin-right
+      const scrollPadding = 24; // scroll-padding
+      const totalCardWidth = cardWidth + gap;
+      
+      // Ajustar scrollLeft considerando el scroll-padding
+      const adjustedScrollLeft = Math.max(0, scrollLeft - scrollPadding);
+      const exactIndex = adjustedScrollLeft / totalCardWidth;
+      const roundedIndex = Math.round(exactIndex);
+      const clampedIndex = Math.max(0, Math.min(roundedIndex, usefulInfo.length - 1));
+      
+      if (clampedIndex !== activeInfoIndex) {
+        setActiveInfoIndex(clampedIndex);
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    handleScroll(); // Llamar una vez para establecer el índice inicial
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [usefulInfo.length, activeInfoIndex]);
+
   return (
     <MobileFrame>
       <div className="home-container">
@@ -1058,6 +1132,7 @@ export default function HomeScreen({
                     <div className="home-pet-info">
                       <h3 className="home-pet-name">{pet.name}</h3>
                       <p className="home-pet-breed">{pet.breed}</p>
+                      <p className="home-pet-click-text">Click para ver perfil</p>
                     </div>
                     <div className="home-pet-image-wrapper">
                       <div className="home-pet-image-circle">
@@ -1122,8 +1197,9 @@ export default function HomeScreen({
               <p className="home-empty-text">No tenés eventos registrados</p>
             </div>
           ) : (
-            <div className="home-events-container">
-              {events.map((event) => {
+            <>
+              <div className="home-events-container" ref={eventsScrollRef}>
+                {events.map((event) => {
                 const eventDate = new Date(
                   event.fecha + (event.horario ? `T${event.horario}` : "T00:00")
                 );
@@ -1262,7 +1338,20 @@ export default function HomeScreen({
                   </div>
                 );
               })}
-            </div>
+              </div>
+              {events.length > 1 && (
+                <div className="home-pagination">
+                  {events.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`home-pagination-dot ${
+                        index === activeEventIndex ? "active" : ""
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
           {events.length > 3 && (
             <button
@@ -1283,7 +1372,7 @@ export default function HomeScreen({
           <div className="home-section-header">
             <h2 className="home-section-title">Información útil</h2>
           </div>
-          <div className="home-info-container">
+          <div className="home-info-container" ref={infoScrollRef}>
             {usefulInfo.map((info) => (
               <div key={info.id} className="home-info-card">
                 <div className="home-info-image-wrapper">
@@ -1302,6 +1391,18 @@ export default function HomeScreen({
               </div>
             ))}
           </div>
+          {usefulInfo.length > 1 && (
+            <div className="home-pagination">
+              {usefulInfo.map((_, index) => (
+                <div
+                  key={index}
+                  className={`home-pagination-dot ${
+                    index === activeInfoIndex ? "active" : ""
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </MobileFrame>
