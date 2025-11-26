@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 // Forzar renderizado dinámico para evitar errores de pre-renderizado
 export const dynamic = 'force-dynamic';
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -79,6 +79,24 @@ export default function AuthCallback() {
     }}>
       <p>Procesando autenticación...</p>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        fontFamily: "system-ui, sans-serif"
+      }}>
+        <p>Cargando...</p>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
 
