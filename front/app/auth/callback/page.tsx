@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
+// Forzar renderizado dinámico para evitar errores de pre-renderizado
+export const dynamic = 'force-dynamic';
+
 export default function AuthCallback() {
   const searchParams = useSearchParams();
 
