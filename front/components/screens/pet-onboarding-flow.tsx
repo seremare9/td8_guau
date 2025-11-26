@@ -29,6 +29,7 @@ interface PetOnboardingFlowProps {
   initialStep?: number;
   // Propiedad para indicar si viene del menú (para agregar nueva mascota)
   fromMenu?: boolean;
+  onOpenMenu?: () => void;
   onFinish?: (petData: {
     name: string;
     breed: string;
@@ -48,6 +49,7 @@ export default function PetOnboardingFlow({
   onFinish,
   initialStep, // Recibimos la prop aquí
   fromMenu = false, // Por defecto no viene del menú
+  onOpenMenu, // Prop para abrir el menú
 }: PetOnboardingFlowProps) {
   const defaultInitialStep = userType === "future" ? 0 : 1;
   const [step, setStep] = useState(
@@ -306,7 +308,7 @@ export default function PetOnboardingFlow({
               <ArrowLeft className="icon-arrow" />
             </button> */}
             {/* Componente de Encabezado de la Home */}
-            <HomeHeader userName={userName} />
+            <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
           </div>
 
           {/* Contenido Central */}

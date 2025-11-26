@@ -348,6 +348,7 @@ export default function App() {
           userType={userType}
           userName={userName}
           onBack={petOnboardingStartStep === 1 && userType !== "ya conozco bien a mi perro" ? navigateToMenu : navigateBack}
+          onOpenMenu={navigateToMenu}
           onFinish={async (data) => {
             // Función helper para convertir fecha de cumpleaños a formato ISO
             const convertBirthdayToISO = (birthday: string): string | undefined => {
