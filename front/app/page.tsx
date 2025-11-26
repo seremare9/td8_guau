@@ -26,6 +26,9 @@ import { api } from "@/lib/api";
 import MedicinaInfoScreen from "@/components/screens/medicinaInfo-screen";
 import VacunaInfoScreen from "@/components/screens/vacunaInfo-screen";
 
+// Forzar renderizado dinámico para evitar errores de pre-renderizado
+export const dynamic = 'force-dynamic';
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<
     | "onboarding"
