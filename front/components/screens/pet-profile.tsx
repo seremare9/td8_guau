@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import MobileFrame from "./mobile-frame";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X, Scale } from "lucide-react";
+import { ArrowLeft, ChevronDown, Pencil, Plus, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
 import perro from "../images/default-pet-pic.png";
 import "../styles/pet-profile-styles.css";
 import lineSvg from "../images/line.svg";
@@ -15,6 +15,7 @@ import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
 import higieneIcon from "../images/event-icons/higiene.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
+import pesoIcon from "../images/event-icons/peso.svg";
 import { api } from "@/lib/api";
 import { compressImage } from "@/lib/utils";
 
@@ -1083,7 +1084,7 @@ export default function PetProfile({
               </div>
               <div className="pet-profile-health-card" onClick={onOpenPeso || (() => {})}>
                 <div className="pet-profile-health-icon-wrapper pet-profile-health-peso">
-                  <Scale className="pet-profile-health-peso-icon" width={54} height={54} />
+                  <Image src={pesoIcon} alt="Peso" width={54} height={54} />
                 </div>
                 <span className="pet-profile-health-text">Peso</span>
               </div>

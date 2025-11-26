@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronDown, Plus, Info, Calendar, Trash2 } from "lucide-rea
 import perro from "../images/default-pet-pic.png";
 import lupaIcon from "../images/lupa.svg";
 import lineSvg from "../images/line.svg";
+import pesoIcon from "../images/event-icons/peso.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
@@ -508,6 +509,13 @@ export default function Peso({
 
           <div className="vaccines-header-line">
             <Image src={lineSvg} alt="Line separator" width={336} height={2} />
+          </div>
+
+          {/* Icono centrado arriba */}
+          <div className="peso-icon-wrapper">
+            <div className="peso-icon-container">
+              <Image src={pesoIcon} alt="Peso" fill style={{ objectFit: 'contain' }} />
+            </div>
           </div>
 
           <div className="vaccine-form-container">

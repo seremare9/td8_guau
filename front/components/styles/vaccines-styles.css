@@ -56,6 +56,27 @@
   margin-top: 1rem;
 }
 
+/* Icono de peso centrado arriba - basado en imagen de referencia */
+.peso-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.peso-icon-container {
+  width: 5.25rem; /* 84px - tamaño similar a otros iconos de formulario */
+  height: 5.25rem; /* 84px */
+  border-radius: 0.875rem; /* 14px - esquinas redondeadas */
+  background-color: transparent; /* Sin fondo amarillo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* Necesario para que fill funcione */
+  overflow: hidden;
+}
+
 .vaccines-header-right {
   display: flex;
   align-items: center;

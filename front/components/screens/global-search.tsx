@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Search, X, Calendar, Scale } from "lucide-react";
+import { Search, X, Calendar } from "lucide-react";
 import perro from "../images/perro.png";
 import vacunaIcon from "../images/event-icons/vacuna.svg";
 import higieneIcon from "../images/event-icons/higiene.svg";
 import medicinaIcon from "../images/event-icons/medicina.svg";
 import antiparasitarioIcon from "../images/event-icons/antiparasitario.svg";
+import pesoIcon from "../images/event-icons/peso.svg";
 import veterinarioIcon from "../images/event-icons/veterinario.svg";
 import otroIcon from "../images/event-icons/otro.svg";
 import "../styles/global-search-styles.css";
@@ -276,7 +277,7 @@ export default function GlobalSearch({
                         })()}
                       </div>
                     ) : result.eventType === "peso" ? (
-                      <Scale className="global-search-result-event-icon" />
+                      <Image src={pesoIcon} alt="Peso" width={40} height={40} className="global-search-result-event-icon" />
                     ) : result.icon ? (
                       <Image
                         src={result.icon}
