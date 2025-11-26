@@ -222,6 +222,8 @@ export default function App() {
 
   const handlePetExperience = (hasExperience: boolean) => {
     console.log("[v0] Pet experience:", hasExperience);
+    // Guardar la experiencia del usuario en localStorage
+    localStorage.setItem("user_experience", JSON.stringify(hasExperience));
     if (hasExperience) {
       // Si tiene experiencia (Sí), va directo al flujo de mascota
       setCurrentScreen("petOnboarding");

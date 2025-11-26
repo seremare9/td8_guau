@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import MobileFrame from "./mobile-frame";
 // 1. Importar StaticImageData
 import Image, { StaticImageData } from "next/image";
@@ -8,9 +8,17 @@ import imgIcon from "../images/img-icon.svg";
 import perro from "../images/default-pet-pic.png";
 import logoGuau from "../images/guau_logo.svg";
 import petCardSvg from "../images/pet-card.svg";
+
 import stockImage1 from "../images/stock-images/dog-img1.jpg";
 import stockImage2 from "../images/stock-images/dog-img2.jpeg";
 import stockImage3 from "../images/stock-images/dog-img3.jpeg";
+import stockImage4 from "../images/stock-images/dog-img4.jpg";
+import stockImage5 from "../images/stock-images/dog-img5.jpeg";
+import stockImage6 from "../images/stock-images/dog-img6.jpg";
+import stockImage7 from "../images/stock-images/dog-img7.jpg";
+import stockImage8 from "../images/stock-images/dog-img8.jpeg";
+import stockImage9 from "../images/stock-images/dog-img9.jpg";
+import stockImage10 from "../images/stock-images/dog-img10.jpg";
 import lineSvg from "../images/line.svg";
 import campanaSvg from "../images/campana.svg";
 import menuSvg from "../images/menu.svg";
@@ -741,16 +749,17 @@ export default function HomeScreen({
     };
   }, [activePetIndex, pets, allPets]);
 
-  const [usefulInfo] = useState([
+  // Todas las cards de información útil
+  const allUsefulInfo = [
     {
       id: 1,
-      title: "Cuidados básicos",
+      title: "3 trucos fáciles para enseñarle a tu perro",
       subtitle: "Click para leer",
       image: stockImage1,
     },
     {
       id: 2,
-      title: "Juguetes ideales para cachorros",
+      title: "Cuidados básicos",
       subtitle: "Click para leer",
       image: stockImage2,
     },
@@ -760,7 +769,213 @@ export default function HomeScreen({
       subtitle: "Click para leer",
       image: stockImage3,
     },
-  ]);
+    {
+      id: 4,
+      title: "¿Cuántas veces al día debo pasear a mi perro?",
+      subtitle: "Click para leer",
+      image: stockImage4,
+    },
+    {
+      id: 5,
+      title: "5 señales de que tu perro es feliz",
+      subtitle: "Click para leer",
+      image: stockImage5,
+    },
+    {
+      id: 6,
+      title: "Juguetes ideales para cachorros",
+      subtitle: "Click para leer",
+      image: stockImage6,
+    },
+    {
+      id: 7,
+      title: "Cuántas horas al día suele dormir un perro según su edad",
+      subtitle: "Click para leer",
+      image: stockImage7,
+    },
+    {
+      id: 8,
+      title: "Qué tipo de alimento es mejor para tu perro según su raza",
+      subtitle: "Click para leer",
+      image: stockImage8,
+    },
+    {
+      id: 9,
+      title: "Tips para mejorar la convivencia entre perros",
+      subtitle: "Click para leer",
+      image: stockImage9,
+    },
+    {
+      id: 10,
+      title: "Cómo mantener a tu perro saludable y feliz",
+      subtitle: "Click para leer",
+      image: stockImage10,
+    },
+  ];
+
+  // Estado para rastrear la experiencia del usuario
+  const [userExperience, setUserExperience] = useState<boolean | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+
+  // Cargar la experiencia del usuario desde localStorage
+  useEffect(() => {
+    const loadUserInfo = () => {
+      const userTypeStr = localStorage.getItem("user_type");
+      const userExperienceStr = localStorage.getItem("user_experience");
+      
+      setUserType(userTypeStr);
+      
+      if (userExperienceStr !== null) {
+        try {
+          const hasExperience = JSON.parse(userExperienceStr);
+          setUserExperience(hasExperience);
+        } catch (e) {
+          console.error("Error al parsear experiencia del usuario:", e);
+          setUserExperience(null);
+        }
+      } else {
+        setUserExperience(null);
+      }
+    };
+
+    loadUserInfo();
+
+    // Escuchar cambios en localStorage
+    const handleStorageChange = () => {
+      loadUserInfo();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("customStorageChange", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("customStorageChange", handleStorageChange);
+    };
+  }, []);
+
+  // Función para determinar si la mascota activa es cachorro (menor a 1 año)
+  const isPuppy = useMemo(() => {
+    const activePet = pets[activePetIndex];
+    if (!activePet?.fullData) return false;
+
+    const petData = activePet.fullData;
+
+    // Si tiene fecha de cumpleaños, calcular la edad
+    if (petData.birthday) {
+      try {
+        // Formato esperado: "15 de Enero de 2025" o formato ISO "2025-01-15"
+        let birthdayDate: Date | null = null;
+
+        // Intentar parsear formato "15 de Enero de 2025"
+        const birthdayMatch = petData.birthday.match(/(\d+)\s+de\s+(\w+)\s+de\s+(\d+)/);
+        if (birthdayMatch) {
+          const day = parseInt(birthdayMatch[1]);
+          const monthName = birthdayMatch[2];
+          const year = parseInt(birthdayMatch[3]);
+          
+          const monthsMap: { [key: string]: number } = {
+            "Enero": 0, "Febrero": 1, "Marzo": 2, "Abril": 3,
+            "Mayo": 4, "Junio": 5, "Julio": 6, "Agosto": 7,
+            "Septiembre": 8, "Octubre": 9, "Noviembre": 10, "Diciembre": 11
+          };
+          
+          const month = monthsMap[monthName];
+          if (month !== undefined) {
+            birthdayDate = new Date(year, month, day);
+          }
+        } else {
+          // Intentar parsear como fecha ISO
+          birthdayDate = new Date(petData.birthday);
+        }
+
+        if (birthdayDate && !isNaN(birthdayDate.getTime())) {
+          const today = new Date();
+          let years = today.getFullYear() - birthdayDate.getFullYear();
+          let months = today.getMonth() - birthdayDate.getMonth();
+          
+          if (months < 0) {
+            years--;
+            months += 12;
+          } else if (months === 0 && today.getDate() < birthdayDate.getDate()) {
+            years--;
+            months = 11;
+          }
+          
+          // Es cachorro si tiene menos de 1 año
+          return years < 1;
+        }
+      } catch (e) {
+        console.error("Error al calcular edad desde birthday:", e);
+      }
+    }
+
+    // Si tiene edad aproximada, intentar parsear
+    if (petData.approximateAge) {
+      const ageStr = petData.approximateAge.toLowerCase();
+      
+      // Buscar patrones como "X meses", "X mes", "menos de 1 año", etc.
+      const mesesMatch = ageStr.match(/(\d+)\s*mes(es)?/);
+      if (mesesMatch) {
+        const meses = parseInt(mesesMatch[1]);
+        return meses < 12;
+      }
+      
+      // Buscar "menos de 1 año" o similar
+      if (ageStr.includes("menos de 1 año") || ageStr.includes("menos de un año")) {
+        return true;
+      }
+      
+      // Buscar "X año" o "X años" y verificar si es menor a 1
+      const añosMatch = ageStr.match(/(\d+)\s*año(s)?/);
+      if (añosMatch) {
+        const años = parseInt(añosMatch[1]);
+        return años < 1;
+      }
+    }
+
+    return false;
+  }, [pets, activePetIndex]);
+
+  // Filtrar las cards según la experiencia del usuario y si es cachorro
+  const usefulInfo = useMemo(() => {
+    // Array para recolectar todos los IDs de cards que aplican
+    const applicableCardIds: number[] = [5, 7, 10];
+    
+    // Verificar si el usuario NO tiene experiencia
+    // Condición: (eligió "acabo de adoptar un perro" o "futuro padre de perro") Y (indicó "no, soy padre primerizo")
+    const isNewUserWithoutExperience = 
+      (userType === "acabo de tener un perro" || userType === "futuro padre de perro") &&
+      userExperience === false;
+    
+    if (isNewUserWithoutExperience) {
+      applicableCardIds.push(...[2, 3, 4, 8]);
+    } else {
+      // Si el usuario SÍ tiene experiencia, mostrar la card 1
+      applicableCardIds.push(...[1]);
+    }
+    
+    // Si la mascota es cachorro (menor a 1 año)
+    if (isPuppy) {
+      applicableCardIds.push(...[6]);
+    }
+    
+    // Si el usuario tiene 2 o más mascotas
+    if (allPets.length >= 2) {
+      applicableCardIds.push(...[9]);
+    }
+    
+    // Si hay cards aplicables, filtrar y mostrar solo esas
+    // Si no hay condiciones que aplicar, mostrar todas las cards
+    if (applicableCardIds.length > 0) {
+      // Eliminar duplicados usando Set
+      const uniqueCardIds = Array.from(new Set(applicableCardIds));
+      return allUsefulInfo.filter(info => uniqueCardIds.includes(info.id));
+    }
+    
+    // Para todos los demás casos, mostrar todas las cards
+    return allUsefulInfo;
+  }, [userType, userExperience, isPuppy, allPets.length]);
 
   return (
     <MobileFrame>
