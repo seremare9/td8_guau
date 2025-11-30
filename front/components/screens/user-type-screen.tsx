@@ -37,7 +37,7 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
             />
           </div>
         </div>
-        
+
         <div className="user-type-options-group">
           <button
             onClick={() => handleSelect("acabo de tener un perro")}
@@ -62,7 +62,7 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
           </button>
 
           <button
-            onClick={() => handleSelect("futuro padre de perro")}
+            onClick={() => handleSelect("Tendré un perro en el futuro")}
             className={`user-type-button ${
               selectedOption === "futuro padre de perro"
                 ? "user-type-button-selected"
