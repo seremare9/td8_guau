@@ -54,7 +54,6 @@
   margin-top: 1rem;
 }
 
-/* Month Navigation */
 .calendar-month-nav {
   display: flex;
   justify-content: space-between;
@@ -93,7 +92,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Calendar Grid */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -114,7 +112,6 @@
   color: #3B82F6;
 }
 
-/* Resaltar sábado (índice 5) */
 .calendar-grid .calendar-day-name:nth-child(6) {
   color: #3B82F6;
 }
@@ -190,7 +187,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Upcoming Events Section */
 .calendar-upcoming-section {
   margin-top: 2rem;
 }
@@ -297,7 +293,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Modal para agregar evento */
 .calendar-add-event-modal-overlay {
   position: fixed;
   top: 0;
@@ -312,7 +307,6 @@
   padding: 1rem;
 }
 
-/* Asegurar que el SelectContent esté por encima del modal */
 [data-radix-portal] {
   z-index: 10001 !important;
 }
@@ -475,7 +469,6 @@
   background-color: #E5E7EB;
 }
 
-/* Modal de eventos del día */
 .calendar-day-events-modal {
   background-color: white;
   border-radius: 1rem;
@@ -603,7 +596,6 @@
   background-color: #2563EB;
 }
 
-/* Modal de editar evento */
 .calendar-edit-event-modal {
   background-color: white;
   border-radius: 1rem;
@@ -656,7 +648,6 @@
   background-color: #DC2626;
 }
 
-/* Arreglar z-index del Select */
 .calendar-select-content {
   z-index: 10000 !important;
 }

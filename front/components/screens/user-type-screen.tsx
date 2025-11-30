@@ -37,8 +37,7 @@ export default function UserTypeScreen({ onSelectType }: UserTypeScreenProps) {
             />
           </div>
         </div>
-
-        {/* Options */}
+        
         <div className="user-type-options-group">
           <button
             onClick={() => handleSelect("acabo de tener un perro")}

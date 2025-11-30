@@ -14,15 +14,15 @@ export default function OnboardingScreen({
   return (
     <MobileFrame>
       <div className="onboarding-container">
-        {/* Logo */}
+       
         <div className="logo-container">
           <Image src={imgLogoGuau} alt="logo_guau" className="logo-image" />
         </div>
 
-        {/* Texto */}
+        <p className="onboarding-title">Guau</p>
+
         <p className="onboarding-text">Todo sobre tu perro, en un solo lugar</p>
 
-        {/* Botón */}
         <Button onClick={onGetStarted} className="onboarding-button">
           Continuar
         </Button>

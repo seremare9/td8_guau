@@ -247,27 +247,23 @@ export default function App() {
 
   const navigateToPetOnboarding = (type: string) => {
     setUserType(type);
-    // Guardar el tipo de usuario en localStorage para usarlo en registro/login
     localStorage.setItem("user_type", type);
-    setPetOnboardingStartStep(undefined); // Limpiar el estado
+    setPetOnboardingStartStep(undefined);
     if (type === "futuro padre de perro" || type === "acabo de tener un perro") {
       setCurrentScreen("petExperience");
     } else {
-      // Tutor actual siempre debe empezar en el paso 1 (Registro)
-      setPetOnboardingStartStep(1);
+      setPetOnboardingStartStep(0);
       setCurrentScreen("petOnboarding");
     }
   };
 
   const handlePetExperience = (hasExperience: boolean) => {
     console.log("[v0] Pet experience:", hasExperience);
-    // Guardar la experiencia del usuario en localStorage
     localStorage.setItem("user_experience", JSON.stringify(hasExperience));
     if (hasExperience) {
-      // Si tiene experiencia (Sí), va directo al flujo de mascota
+      setPetOnboardingStartStep(0);
       setCurrentScreen("petOnboarding");
     } else {
-      // Si NO tiene experiencia (No), va a la primera pantalla de información
       setCurrentScreen("vacunaInfo");
     }
   };
@@ -579,7 +575,15 @@ export default function App() {
           userName={userName} 
           onClose={() => {
             setSkipMenuAnimation(false);
-            navigateToHome();
+            // Verificar si hay mascotas antes de navegar al home
+            if (!hasRegisteredPets()) {
+              // Si no hay mascotas, limpiar petData y navegar al onboarding
+              setPetData(null);
+              setCurrentScreen("petOnboarding");
+              setPetOnboardingStartStep(0);
+            } else {
+              navigateToHome();
+            }
           }}
           petData={petData}
           skipAnimation={skipMenuAnimation} 

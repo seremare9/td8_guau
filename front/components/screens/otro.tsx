@@ -279,20 +279,17 @@ export default function Otro({
   };
 
   const handleSaveEvent = async () => {
-    // Validar fecha según el tipo de registro
     if (eventForm.fecha) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const selectedDate = new Date(eventForm.fecha + "T00:00:00");
       
       if (isEventApplied) {
-        // Si es "registrar evento aplicado", solo permitir fechas pasadas o actuales
         if (selectedDate > today) {
           alert("No se puede registrar un evento aplicado con fecha futura. Por favor, selecciona una fecha de hoy o anterior.");
           return;
         }
       } else {
-        // Si es "registrar turno", solo permitir fechas futuras o actuales
         if (selectedDate < today) {
           alert("No se puede registrar un turno con fecha pasada. Por favor, selecciona una fecha de hoy o posterior.");
           return;
@@ -340,7 +337,6 @@ export default function Otro({
         es_aplicada: isEventApplied,
       });
 
-      // Extraer veterinario de las notas si existe
       let veterinario: string | undefined = eventForm.veterinario || undefined;
       let notas: string | undefined = eventForm.notas || undefined;
       if (nuevoEvento.notas) {
@@ -432,13 +428,11 @@ export default function Otro({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
       let dateOnly = dateString;
       if (dateString.includes('T')) {
         dateOnly = dateString.split('T')[0];
       }
       
-      // Si ya está en formato YYYY-MM-DD, usarlo directamente
       const date = new Date(dateOnly + "T00:00:00");
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
@@ -467,7 +461,7 @@ export default function Otro({
         return new Date().getFullYear();
       }
       const year = date.getFullYear();
-      // Verificar que el año sea válido (entre 1900 y 2100)
+      // Verificar que el año sea válido
       if (year >= 1900 && year <= 2100) {
         return year;
       }
@@ -481,7 +475,6 @@ export default function Otro({
     if (event.esAplicada) return false;
     if (!event.fecha) return false;
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO
       let dateOnly = event.fecha;
       if (event.fecha.includes('T')) {
         dateOnly = event.fecha.split('T')[0];

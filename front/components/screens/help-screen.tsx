@@ -63,7 +63,6 @@ export default function HelpScreen({ onBack }: HelpScreenProps) {
   return (
     <MobileFrame>
       <div className="help-container">
-        {/* Header */}
         <div className="help-header">
           <h1 className="help-title">Ayuda</h1>
           <button
@@ -75,12 +74,10 @@ export default function HelpScreen({ onBack }: HelpScreenProps) {
           </button>
         </div>
 
-        {/* Line separator */}
         <div className="help-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Categories List */}
         <div className="help-categories-list">
           {helpCategories.map((category) => (
             <button

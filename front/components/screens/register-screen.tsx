@@ -1,7 +1,5 @@
 "use client";
 
-// PANTALLA "CREAR CUENTA"
-
 import { useState } from "react";
 import Image from "next/image";
 import MobileFrame from "./mobile-frame";
@@ -49,24 +47,24 @@ export default function RegisterScreen({
     phone?: string;
   }>({});
 
-  // Función para manejar el registro con proveedores sociales
+  // Función para manejar el registro con Google, Facebook y Apple
   const handleSocialRegister = async (provider: "google" | "apple" | "facebook") => {
     try {
       let authUrl = "";
       const redirectUri = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : "";
       
       if (provider === "google") {
-        // Google OAuth
+        // Google
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
         const scope = "openid profile email";
         authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&provider=google`;
       } else if (provider === "facebook") {
-        // Facebook OAuth
+        // Facebook 
         const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "YOUR_FACEBOOK_APP_ID";
         const scope = "email,public_profile";
         authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=code&provider=facebook`;
       } else if (provider === "apple") {
-        // Apple Sign In
+        // Apple 
         const clientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || "YOUR_APPLE_CLIENT_ID";
         const scope = "name email";
         authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&response_mode=form_post&provider=apple`;
@@ -177,10 +175,8 @@ export default function RegisterScreen({
   };
 
   const handleInputChange = (field: string, value: string) => {
-    // Para el campo de fecha, asegurarse de que el valor se guarde correctamente
+
     if (field === "birthDate") {
-      // El input de tipo "date" siempre devuelve YYYY-MM-DD, guardarlo tal cual
-      // No hacer ninguna transformación, guardar exactamente como viene del input
       console.log("Fecha recibida del input:", value);
       setFormData((prev) => {
         const newData = { ...prev, [field]: value };
@@ -190,7 +186,7 @@ export default function RegisterScreen({
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
-    // Limpiar errores cuando el usuario empieza a escribir
+
     if (errors[field as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -215,7 +211,7 @@ export default function RegisterScreen({
     return undefined;
   };
 
-  // Función de registro que podemos usar en el onClick
+
   const handleRegister = async () => {
     // Validar campos obligatorios
     const newErrors: typeof errors = {};
@@ -301,13 +297,13 @@ export default function RegisterScreen({
           lastName: formData.lastName,
           nombre: nuevoDueño.nombre,
           email: formData.email,
-          birthDate: formData.birthDate, // Guardar exactamente como está en el estado
+          birthDate: formData.birthDate, 
           phone: formData.phone,
         };
         console.log("Fecha guardada en localStorage:", userData.birthDate);
         localStorage.setItem("user_data", JSON.stringify(userData));
         
-        // También guardar el email por separado para compatibilidad
+        
         if (formData.email) {
           localStorage.setItem("user_email", formData.email);
         }

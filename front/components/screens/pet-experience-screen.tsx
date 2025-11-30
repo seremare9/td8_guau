@@ -26,10 +26,9 @@ export default function PetExperienceScreen({
 
   return (
     <MobileFrame>
-      {/* 🛑 Contenedor Principal (aplica padding y flex-col) 🛑 */}
+    
       <div className="experience-container">
-        {/* Back button */}
-        {/* Usamos una clase para posicionar el botón de regreso */}
+       
         <button onClick={onBack} className="experience-back-button">
           <svg
             className="experience-back-icon"
@@ -45,11 +44,9 @@ export default function PetExperienceScreen({
             />
           </svg>
         </button>
-
-        {/* Title */}
+       
         <h1 className="experience-title">¿Has tenido mascotas antes?</h1>
-
-        {/* Illustration */}
+      
         <div className="experience-illustration-wrapper">
           <div className="experience-illustration-area">
             <Image
@@ -61,7 +58,6 @@ export default function PetExperienceScreen({
           </div>
         </div>
 
-        {/* Options */}
         <div className="experience-options-group">
           <button
             onClick={() => handleSelect("yes")}
@@ -82,7 +78,7 @@ export default function PetExperienceScreen({
                 : "experience-button-unselected"
             }`}
           >
-            No, soy padre primerizo
+            No, soy primerizo
           </button>
         </div>
       </div>

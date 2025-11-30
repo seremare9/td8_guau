@@ -28,34 +28,6 @@
   text-align: center;
 }
 
-.info-icon-wrapper {
-  width: 7rem;
-  height: 7rem;
-  border-radius: 1.5rem; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2.5rem; 
-}
-
-.info-icon-vaccine-bg {
-  background-color: #d1fae5; 
-}
-.info-icon-vaccine-fg {
-  color: #10b981; 
-  width: 2.5rem; 
-  height: 2.5rem; 
-}
-
-.info-icon-medicine-bg {
-  background-color: #fce7f3; 
-}
-.info-icon-medicine-fg {
-  color: #ec4899; 
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
 .info-title {
   font-size: 1.5rem; 
   font-weight: 700; 
@@ -84,7 +56,6 @@
   font-weight: 500;
   font-size: 1rem;
   transition: background-color 0.2s;
-
   background-color: white;
   border: 1px solid #e5e7eb; 
   color: #1f2937; 

@@ -79,16 +79,15 @@ export default function Account({
     loadUserData();
   }, []);
 
-  // Función para formatear la fecha de nacimiento
+  // Formatear la fecha de nacimiento
   const formatBirthDate = (dateString: string): string => {
     if (!dateString) return "";
     try {
-      // Si la fecha está en formato YYYY-MM-DD, parsearla directamente
       if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
         const [year, month, day] = dateString.split('-');
         return `${day}/${month}/${year}`;
       }
-      // Si es otro formato, intentar con Date
+     
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
         return dateString;
@@ -102,14 +101,14 @@ export default function Account({
     }
   };
 
-  // Función para manejar el cambio de la foto de perfil
+  // Cambio de la foto de perfil
   const handleProfileImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        // Importar la función de compresión
+       
         const { compressImage } = await import("@/lib/utils");
-        // Comprimir la imagen antes de convertirla a base64
+        // Comprimir la imagen 
         const imageDataUrl = await compressImage(file, 1920, 1920, 0.8);
         const updatedData = { ...userData, imageURL: imageDataUrl };
         setUserData(updatedData);
@@ -130,12 +129,12 @@ export default function Account({
     }
   };
 
-  // Función para abrir el selector de imagen de perfil
+  // Selector de imagen de perfil
   const handleEditProfileImageClick = () => {
     profileImageInputRef.current?.click();
   };
 
-  // Función para iniciar edición de todos los campos
+  // Iniciar edición de todos los campos
   const handleStartEdit = () => {
     setIsEditing(true);
     setEditValues({
@@ -147,7 +146,7 @@ export default function Account({
     });
   };
 
-  // Función para guardar todos los cambios
+  // Guardar todos los cambios
   const handleSave = () => {
     const updatedData = {
       ...userData,
@@ -164,7 +163,7 @@ export default function Account({
     }
   };
 
-  // Función para cancelar edición
+  // Cancelar edición
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditValues({
@@ -176,25 +175,23 @@ export default function Account({
     });
   };
 
-  // Función para manejar el logout
+  // Cerrar sesión de mi cuenta
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
     }
   };
 
-  // Función para manejar la eliminación de cuenta
+  // Eliminación de cuenta
   const handleDeleteAccount = () => {
     setShowDeleteModal(true);
   };
 
   // Función para confirmar eliminación
   const handleConfirmDelete = () => {
-    // Limpiar todos los datos del usuario
+    // Limpiar todos los datos del usuario, las mascotas y eventos relacionados
     localStorage.removeItem("user_data");
     localStorage.removeItem("user_email");
-    
-    // Limpiar todas las mascotas y eventos relacionados
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -217,7 +214,7 @@ export default function Account({
     }
   };
 
-  // Función para cancelar eliminación
+  // Cancelar eliminación
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
   };
@@ -227,7 +224,7 @@ export default function Account({
   return (
     <MobileFrame>
       <div className="pet-profile-container">
-        {/* Header */}
+
         <div className="pet-profile-header">
           <div className="pet-profile-header-left">
             <button onClick={onBack} className="pet-profile-back-button" aria-label="Volver">
@@ -237,14 +234,12 @@ export default function Account({
           </div>
         </div>
         
-        {/* Line separator */}
         <div className="pet-profile-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Content */}
         <div className="pet-profile-content">
-          {/* User Image */}
+      
           <div className="pet-profile-image-container">
             <div className="pet-profile-image-wrapper">
               <div className="pet-profile-image-circle">
@@ -273,7 +268,7 @@ export default function Account({
                   </div>
                 )}
               </div>
-              {/* Botón de editar foto */}
+         
               <button 
                 className="pet-profile-edit-image-button" 
                 aria-label="Cambiar foto de perfil"
@@ -282,7 +277,7 @@ export default function Account({
                 <Image src={petEditInfoIcon} alt="Cambiar foto" width={38} height={38} />
               </button>
             </div>
-            {/* Input oculto para cambiar la foto de perfil */}
+         
             <input
               type="file"
               ref={profileImageInputRef}
@@ -292,14 +287,12 @@ export default function Account({
             />
           </div>
 
-          {/* User Name */}
           <div className="pet-profile-name-section">
             <div className="pet-profile-name-wrapper">
               <h2 className="pet-profile-name">{displayName}</h2>
             </div>
           </div>
 
-          {/* User Details Section */}
           <div className="pet-profile-section">
             <div className="pet-profile-section-title-wrapper">
               <h3 className="pet-profile-section-title">Información personal</h3>
@@ -432,7 +425,6 @@ export default function Account({
             )}
           </div>
 
-          {/* Account Actions Section */}
           <div className="pet-profile-section" style={{ marginTop: "1.5rem" }}>
             <div className="pet-profile-account-actions">
               <button
@@ -452,7 +444,7 @@ export default function Account({
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Modal de confirmación de eliminación */}
       {showDeleteModal && (
         <div className="pet-profile-modal-overlay" onClick={handleCancelDelete}>
           <div className="pet-profile-modal-content" onClick={(e) => e.stopPropagation()}>

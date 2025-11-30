@@ -1,4 +1,4 @@
-/* contenedor principal */
+
 .login-container {
   z-index: 2;
   display: flex;
@@ -37,7 +37,6 @@
   left: 0;
 }
 
-/* icono superior */
 .login-icon-container {
   border-radius: 100%;
   width: clamp(60px, 18vw, 80px);
@@ -53,7 +52,6 @@
   height: clamp(48px, 14vw, 64px);
 }
 
-/* texto */
 .login-title {
   font-family: "Catamaran", sans-serif;
   font-weight: 700;
@@ -70,7 +68,6 @@
   z-index: 2;
 }
 
-/* inputs */
 .login-inputs {
   width: 100%;
   display: flex;
@@ -89,7 +86,6 @@
   box-shadow: none;
 }
 
-/* ojo (lucide) */
 .login-eye {
   position: absolute;
   right: 12px;
@@ -107,7 +103,6 @@
   color: #6b7280;
 }
 
-/* boton principal */
 .login-button {
   background-color: #2563eb !important;
   color: white !important;
@@ -123,7 +118,6 @@
   background-color: #1c4ebf !important;
 }
 
-/* separador O */
 .login-separator {
   display: flex;
   align-items: center;
@@ -143,7 +137,6 @@
   background-color: #e5e7eb;
 }
 
-/* botones sociales */
 .login-social-buttons {
   display: flex;
   flex-direction: column;
@@ -167,7 +160,6 @@
   box-shadow: none;
 }
 
-/* footer crear cuenta */
 .login-footer {
   color: #6b7280;
   font-size: 14px;

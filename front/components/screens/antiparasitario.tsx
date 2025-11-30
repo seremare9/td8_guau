@@ -264,7 +264,7 @@ export default function Antiparasitario({
     });
   };
 
-  // Función para obtener el email del usuario
+  // Obtener el email del usuario
   const getUserEmail = (): string => {
     try {
       const userDataStr = localStorage.getItem("user_data");
@@ -506,15 +506,11 @@ export default function Antiparasitario({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
       let dateOnly = dateString;
       if (dateString.includes('T')) {
         dateOnly = dateString.split('T')[0];
       }
-      
-      // Si ya está en formato YYYY-MM-DD, usarlo directamente
       const date = new Date(dateOnly + "T00:00:00");
-      // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
       }
@@ -536,7 +532,6 @@ export default function Antiparasitario({
         return new Date().getFullYear();
       }
       const year = date.getFullYear();
-      // Verificar que el año sea válido (entre 1900 y 2100)
       if (year >= 1900 && year <= 2100) {
         return year;
       }

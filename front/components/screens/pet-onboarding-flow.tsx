@@ -25,7 +25,6 @@ interface PetOnboardingFlowProps {
   userType: string;
   userName?: string;
   onBack: () => void;
-  // Propiedad para forzar el paso inicial (0 = Oh Oh!, 1 = Raza)
   initialStep?: number;
   // Propiedad para indicar si viene del menú (para agregar nueva mascota)
   fromMenu?: boolean;
@@ -47,9 +46,9 @@ export default function PetOnboardingFlow({
   userName = "User",
   onBack,
   onFinish,
-  initialStep, // Recibimos la prop aquí
-  fromMenu = false, // Por defecto no viene del menú
-  onOpenMenu, // Prop para abrir el menú
+  initialStep, 
+  fromMenu = false, 
+  onOpenMenu, 
 }: PetOnboardingFlowProps) {
   const defaultInitialStep = userType === "future" ? 0 : 1;
   const [step, setStep] = useState(
@@ -59,30 +58,28 @@ export default function PetOnboardingFlow({
   const [petData, setPetData] = useState({
     breed: "",
     name: "",
-    sex: "", // macho/hembra
-    gender: "", // tamaño: small/medium/large
+    sex: "", 
+    gender: "", 
     weight: "0,0",
     birthday: "",
     imageURL: "",
   });
-  const [selectedMonth, setSelectedMonth] = useState(1); // Enero por defecto
+  const [selectedMonth, setSelectedMonth] = useState(1); 
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedYear, setSelectedYear] = useState(2025);
   const [approximateAge, setApproximateAge] = useState("");
   const [breeds, setBreeds] = useState<string[]>([]);
   const [isLoadingBreeds, setIsLoadingBreeds] = useState(true);
 
-  // Referencia para el input de archivo (NECESARIO PARA EL SELECTOR DE IMAGEN)
+  // Referencia para el input de archivo 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   // Función para manejar la selección de imagen
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        // Importar la función de compresión
+        // Compresión de la imagen
         const { compressImage } = await import("@/lib/utils");
-        // Comprimir la imagen antes de convertirla a base64
         const compressedImage = await compressImage(file, 1920, 1920, 0.8);
         setPetData((prev) => ({ ...prev, imageURL: compressedImage }));
       } catch (error) {
@@ -94,17 +91,14 @@ export default function PetOnboardingFlow({
 
   // Función para calcular el número de días en un mes
   const getDaysInMonth = (month: number, year: number) => {
-    // Meses con 31 días: 1, 3, 5, 7, 8, 10, 12
     if ([1, 3, 5, 7, 8, 10, 12].includes(month)) {
       return 31;
     }
-    // Meses con 30 días: 4, 6, 9, 11
     if ([4, 6, 9, 11].includes(month)) {
       return 30;
     }
-    // Febrero (mes 2)
     if (month === 2) {
-      // Año bisiesto si es divisible por 4, excepto los años divisibles por 100 (a menos que también sean divisibles por 400)
+      // Año bisiesto si es divisible por 4
       const isLeapYear =
         (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
       return isLeapYear ? 29 : 28;
@@ -128,8 +122,7 @@ export default function PetOnboardingFlow({
   ];
 
   // Cargar razas desde breeds.csv
-  // Las razas se ordenan alfabéticamente automáticamente, sin importar
-  // dónde se agreguen en el CSV (al final, al principio, o en cualquier posición)
+  // Las razas se ordenan alfabéticamente automáticamente
   useEffect(() => {
     const loadBreeds = async () => {
       try {
@@ -156,7 +149,7 @@ export default function PetOnboardingFlow({
         const mestizo = mestizoIndex !== -1 ? breedsList[mestizoIndex] : null;
         const otherBreeds = breedsList.filter((_, index) => index !== mestizoIndex);
         
-        // Ordenar el resto alfabéticamente en español
+        // Ordenar el resto alfabéticamente 
         const sortedOtherBreeds = otherBreeds.sort((a, b) => 
           a.localeCompare(b, "es", { sensitivity: "base" })
         );
@@ -169,7 +162,7 @@ export default function PetOnboardingFlow({
         setBreeds(sortedBreeds);
       } catch (error) {
         console.error("Error cargando razas:", error);
-        // Fallback a lista básica si falla la carga (también ordenada alfabéticamente)
+        // Lista básica por si falla la carga del csv
         const fallbackBreedsList = [
           "Akita Inu",
           "Beagle",
@@ -203,7 +196,6 @@ export default function PetOnboardingFlow({
         const mestizo = mestizoIndex !== -1 ? fallbackBreedsList[mestizoIndex] : null;
         const otherFallbackBreeds = fallbackBreedsList.filter((_, index) => index !== mestizoIndex);
         
-        // Ordenar el resto alfabéticamente
         const sortedOtherFallbackBreeds = otherFallbackBreeds.sort((a, b) => 
           a.localeCompare(b, "es", { sensitivity: "base" })
         );
@@ -220,11 +212,7 @@ export default function PetOnboardingFlow({
     };
     loadBreeds();
   }, []);
-  // ============================================
-  // 🔧 CONFIGURACIÓN DE TAMAÑOS DE MASCOTAS
-  // ============================================
-  // Opciones de tamaño con sus rangos de peso y tamaños de ícono
-  // Puedes modificar los rangos de peso y el tamaño de los íconos:
+
   const genders = [
     { label: "Chico", value: "small", weight: "0 - 14kg", iconSize: "w-8 h-8" },
     {
@@ -240,33 +228,25 @@ export default function PetOnboardingFlow({
       iconSize: "w-12 h-12",
     },
   ];
-  // ============================================
+ 
 
   const totalSteps = 5;
   const progress = (step / totalSteps) * 100;
 
-  // ============================================
-  // 🔧 CONFIGURACIÓN DE PESO INICIAL POR TAMAÑO
-  // ============================================
-  // Actualizar peso inicial según el tamaño seleccionado cuando llega al Step 4
-  // Puedes modificar estos valores iniciales según tus necesidades:
-  // - small (Chico): Inicia en 0 kg
-  // - medium (Mediano): Inicia en 15 kg
-  // - large (Grande): Inicia en 26 kg
+  // Peso inicial por tamaño (se puede modificar)
   useEffect(() => {
     if (step === 4 && petData.gender && petData.weight === "0,0") {
       let defaultWeight = "0,0";
       if (petData.gender === "small") {
-        defaultWeight = "0,0"; // Peso inicial para Chico
+        defaultWeight = "0,0"; 
       } else if (petData.gender === "medium") {
-        defaultWeight = "15,0"; // Peso inicial para Mediano
+        defaultWeight = "15,0"; 
       } else if (petData.gender === "large") {
-        defaultWeight = "26,0"; // Peso inicial para Grande
+        defaultWeight = "26,0"; 
       }
       setPetData((prev) => ({ ...prev, weight: defaultWeight }));
     }
   }, [step]);
-  // ============================================
 
   // Ajustar el día seleccionado si excede el número de días del mes
   useEffect(() => {
@@ -291,29 +271,15 @@ export default function PetOnboardingFlow({
     }
   };
 
-  // Empty state screen (Oh Oh!)
+  // Pantalla que aparece cuando no hay perros registrados
   if (step === 0) {
     return (
       <MobileFrame>
         <div className="empty-state-container">
-          {/* Contenedor del encabezado con el padding de HOME */}
-          {/* Usamos 'empty-state-header-wrapper' para dar el padding de la Home y establecer la posición relativa */}
           <div className="empty-state-header-wrapper">
-            {/* Botón de regreso, posicionado de forma absoluta sobre el HomeHeader */}
-            {/* <button
-              onClick={onBack}
-              className="empty-state-back-button"
-              aria-label="Volver atrás"
-            >
-              <ArrowLeft className="icon-arrow" />
-            </button> */}
-            {/* Componente de Encabezado de la Home */}
             <HomeHeader userName={userName} onOpenMenu={onOpenMenu} />
           </div>
-
-          {/* Contenido Central */}
           <div className="empty-state-content">
-            {/* Imagen */}
             <div className="empty-state-image-wrapper">
               <Image
                 src={perritos}
@@ -325,17 +291,15 @@ export default function PetOnboardingFlow({
               />
             </div>
 
-            {/* Texto */}
             <h2 className="empty-state-title">Oh Oh!</h2>
             <p className="empty-state-text">
               Parece que no tenés mascotas registradas hasta el momento
             </p>
           </div>
 
-          {/* Botón Inferior */}
           <div className="empty-state-button-wrapper">
             <Button
-              onClick={() => setStep(1)} // Al hacer clic, avanza al paso 1 (Registro de Raza)
+              onClick={() => setStep(1)} 
               className="empty-state-fixed-button"
               aria-label="Toca para agregar a tu mascota"
             >
@@ -350,9 +314,8 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 1: Breed selection
+  // Paso 1: Selección de raza
   if (step === 1) {
-    // Filtrar razas según la búsqueda
     const filteredBreedsList = breeds.filter((breed) =>
       breed.toLowerCase().includes(searchBreed.toLowerCase())
     );
@@ -372,7 +335,6 @@ export default function PetOnboardingFlow({
     return (
       <MobileFrame>
         <div className="breed-container">
-          {/* Header with progress */}
           <div className="breed-header">
             <div className="breed-header-top">
               <button
@@ -401,7 +363,7 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          {/* Breed list */}
+          {/* Lista de razas */}
           <div className="breed-list">
             {isLoadingBreeds ? (
               <p className="breed-no-results">Cargando razas...</p>
@@ -424,7 +386,6 @@ export default function PetOnboardingFlow({
             )}
           </div>
 
-          {/* Search bar and button */}
           <div className="breed-search-section">
             <div className="breed-search-wrapper">
               <Search className="breed-search-icon" />
@@ -452,12 +413,12 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 2: Name input
+  // Paso 2: Nombre 
   if (step === 2) {
     return (
       <MobileFrame>
         <div className="name-container">
-          {/* Header with progress */}
+         
           <div className="name-header">
             <div className="page-header-top">
               <button
@@ -486,45 +447,39 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          {/* Dog image placeholder */}
-          {/* Content: Image Selector (PARTE MODIFICADA) */}
           <div className="name-dog-image-wrapper">
-            {/* 1. Input de archivo oculto: Esta línea hace que funcione el selector del teléfono/computadora */}
+           
             <input
               type="file"
-              ref={fileInputRef} // <-- Referencia clave
+              ref={fileInputRef} 
               accept="image/*"
-              onChange={handleImageChange} // <-- Llama a la función que guarda la imagen
+              onChange={handleImageChange} 
               style={{ display: "none" }}
             />
 
-            {/* 2. Contenedor de la imagen/placeholder */}
             <div className="name-dog-image-container">
               <div className="name-dog-image-circle">
                 {petData.imageURL ? (
-                  // Muestra la imagen seleccionada
+                
                   <Image
-                    src={petData.imageURL} // <-- Fuente de la imagen (Base64)
+                    src={petData.imageURL} 
                     alt="Foto de la mascota"
                     width={200}
                     height={200}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  // Muestra el placeholder (perro por defecto)
+                  // Imagen por defecto
                   <Image
                     src={perro}
                     alt="Perro de ejemplo"
                     width={200}
                     height={200}
-                    // ... estilos
                   />
                 )}
               </div>
 
-              {/* 3. Botón que se toca para abrir el selector de archivos */}
               <button
-                // Al hacer clic, activa el input de archivo oculto
                 onClick={() => fileInputRef.current?.click()}
                 className="name-add-image-button"
                 aria-label="Seleccionar foto de tu mascota"
@@ -543,12 +498,11 @@ export default function PetOnboardingFlow({
               {petData.imageURL ? "Cambiar Foto" : "Agregar Foto"}
             </p>
           </div>
-          {/* FIN PARTE MODIFICADA */}
 
           <div className="name-content">
             <label className="name-label">¿Cómo se llama tu mascota?</label>
             <Input
-              placeholder="Maxi"
+              placeholder="Nombre"
               value={petData.name}
               onChange={(e) => setPetData({ ...petData, name: e.target.value })}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg mb-6"
@@ -597,12 +551,12 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 3: Gender/Size selection
+  // Paso 3: Selección de tamaño
   if (step === 3) {
     return (
       <MobileFrame>
         <div className="page-container">
-          {/* Header with progress */}
+       
           <div className="page-header">
             <div className="page-header-top">
               <button
@@ -631,11 +585,10 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          {/* Dog image placeholder */}
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
+                src={petData.imageURL || perro} 
                 alt="Dog"
                 width={192}
                 height={192}
@@ -666,13 +619,13 @@ export default function PetOnboardingFlow({
                   }`}
                 >
                   <div className="size-button-content">
-                    {/* Círculo con ícono de perro */}
+                
                     <div className="size-button-icon-circle">
                       <Dog className={`text-gray-500 ${gender.iconSize}`} />
                     </div>
-                    {/* Título */}
+               
                     <span className="size-button-label">{gender.label}</span>
-                    {/* Rango de peso */}
+               
                     <span className="size-button-weight">{gender.weight}</span>
                   </div>
                 </button>
@@ -694,16 +647,9 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 4: Weight input
+  // Paso 4: Peso
   if (step === 4) {
-    // ============================================
-    // 🔧 CONFIGURACIÓN DE RANGOS DE PESO POR TAMAÑO
-    // ============================================
-    // Aquí se definen los rangos mínimos y máximos del slider según el tamaño seleccionado.
-    // Puedes modificar estos valores según tus necesidades:
-    // - small (Chico): 0 - 14 kg
-    // - medium (Mediano): 15 - 25 kg
-    // - large (Grande): 26 - 50 kg
+ 
     let minWeight = 0;
     let maxWeight = 50;
 
@@ -717,12 +663,12 @@ export default function PetOnboardingFlow({
       minWeight = 26;
       maxWeight = 50;
     }
-    // ============================================
+   
 
     return (
       <MobileFrame>
         <div className="page-container" style={{ paddingBottom: "1rem" }}>
-          {/* Header with progress */}
+        
           <div className="page-header" style={{ marginBottom: "1rem" }}>
             <div className="page-header-top">
               <button
@@ -751,11 +697,10 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          {/* Dog image placeholder */}
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
+                src={petData.imageURL || perro} 
                 alt="Dog"
                 width={192}
                 height={192}
@@ -769,7 +714,6 @@ export default function PetOnboardingFlow({
               ¿Cuál es el peso de <strong>{petData.name || "Maxi"}</strong>?
             </label>
 
-            {/* Recuadro gris con sombra para el ajuste de peso */}
             <div className="weight-container">
               <div className="weight-display">
                 <div className="weight-value">{petData.weight}</div>
@@ -809,12 +753,12 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 5: Birthday input
+  // Paso 5: Cumpleaños
   if (step === 5) {
     return (
       <MobileFrame>
         <div className="page-container">
-          {/* Header with progress */}
+         
           <div className="page-header">
             <div className="page-header-top">
               <button
@@ -840,11 +784,11 @@ export default function PetOnboardingFlow({
             </div>
           </div>
 
-          {/* Dog image placeholder */}
+        
           <div className="dog-image-wrapper">
             <div className="dog-image-circle">
               <Image
-                src={petData.imageURL || perro} // <-- CAMBIO CLAVE
+                src={petData.imageURL || perro} 
                 alt="Dog"
                 width={192}
                 height={192}
@@ -908,7 +852,7 @@ export default function PetOnboardingFlow({
               </div>
             </div>
 
-            {/* Selected Date Display */}
+           
             <div className="birthday-selected-date-container">
               <label className="birthday-selected-date-label">
                 Fecha seleccionada
@@ -922,7 +866,7 @@ export default function PetOnboardingFlow({
               </div>
             </div>
 
-            {/* Clear Selection */}
+          
             <button
               onClick={() => {
                 setSelectedMonth(1);
@@ -970,11 +914,11 @@ export default function PetOnboardingFlow({
     );
   }
 
-  // Step 6: Approximate age (when user doesn't know birthday)
+  // Paso 6: Edad aproximada (si no se sabe el cumpleaños)
   return (
     <MobileFrame>
       <div className="page-container">
-        {/* Header with progress */}
+       
         <div className="page-header">
           <div className="page-header-top">
             <button onClick={() => setStep(5)} className="page-back-button">
@@ -997,11 +941,11 @@ export default function PetOnboardingFlow({
           </div>
         </div>
 
-        {/* Dog image placeholder */}
+        
         <div className="dog-image-wrapper">
           <div className="dog-image-circle">
             <Image
-              src={petData.imageURL || perro} // <-- CAMBIO CLAVE
+              src={petData.imageURL || perro} 
               alt="Dog"
               width={192}
               height={192}

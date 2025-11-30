@@ -1,11 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap&subset=latin');
 
 body {
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Contenedor principal */
 .menu-container {
   background-color: #FAFAFA;
   min-height: 100vh;
@@ -17,7 +15,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Animación de entrada (deslizar desde la derecha) */
 .menu-slide-in {
   animation: slideInFromRight 0.3s ease-out;
 }
@@ -33,7 +30,6 @@ body {
   }
 }
 
-/* Animación de salida (deslizar hacia la derecha) */
 .menu-slide-out {
   animation: slideOutToRight 0.3s ease-in;
 }
@@ -49,7 +45,6 @@ body {
   }
 }
 
-/* Header */
 .menu-header {
   display: flex;
   justify-content: space-between;
@@ -78,18 +73,6 @@ body {
   overflow: hidden;
 }
 
-/* .menu-dog-icon img {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(94%) saturate(1895%) hue-rotate(347deg) brightness(98%) contrast(91%);
-} */
-
-/* .menu-greeting {
-  font-family: "Noto Sans", sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 1rem;
-  color: #1c1c1e;
-} */
 .menu-greeting {
     display: flex;
     align-items: center;
@@ -134,11 +117,6 @@ body {
 }
 
 .menu-section-title {
-  /* font-family: "Catamaran", sans-serif;
-  font-weight: 700;
-  font-size: 20px;
-  color: #1c1c1e;
-  margin-bottom: 16px; */
   font-family: "Noto Sans", sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
@@ -220,7 +198,6 @@ body {
   color: #808B9A;
 }
 
-/* Menu Items */
 .menu-items {
   display: flex;
   flex-direction: column;
@@ -261,14 +238,12 @@ body {
   flex: 1;
 }
 
-/* Separator */
 .menu-separator {
   height: 1px;
   background-color: #e5e7eb;
   margin: 16px 0;
 }
 
-/* Pet Item Content */
 .menu-pet-item-content {
   display: flex;
   flex-direction: column;
@@ -306,7 +281,6 @@ body {
   color: #ffffff;
 }
 
-/* Delete Modal */
 .menu-delete-modal-overlay {
   position: fixed;
   top: 0;

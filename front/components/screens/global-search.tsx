@@ -108,7 +108,7 @@ export default function GlobalSearch({
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key) {
-        // Buscar eventos con formato: tipo_petName (ej: vaccines_Maxi, higiene_Maxi)
+        // Buscar eventos con formato: tipo_petName 
         for (const eventTypeInfo of eventTypes) {
           if (key.startsWith(`${eventTypeInfo.key}_`)) {
             const petName = key.replace(`${eventTypeInfo.key}_`, "");
@@ -151,7 +151,6 @@ export default function GlobalSearch({
       }
     }
 
-    // Ordenar resultados: mascotas primero, luego eventos
     searchResults.sort((a, b) => {
       if (a.type === "pet" && b.type === "event") return -1;
       if (a.type === "event" && b.type === "pet") return 1;
@@ -262,7 +261,7 @@ export default function GlobalSearch({
                                 );
                               }
                             } catch (e) {
-                              // Ignorar errores
+                             
                             }
                           }
                           return (

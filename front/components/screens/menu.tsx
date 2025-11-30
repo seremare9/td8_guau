@@ -231,12 +231,10 @@ export default function MenuScreen({
         }
       }
 
-      // Siempre incluir la mascota actual si existe
       if (petData) {
         petsMap.set(petData.name, petData);
       }
 
-      // Obtener el orden de las mascotas desde localStorage (igual que home-screen)
       const petsOrderKey = "pets_order";
       let petsOrder: string[] = [];
       const petsOrderStr = localStorage.getItem(petsOrderKey);
@@ -248,13 +246,11 @@ export default function MenuScreen({
         }
       }
 
-      // Si no hay orden guardado, crear uno basado en las mascotas existentes
       if (petsOrder.length === 0) {
         petsOrder = Array.from(petsMap.keys());
         localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
       }
 
-      // Agregar nuevas mascotas al final del orden si no están en la lista
       const allPetNames = Array.from(petsMap.keys());
       allPetNames.forEach((petName) => {
         if (!petsOrder.includes(petName)) {
@@ -262,13 +258,8 @@ export default function MenuScreen({
         }
       });
 
-      // Filtrar el orden para incluir solo mascotas que existen
       petsOrder = petsOrder.filter((petName) => petsMap.has(petName));
-
-      // Guardar el orden actualizado
       localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
-
-      // Ordenar las mascotas según el orden guardado
       const allPetsArray = petsOrder
         .map((petName) => {
           const pet = petsMap.get(petName);
@@ -298,22 +289,11 @@ export default function MenuScreen({
         };
       }>;
 
-      // Si no hay mascotas, agregar la actual como default
-      if (allPetsArray.length === 0 && petData) {
-        allPetsArray.push({
-          id: 1,
-          name: petData.name || "Maxi",
-          image: petData.imageURL || perro,
-          fullData: petData,
-        });
-      }
-
       setPets(allPetsArray);
     };
 
     loadAllPets();
 
-    // Escuchar cambios en localStorage y eventos de eliminación
     const handleStorageChange = () => {
       loadAllPets();
     };
@@ -336,7 +316,7 @@ export default function MenuScreen({
   return (
     <MobileFrame>
       <div className={`menu-container ${isClosing ? "menu-slide-out" : (skipAnimation ? "" : "menu-slide-in")}`}>
-        {/* Header */}
+    
         <div className="menu-header">
           <div className="menu-header-left">
             <div className="menu-dog-icon">
@@ -361,10 +341,9 @@ export default function MenuScreen({
           <button
             onClick={() => {
               setIsClosing(true);
-              // Esperar a que termine la animación antes de cerrar
               setTimeout(() => {
                 onClose();
-              }, 300); // Duración de la animación (0.3s)
+              }, 300); 
             }}
             className="menu-close-button"
             aria-label="Cerrar menú"
@@ -372,12 +351,11 @@ export default function MenuScreen({
             <X className="menu-close-icon" />
           </button>
         </div>
-        {/* Line separator */}
+      
         <div className="home-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Mis mascotas */}
         <div className="menu-section">
           <h2 className="menu-section-title">Mis mascotas</h2>
           <div className="menu-pets-container">
@@ -402,7 +380,6 @@ export default function MenuScreen({
                     <div className={`menu-pet-circle ${isSelected ? "menu-pet-circle-selected" : "menu-pet-circle-unselected"}`}>
                       {typeof pet.image === "string" &&
                       pet.image.startsWith("data:") ? (
-                        // Si es base64, usar img normal
                         <img
                           src={pet.image}
                           alt={pet.name}
@@ -411,7 +388,7 @@ export default function MenuScreen({
                           className="menu-pet-image"
                         />
                       ) : (
-                        // Si es una URL normal, usar Image de Next.js
+                      
                         <Image
                           src={pet.image}
                           alt={pet.name}
@@ -439,7 +416,7 @@ export default function MenuScreen({
                 </div>
               );
             })}
-            {/* Solo mostrar opción "Nueva" si hay menos de 3 mascotas */}
+      
             {pets.length < 3 && (
               <div
                 className="menu-pet-item"
@@ -454,12 +431,11 @@ export default function MenuScreen({
             )}
           </div>
         </div>
-        {/* Line separator */}
+  
         <div className="home-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Menu Items */}
         <div className="menu-items">
           <button className="menu-item">
             <ShoppingBag className="menu-item-icon" />
@@ -478,13 +454,11 @@ export default function MenuScreen({
             <span className="menu-item-text">Preguntas frecuentes</span>
           </button>
         </div>
-
-        {/* Line separator */}
+      
         <div className="home-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
-
-        {/* Bottom Menu Items */}
+      
         <div className="menu-items">
           <button className="menu-item" onClick={onOpenAccount}>
             <User className="menu-item-icon" />
@@ -497,7 +471,6 @@ export default function MenuScreen({
         </div>
       </div>
 
-      {/* Modal de confirmación para eliminar mascota */}
       {showDeleteModal && petToDelete && (
         <div
           className="menu-delete-modal-overlay"

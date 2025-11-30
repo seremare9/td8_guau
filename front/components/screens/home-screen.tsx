@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import MobileFrame from "./mobile-frame";
-// 1. Importar StaticImageData
 import Image, { StaticImageData } from "next/image";
 import imgIcon from "../images/img-icon.svg";
 import perro from "../images/default-pet-pic.png";
@@ -34,7 +33,6 @@ import { api } from "@/lib/api";
 import { mapAnimalToFrontend, mapEventoToFrontend } from "@/lib/api-helpers";
 import "../styles/home-screen-styles.css";
 
-// Esta interfaz ya estaba correcta en tu archivo
 interface HomeEvent {
   id: string;
   tipo: string;
@@ -141,13 +139,12 @@ export const HomeHeader = ({
         </div>
       </div>
 
-      {/* Line separator */}
       <div className="home-header-line">
         <Image src={lineSvg} alt="Line separator" width={336} height={2} />
       </div>
     </>
   );
-}; // <- SE AGREGÓ ESTA LLAVE DE CIERRE
+}; 
 
 interface HomeScreenProps {
   userName?: string;
@@ -189,7 +186,7 @@ export default function HomeScreen({
   const [allPets, setAllPets] = useState<
     Array<{
       id: number;
-      id_animal?: number; // ID real de la base de datos
+      id_animal?: number; 
       name: string;
       breed: string;
       image: string | StaticImageData;
@@ -204,7 +201,7 @@ export default function HomeScreen({
         approximateAge?: string;
         photos?: string[];
         appearance?: string;
-        id_animal?: number; // ID real de la base de datos
+        id_animal?: number; 
       };
     }>
   >([]);
@@ -245,7 +242,7 @@ export default function HomeScreen({
             const mapped = mapAnimalToFrontend(animal);
             return {
               ...mapped,
-              id: animal.id_animal + 10000, // Sumar 10000 para distinguir IDs reales
+              id: animal.id_animal + 10000, 
               image: mapped.image || perro,
             };
           });
@@ -311,7 +308,6 @@ export default function HomeScreen({
         }
       >();
 
-      // Buscar todas las claves de mascotas en localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith("pet_data_")) {
@@ -331,12 +327,10 @@ export default function HomeScreen({
         }
       }
 
-      // Siempre incluir la mascota actual si existe
       if (petData) {
         petsMap.set(petData.name, petData);
       }
 
-      // Obtener el orden de las mascotas desde localStorage
       const petsOrderKey = "pets_order";
       let petsOrder: string[] = [];
       const petsOrderStr = localStorage.getItem(petsOrderKey);
@@ -348,13 +342,11 @@ export default function HomeScreen({
         }
       }
 
-      // Si no hay orden guardado, crear uno basado en las mascotas existentes
       if (petsOrder.length === 0) {
         petsOrder = Array.from(petsMap.keys());
         localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
       }
 
-      // Agregar nuevas mascotas al final del orden si no están en la lista
       const allPetNames = Array.from(petsMap.keys());
       allPetNames.forEach((petName) => {
         if (!petsOrder.includes(petName)) {
@@ -362,13 +354,9 @@ export default function HomeScreen({
         }
       });
 
-      // Filtrar el orden para incluir solo mascotas que existen
       petsOrder = petsOrder.filter((petName) => petsMap.has(petName));
-
-      // Guardar el orden actualizado
       localStorage.setItem(petsOrderKey, JSON.stringify(petsOrder));
 
-      // Ordenar las mascotas según el orden guardado
       const allPetsArray = petsOrder
         .map((petName) => {
           const pet = petsMap.get(petName);
@@ -400,23 +388,10 @@ export default function HomeScreen({
         };
       }>;
 
-      // Si no hay mascotas, agregar la actual como default
-      if (allPetsArray.length === 0 && petData) {
-        allPetsArray.push({
-          id: 1,
-          name: petData.name || "Maxi",
-          breed: petData.breed || "Border Collie",
-          image: petData.imageURL || perro,
-          fullData: petData,
-        });
-      }
-
       setAllPets(allPetsArray);
     };
 
     loadAllPets();
-
-    // Escuchar cambios en localStorage y eventos de eliminación
     const handleStorageChange = () => {
       loadAllPets();
     };
@@ -436,25 +411,16 @@ export default function HomeScreen({
     };
   }, [petData]);
 
-  // Estado para rastrear qué mascota está visible
   const [activePetIndex, setActivePetIndex] = useState(0);
   const [activeEventIndex, setActiveEventIndex] = useState(0);
   const [activeInfoIndex, setActiveInfoIndex] = useState(0);
   const eventsScrollRef = useRef<HTMLDivElement>(null);
   const infoScrollRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0); // 0 = completamente en una card, 1 = completamente en la siguiente
+  const [scrollProgress, setScrollProgress] = useState(0); 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Usar todas las mascotas para el swipe
-  const pets = allPets.length > 0 ? allPets : [
-    {
-      id: 1,
-      name: "Maxi",
-      breed: "Border Collie",
-      image: perro,
-      fullData: undefined,
-    },
-  ];
+  // No mostrar mascota por defecto - solo mostrar las mascotas que realmente existen
+  const pets = allPets;
 
   // Efecto para actualizar el índice activo cuando cambia el scroll de pets
   useEffect(() => {
@@ -464,31 +430,28 @@ export default function HomeScreen({
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
       const containerWidth = container.clientWidth;
-      // Cada card ocupa aproximadamente el ancho del contenedor (con gap)
       const cardWidth = containerWidth;
-      const gap = 12; // 0.75rem = 12px
+      const gap = 12; 
       const totalCardWidth = cardWidth + gap;
       
       // Calcular el índice basado en la posición de scroll
       const exactIndex = scrollLeft / totalCardWidth;
       let newIndex = Math.round(exactIndex);
-      
       // Asegurar que el índice esté dentro del rango válido
       newIndex = Math.max(0, Math.min(newIndex, pets.length - 1));
-      
       // Calcular el progreso del scroll entre cards (0 = en una card, 1 = en la siguiente)
-      const progress = Math.abs(exactIndex - newIndex) * 2; // Multiplicar por 2 para que llegue a 1 más rápido
+      const progress = Math.abs(exactIndex - newIndex) * 2; 
       const clampedProgress = Math.min(1, progress);
       
       setScrollProgress(clampedProgress);
-      
+  
       if (newIndex !== activePetIndex) {
         setActivePetIndex(newIndex);
       }
     };
 
     container.addEventListener('scroll', handleScroll);
-    // Inicializar el índice activo al cargar
+
     handleScroll();
     
     return () => container.removeEventListener('scroll', handleScroll);
@@ -502,15 +465,10 @@ export default function HomeScreen({
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
       const containerWidth = container.clientWidth;
-      // Cada card tiene width: calc(100% - 1.5rem) = containerWidth - 24px
-      // margin-right: 0.75rem = 12px
-      // scroll-padding: 1.5rem = 24px (afecta el scrollLeft inicial)
-      const cardWidth = containerWidth - 24; // Ancho real de la card
-      const gap = 12; // margin-right
-      const scrollPadding = 24; // scroll-padding
+      const cardWidth = containerWidth - 24; 
+      const gap = 12; 
+      const scrollPadding = 24; 
       const totalCardWidth = cardWidth + gap;
-      
-      // Ajustar scrollLeft considerando el scroll-padding
       const adjustedScrollLeft = Math.max(0, scrollLeft - scrollPadding);
       const exactIndex = adjustedScrollLeft / totalCardWidth;
       const roundedIndex = Math.round(exactIndex);
@@ -522,26 +480,28 @@ export default function HomeScreen({
     };
 
     container.addEventListener("scroll", handleScroll);
-    handleScroll(); // Llamar una vez para establecer el índice inicial
+    handleScroll(); 
 
     return () => {
       container.removeEventListener("scroll", handleScroll);
     };
   }, [events.length, activeEventIndex]);
 
-  // Cargar eventos de salud - de la mascota visible actualmente
+  // Cargar eventos de salud de la mascota visible actualmente
   useEffect(() => {
     const loadEvents = async () => {
       const allEvents: HomeEvent[] = [];
 
       // Obtener la mascota que está visible actualmente
+      // Verificar que haya mascotas antes de acceder
+      if (pets.length === 0) return;
+      
       const activePet = pets[activePetIndex];
       
       if (activePet && activePet.fullData) {
         const pet = { name: activePet.fullData.name };
         
         // Intentar cargar eventos desde la API si tenemos el ID del animal
-        // Buscar el id_animal real en fullData o usar el id si es mayor a 10000
         const petId = activePet.fullData?.id_animal || 
                      (activePet.id && activePet.id > 10000 ? activePet.id - 10000 : null);
 
@@ -560,7 +520,7 @@ export default function HomeScreen({
 
         // Siempre cargar desde localStorage también para incluir eventos nuevos creados localmente
         // Esto asegura que los eventos creados desde las pantallas de salud o el calendario se muestren
-        // Cargar vacunas
+        // Vacunas
           const vaccinesKey = `vaccines_${pet.name}`;
           const vaccinesStr = localStorage.getItem(vaccinesKey);
           if (vaccinesStr) {
@@ -582,7 +542,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar higiene
+          // Higiene
           const higieneKey = `higiene_${pet.name}`;
           const higieneStr = localStorage.getItem(higieneKey);
           if (higieneStr) {
@@ -604,7 +564,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar medicina
+          // Medicina
           const medicinaKey = `medicina_${pet.name}`;
           const medicinaStr = localStorage.getItem(medicinaKey);
           if (medicinaStr) {
@@ -626,7 +586,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar antiparasitario
+          // Aantiparasitario
           const antiparasitarioKey = `antiparasitario_${pet.name}`;
           const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
           if (antiparasitarioStr) {
@@ -648,7 +608,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar veterinario
+          // Veterinario
           const veterinarioKey = `veterinario_${pet.name}`;
           const veterinarioStr = localStorage.getItem(veterinarioKey);
           if (veterinarioStr) {
@@ -670,7 +630,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar otro
+          // Otro
           const otroKey = `otro_${pet.name}`;
           const otroStr = localStorage.getItem(otroKey);
           if (otroStr) {
@@ -692,7 +652,7 @@ export default function HomeScreen({
             }
           }
 
-          // Cargar otros eventos generales
+          // Otros eventos generales
           const eventsKey = `events_${pet.name}`;
           const eventsStr = localStorage.getItem(eventsKey);
           if (eventsStr) {
@@ -715,13 +675,11 @@ export default function HomeScreen({
           }
       }
 
-      // Deduplicar eventos (pueden estar tanto en la API como en localStorage)
+      // Filtrar eventos duplicados (pueden estar tanto en la API como en localStorage)
       const uniqueEvents = allEvents.filter((event, index, self) => {
-        // Si tiene ID, usar ID para deduplicar
         if (event.id) {
           return index === self.findIndex((e) => e.id === event.id);
         }
-        // Si no tiene ID, usar combinación de fecha, tipo y nombre de mascota
         return index === self.findIndex((e) => 
           e.fecha === event.fecha && 
           e.tipo === event.tipo && 
@@ -730,14 +688,11 @@ export default function HomeScreen({
         );
       });
 
-      // Filtrar solo eventos pendientes (no aplicados y con fecha futura o de hoy)
+      // Filtrar solo eventos pendientes 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-
       const isPending = (event: HomeEvent): boolean => {
-        // Si el evento está aplicado, no es pendiente
         if (event.esAplicada) return false;
-        
         // Verificar si la fecha es hoy o futura
         try {
           let dateOnly = event.fecha;
@@ -895,6 +850,9 @@ export default function HomeScreen({
 
   // Función para determinar si la mascota activa es cachorro (menor a 1 año)
   const isPuppy = useMemo(() => {
+    // Verificar que haya mascotas antes de acceder
+    if (pets.length === 0) return false;
+    
     const activePet = pets[activePetIndex];
     if (!activePet?.fullData) return false;
 
@@ -903,10 +861,9 @@ export default function HomeScreen({
     // Si tiene fecha de cumpleaños, calcular la edad
     if (petData.birthday) {
       try {
-        // Formato esperado: "15 de Enero de 2025" o formato ISO "2025-01-15"
         let birthdayDate: Date | null = null;
 
-        // Intentar parsear formato "15 de Enero de 2025"
+      // Formato
         const birthdayMatch = petData.birthday.match(/(\d+)\s+de\s+(\w+)\s+de\s+(\d+)/);
         if (birthdayMatch) {
           const day = parseInt(birthdayMatch[1]);
@@ -924,7 +881,6 @@ export default function HomeScreen({
             birthdayDate = new Date(year, month, day);
           }
         } else {
-          // Intentar parsear como fecha ISO
           birthdayDate = new Date(petData.birthday);
         }
 
@@ -941,7 +897,6 @@ export default function HomeScreen({
             months = 11;
           }
           
-          // Es cachorro si tiene menos de 1 año
           return years < 1;
         }
       } catch (e) {
@@ -949,23 +904,19 @@ export default function HomeScreen({
       }
     }
 
-    // Si tiene edad aproximada, intentar parsear
     if (petData.approximateAge) {
       const ageStr = petData.approximateAge.toLowerCase();
       
-      // Buscar patrones como "X meses", "X mes", "menos de 1 año", etc.
       const mesesMatch = ageStr.match(/(\d+)\s*mes(es)?/);
       if (mesesMatch) {
         const meses = parseInt(mesesMatch[1]);
         return meses < 12;
       }
       
-      // Buscar "menos de 1 año" o similar
       if (ageStr.includes("menos de 1 año") || ageStr.includes("menos de un año")) {
         return true;
       }
       
-      // Buscar "X año" o "X años" y verificar si es menor a 1
       const añosMatch = ageStr.match(/(\d+)\s*año(s)?/);
       if (añosMatch) {
         const años = parseInt(añosMatch[1]);
@@ -990,16 +941,13 @@ export default function HomeScreen({
     if (isNewUserWithoutExperience) {
       applicableCardIds.push(...[2, 3, 4, 8]);
     } else {
-      // Si el usuario SÍ tiene experiencia, mostrar la card 1
       applicableCardIds.push(...[1]);
     }
     
-    // Si la mascota es cachorro (menor a 1 año)
     if (isPuppy) {
       applicableCardIds.push(...[6]);
     }
     
-    // Si el usuario tiene 2 o más mascotas
     if (allPets.length >= 2) {
       applicableCardIds.push(...[9]);
     }
@@ -1007,7 +955,7 @@ export default function HomeScreen({
     // Si hay cards aplicables, filtrar y mostrar solo esas
     // Si no hay condiciones que aplicar, mostrar todas las cards
     if (applicableCardIds.length > 0) {
-      // Eliminar duplicados usando Set
+      // Eliminar duplicados 
       const uniqueCardIds = Array.from(new Set(applicableCardIds));
       return allUsefulInfo.filter(info => uniqueCardIds.includes(info.id));
     }
@@ -1024,15 +972,10 @@ export default function HomeScreen({
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
       const containerWidth = container.clientWidth;
-      // Cada card tiene width: calc(100% - 1.5rem) = containerWidth - 24px
-      // margin-right: 0.75rem = 12px
-      // scroll-padding: 1.5rem = 24px (afecta el scrollLeft inicial)
-      const cardWidth = containerWidth - 24; // Ancho real de la card
-      const gap = 12; // margin-right
-      const scrollPadding = 24; // scroll-padding
+      const cardWidth = containerWidth - 24; 
+      const gap = 12; 
+      const scrollPadding = 24; 
       const totalCardWidth = cardWidth + gap;
-      
-      // Ajustar scrollLeft considerando el scroll-padding
       const adjustedScrollLeft = Math.max(0, scrollLeft - scrollPadding);
       const exactIndex = adjustedScrollLeft / totalCardWidth;
       const roundedIndex = Math.round(exactIndex);
@@ -1044,7 +987,7 @@ export default function HomeScreen({
     };
 
     container.addEventListener("scroll", handleScroll);
-    handleScroll(); // Llamar una vez para establecer el índice inicial
+    handleScroll(); 
 
     return () => {
       container.removeEventListener("scroll", handleScroll);
@@ -1065,32 +1008,41 @@ export default function HomeScreen({
           </div>
           <div className="home-pets-container">
             <div className="home-pets-scroll-container" ref={scrollContainerRef}>
-              {pets.map((pet, index) => {
-                // Calcular opacidad y z-index basada en la distancia del índice activo y el progreso del scroll
+              {pets.length === 0 ? (
+                <div style={{ 
+                  padding: '2rem', 
+                  textAlign: 'center', 
+                  color: '#6B7280',
+                  fontSize: '14px',
+                  width: '100%'
+                }}>
+                  No hay mascotas registradas. Agregá una desde el menú.
+                </div>
+              ) : (
+                pets.map((pet, index) => {
                 const distance = index - activePetIndex;
                 let opacity = 1;
                 let zIndex = 1;
                 let scale = 1;
                 let isBehind = false;
                 
-                // Colores según el índice de la mascota
                 const petColors = ["#EE7232", "#F3B38F", "#FFC542"];
                 const petColorIndex = index % petColors.length;
                 const petColor = petColors[petColorIndex];
                 
                 if (distance === 0) {
-                  // Card activa: opacidad completa, z-index alto
+                  // Card activa
                   opacity = 1;
                   zIndex = 10;
                   scale = 1;
                 } else if (distance === 1) {
-                  // Card siguiente (derecha): se asoma parcialmente
+                  // Card siguiente (derecha): se asoma
                   opacity = 1;
                   zIndex = 5;
                   scale = 1;
                   isBehind = false;
                 } else if (distance === -1) {
-                  // Card anterior (izquierda): oculta o muy atenuada
+                  // Card anterior (izquierda): oculta
                   opacity = 0.3;
                   zIndex = 1;
                   scale = 1;
@@ -1169,10 +1121,11 @@ export default function HomeScreen({
                   <div className="home-pet-pattern"></div>
                 </div>
                 );
-              })}
+              })
+              )}
             </div>
             <div className="home-pagination">
-              {pets.map((_, index) => (
+              {pets.length > 0 && pets.map((_, index) => (
                 <div
                   key={index}
                   className={`home-pagination-dot ${
@@ -1241,7 +1194,6 @@ export default function HomeScreen({
                   }
                 };
 
-                // Esta función ya estaba correcta en tu archivo
                 const getEventTypeName = (event: HomeEvent): string => {
                   if (event.eventType === "vacuna") {
                     const typeMap: { [key: string]: string } = {
@@ -1259,15 +1211,17 @@ export default function HomeScreen({
                   return event.tipo;
                 };
 
-                // 2. Obtener la imagen de la mascota visible actualmente
+                // Obtener la imagen de la mascota visible actualmente
                 const getPetImage = (
                   petName: string
                 ): string | StaticImageData => {
-                  const activePet = pets[activePetIndex];
-                  if (activePet && activePet.fullData && activePet.fullData.name === petName) {
-                    return activePet.fullData.imageURL || perro;
+                  // Verificar que haya mascotas antes de acceder
+                  if (pets.length > 0 && activePetIndex < pets.length) {
+                    const activePet = pets[activePetIndex];
+                    if (activePet && activePet.fullData && activePet.fullData.name === petName) {
+                      return activePet.fullData.imageURL || perro;
+                    }
                   }
-                  // Buscar en todas las mascotas
                   const pet = pets.find(p => p.fullData && p.fullData.name === petName);
                   if (pet && pet.fullData) {
                     return pet.fullData.imageURL || perro;

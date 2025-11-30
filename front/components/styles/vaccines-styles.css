@@ -56,7 +56,6 @@
   margin-top: 1rem;
 }
 
-/* Icono de peso centrado arriba - basado en imagen de referencia */
 .peso-icon-wrapper {
   display: flex;
   justify-content: center;
@@ -66,14 +65,14 @@
 }
 
 .peso-icon-container {
-  width: 5.25rem; /* 84px - tamaño similar a otros iconos de formulario */
-  height: 5.25rem; /* 84px */
-  border-radius: 0.875rem; /* 14px - esquinas redondeadas */
-  background-color: transparent; /* Sin fondo amarillo */
+  width: 5.25rem; 
+  height: 5.25rem; 
+  border-radius: 0.875rem; 
+  background-color: transparent; 
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative; /* Necesario para que fill funcione */
+  position: relative; 
   overflow: hidden;
 }
 
@@ -343,10 +342,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* .vaccines-year-section {
-  margin-top: 0.5rem;
-} */
-
 .vaccines-year-title {
   font-size: 1rem;
   font-weight: 600;
@@ -367,7 +362,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Vaccines List Styles */
 .vaccines-list {
   display: flex;
   flex-direction: column;
@@ -461,7 +455,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Vaccine Form Styles */
 .vaccine-form-icon-wrapper {
   display: flex;
   justify-content: center;
@@ -608,7 +601,6 @@
   opacity: 0.6;
 }
 
-/* Success Modal Styles */
 .vaccine-success-modal-overlay {
   position: fixed;
   top: 0;
@@ -683,7 +675,6 @@
   background-color: #2563EB;
 }
 
-/* Vaccine Details Modal Styles */
 .vaccine-details-modal-overlay {
   position: fixed;
   top: 0;

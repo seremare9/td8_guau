@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Display:ital,wght@0,100..900;1,100..900&display=swap');
 
 * {
   font-family: "Noto Sans", sans-serif;
@@ -385,7 +384,6 @@
   transition: border-color 0.2s;
 }
 
-/* Estilos para campos de entrada en modo edición (más finos) */
 .pet-profile-appearance-edit input.pet-profile-appearance-textarea {
   padding: 0.5rem 0.75rem;
   min-height: auto;
@@ -736,7 +734,6 @@
   color: #DC2626;
 }
 
-/* Galería de miniaturas */
 .pet-profile-photos-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -806,7 +803,6 @@
   color: #DC2626;
 }
 
-/* Modal para vista ampliada */
 .pet-profile-photo-modal {
   position: fixed;
   top: 0;
@@ -1000,7 +996,6 @@
   font-family: "Noto Sans", sans-serif;
 }
 
-/* Account Actions */
 .pet-profile-account-actions {
   display: flex;
   flex-direction: column;
@@ -1037,7 +1032,6 @@
   background-color: #FECACA;
 }
 
-/* Modal Styles */
 .pet-profile-modal-overlay {
   position: fixed;
   top: 0;

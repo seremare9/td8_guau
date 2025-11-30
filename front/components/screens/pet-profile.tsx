@@ -167,11 +167,7 @@ export default function PetProfile({
       // Convertir el Map a array
       const pets = Array.from(petsMap.values());
       
-      // Si no hay ninguna mascota, agregar la actual como default
-      if (pets.length === 0 && petData) {
-        pets.push(petData);
-      }
-      
+      // No agregar mascota por defecto - solo mostrar las mascotas que realmente existen
       setAllPets(pets);
     };
     

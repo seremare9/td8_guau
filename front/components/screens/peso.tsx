@@ -47,8 +47,8 @@ interface PesoProps {
 interface PesoRecord {
   id: string;
   id_peso?: number;
-  peso: string; // Peso en kilos
-  fecha: string; // Fecha del registro (YYYY-MM-DD)
+  peso: string; 
+  fecha: string; 
   petName: string;
   notas?: string;
 }
@@ -418,15 +418,12 @@ export default function Peso({
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
       let dateOnly = dateString;
       if (dateString.includes('T')) {
         dateOnly = dateString.split('T')[0];
       }
       
-      // Si ya está en formato YYYY-MM-DD, usarlo directamente
       const date = new Date(dateOnly + "T00:00:00");
-      // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
       }
@@ -443,7 +440,6 @@ export default function Peso({
   const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO
       let dateOnly = dateString;
       if (dateString.includes('T')) {
         dateOnly = dateString.split('T')[0];
@@ -453,7 +449,6 @@ export default function Peso({
         return new Date().getFullYear();
       }
       const year = date.getFullYear();
-      // Verificar que el año sea válido (entre 1900 y 2100)
       if (year >= 1900 && year <= 2100) {
         return year;
       }
@@ -511,7 +506,6 @@ export default function Peso({
             <Image src={lineSvg} alt="Line separator" width={336} height={2} />
           </div>
 
-          {/* Icono centrado arriba */}
           <div className="peso-icon-wrapper">
             <div className="peso-icon-container">
               <Image src={pesoIcon} alt="Peso" fill style={{ objectFit: 'contain' }} />

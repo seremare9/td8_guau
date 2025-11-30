@@ -45,8 +45,8 @@ interface CalendarProps {
 interface HealthEvent {
   id: string;
   tipo: string;
-  fecha: string; // YYYY-MM-DD
-  horario?: string; // HH:MM
+  fecha: string; 
+  horario?: string; 
   petName: string;
   eventType:
     | "vacuna"
@@ -100,7 +100,7 @@ export default function Calendar({
     petName: "",
     eventType: "otro" as HealthEvent["eventType"],
     reminderEnabled: false,
-    reminderBefore: "", // Tiempo antes del evento (ej: "0", "5", "10", etc.)
+    reminderBefore: "", 
   });
 
   const pet = {
@@ -108,7 +108,6 @@ export default function Calendar({
     image: petData?.imageURL || perro,
   };
 
-  // Cargar todas las mascotas
   useEffect(() => {
     const loadAllPets = async () => {
       const petsMap = new Map<string, { name: string; imageURL?: string; id_animal?: number }>();
@@ -200,8 +199,6 @@ export default function Calendar({
   useEffect(() => {
     const loadEvents = async () => {
       const allEvents: HealthEvent[] = [];
-
-      // Cargar eventos de todas las mascotas
       for (const pet of allPets) {
         // Intentar cargar desde la API si tenemos id_animal
         if (pet.id_animal) {
@@ -224,7 +221,7 @@ export default function Calendar({
             // Continuar con el fallback a localStorage
           }
         }
-        // Cargar vacunas
+        // Vacunas
         const vaccinesKey = `vaccines_${pet.name}`;
         const vaccinesStr = localStorage.getItem(vaccinesKey);
         if (vaccinesStr) {
@@ -246,7 +243,7 @@ export default function Calendar({
           }
         }
 
-        // Cargar higiene
+        // Higiene
         const higieneKey = `higiene_${pet.name}`;
         const higieneStr = localStorage.getItem(higieneKey);
         if (higieneStr) {
@@ -268,7 +265,7 @@ export default function Calendar({
           }
         }
 
-        // Cargar medicina
+        // Medicina
         const medicinaKey = `medicina_${pet.name}`;
         const medicinaStr = localStorage.getItem(medicinaKey);
         if (medicinaStr) {
@@ -290,7 +287,7 @@ export default function Calendar({
           }
         }
 
-        // Cargar antiparasitario
+        // Antiparasitario
         const antiparasitarioKey = `antiparasitario_${pet.name}`;
         const antiparasitarioStr = localStorage.getItem(antiparasitarioKey);
         if (antiparasitarioStr) {
@@ -312,7 +309,7 @@ export default function Calendar({
           }
         }
 
-        // Cargar veterinario
+        // Veterinario
         const veterinarioKey = `veterinario_${pet.name}`;
         const veterinarioStr = localStorage.getItem(veterinarioKey);
         if (veterinarioStr) {
@@ -334,7 +331,7 @@ export default function Calendar({
           }
         }
 
-        // Cargar otro
+        // Otro
         const otroKey = `otro_${pet.name}`;
         const otroStr = localStorage.getItem(otroKey);
         if (otroStr) {
@@ -356,7 +353,6 @@ export default function Calendar({
           }
         }
 
-        // Cargar otros eventos (para compatibilidad con eventos creados desde el calendario)
         const eventsKey = `events_${pet.name}`;
         const eventsStr = localStorage.getItem(eventsKey);
         if (eventsStr) {
@@ -379,13 +375,11 @@ export default function Calendar({
         }
       }
 
-      // Deduplicar eventos (pueden estar tanto en la API como en localStorage)
+      // Filtrar eventos duplicados (pueden estar tanto en la API como en localStorage)
       const uniqueEvents = allEvents.filter((event, index, self) => {
-        // Si tiene ID, usar ID para deduplicar
         if (event.id) {
           return index === self.findIndex((e) => e.id === event.id);
         }
-        // Si no tiene ID, usar combinación de fecha, tipo y nombre de mascota
         return index === self.findIndex((e) => 
           e.fecha === event.fecha && 
           e.tipo === event.tipo && 
@@ -394,7 +388,6 @@ export default function Calendar({
         );
       });
 
-      // Ordenar eventos por fecha
       uniqueEvents.sort((a, b) => {
         const dateA = new Date(
           a.fecha + (a.horario ? `T${a.horario}` : "T00:00")
@@ -432,9 +425,8 @@ export default function Calendar({
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    // Ajustar para que lunes = 0, martes = 1, etc. (en lugar de domingo = 0)
     let startingDayOfWeek = firstDay.getDay() - 1;
-    if (startingDayOfWeek < 0) startingDayOfWeek = 6; // Si es domingo, convertirlo a 6
+    if (startingDayOfWeek < 0) startingDayOfWeek = 6; 
 
     const days: (Date | null)[] = [];
 
@@ -449,7 +441,7 @@ export default function Calendar({
     }
 
     // Días del mes siguiente para completar la cuadrícula
-    const remainingDays = 42 - days.length; // 6 semanas * 7 días
+    const remainingDays = 42 - days.length; 
     for (let i = 1; i <= remainingDays; i++) {
       days.push(new Date(year, month + 1, i));
     }
@@ -463,19 +455,18 @@ export default function Calendar({
     
     // Mostrar TODOS los eventos (pendientes y aplicados) en el calendario
     return events.filter((event) => {
-      // Solo filtrar por fecha
       return event.fecha === dateStr;
     });
   };
 
   const getEventColor = (eventType: string): string => {
     const colors: { [key: string]: string } = {
-      vacuna: "#10B981", // verde
-      medicina: "#EC4899", // rosa
-      veterinario: "#F59E0B", // naranja
-      antiparasitario: "#A855F7", // morado
-      higiene: "#3B82F6", // azul
-      otro: "#6B7280", // gris
+      vacuna: "#10B981", 
+      medicina: "#EC4899", 
+      veterinario: "#F59E0B", 
+      antiparasitario: "#A855F7", 
+      higiene: "#3B82F6", 
+      otro: "#6B7280", 
     };
     return colors[eventType] || "#6B7280";
   };
@@ -602,8 +593,6 @@ export default function Calendar({
     return pet?.imageURL || perro;
   };
 
-  // *** FUNCIONES MOVIDAS AQUÍ DENTRO ***
-
   const calculateNextDose = (applicationDate: string): string => {
     if (!applicationDate) return "";
     const date = new Date(applicationDate + "T00:00:00");
@@ -635,7 +624,6 @@ export default function Calendar({
       localStorage.setItem(eventsKey, JSON.stringify(updatedEvents));
     }
     window.dispatchEvent(new Event("customStorageChange"));
-    // AHORA SÍ PUEDE ENCONTRAR ESTAS FUNCIONES
     setShowEditEventModal(false);
     setEditingEvent(null);
   };
@@ -673,16 +661,11 @@ export default function Calendar({
   };
 
   // Función para obtener el email del usuario
-  // TODO: Cuando integres las tablas SQL, reemplaza esta función para obtener el email desde la base de datos
   const getUserEmail = (): string => {
-    // Por ahora, obtenemos el email desde localStorage
-    // Cuando tengas las tablas SQL integradas, aquí deberías hacer una llamada a tu API
-    // Ejemplo: const user = await fetchUserFromDatabase(); return user.email;
     return localStorage.getItem("user_email") || "";
   };
 
   // Función para programar el envío del email del recordatorio
-  // TODO: Cuando integres las tablas SQL, reemplaza esta función para programar el envío real del email
   const scheduleEmailReminder = async (reminder: {
     id: string;
     eventId: string;
@@ -694,9 +677,6 @@ export default function Calendar({
     reminderMinutesBefore: number;
     userEmail: string;
   }) => {
-    // Por ahora, solo guardamos el recordatorio en localStorage
-    // Cuando tengas las tablas SQL integradas, aquí deberías llamar a tu API para programar el envío
-    // Ejemplo: await fetch('/api/reminders/schedule', { method: 'POST', body: JSON.stringify(reminder) });
     
     console.log("Recordatorio programado para envío por email:", {
       email: reminder.userEmail,
@@ -705,22 +685,7 @@ export default function Calendar({
       fechaEnvio: reminder.reminderDateTime,
       minutosAntes: reminder.reminderMinutesBefore,
     });
-
-    // Aquí es donde deberías integrar con tu backend para programar el envío del email
-    // Por ejemplo:
-    // try {
-    //   const response = await fetch('/api/reminders', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(reminder)
-    //   });
-    //   if (!response.ok) throw new Error('Error al programar recordatorio');
-    // } catch (error) {
-    //   console.error('Error al programar recordatorio:', error);
-    // }
   };
-
-  // *** FIN DE LAS FUNCIONES MOVIDAS ***
 
   const days = getDaysInMonth(currentDate);
   const upcomingEvents = getUpcomingEvents();
@@ -728,7 +693,6 @@ export default function Calendar({
   return (
     <MobileFrame>
       <div className="calendar-container">
-        {/* Header */}
         <div className="calendar-header">
           <button
             onClick={onBack}
@@ -740,12 +704,10 @@ export default function Calendar({
           <h1 className="calendar-title">Calendario</h1>
         </div>
 
-        {/* Line separator */}
         <div className="calendar-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Month Navigation */}
         <div className="calendar-month-nav">
           <button onClick={goToPreviousMonth} className="calendar-nav-button">
             <ChevronLeft className="calendar-nav-icon" />
@@ -758,9 +720,7 @@ export default function Calendar({
           </button>
         </div>
 
-        {/* Calendar Grid */}
         <div className="calendar-grid">
-          {/* Day names */}
           {dayNames.map((day, index) => (
             <div
               key={day}
@@ -772,7 +732,6 @@ export default function Calendar({
             </div>
           ))}
 
-          {/* Calendar days */}
           {days.map((date, index) => {
             const dateEvents = getEventsForDate(date);
             const isCurrentMonthDay = isCurrentMonth(date);
@@ -817,7 +776,6 @@ export default function Calendar({
           })}
         </div>
 
-        {/* Upcoming Events */}
         <div className="calendar-upcoming-section">
           <div className="calendar-upcoming-header">
             <h3 className="calendar-upcoming-title">Próximos eventos</h3>
@@ -1072,7 +1030,7 @@ export default function Calendar({
                     onClick={() => {
                       const eventDate = new Date(
                         editingEvent.fecha + "T00:00:00"
-                      ); // Asegurarse de que la zona horaria sea correcta
+                      ); 
                       setSelectedDate(eventDate);
                       setEventForm({
                         tipo: editingEvent.tipo,
@@ -1385,9 +1343,7 @@ export default function Calendar({
                             eventDateTime.getTime() - reminderMinutes * 60 * 1000
                           );
 
-                          // Obtener el email del usuario
                           const userEmail = getUserEmail();
-
                           if (!userEmail) {
                             console.warn("No se encontró el email del usuario. El recordatorio no se programará.");
                           } else {
@@ -1422,7 +1378,6 @@ export default function Calendar({
                           }
                         }
 
-                        // Disparar evento personalizado para recargar eventos
                         window.dispatchEvent(new Event("customStorageChange"));
 
                         setShowAddEventModal(false);

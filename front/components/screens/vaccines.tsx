@@ -56,13 +56,13 @@ interface Vaccine {
   id: string;
   id_evento?: number;
   tipo: string;
-  fecha: string; // Fecha de aplicación o turno (YYYY-MM-DD)
-  horario?: string; // Horario del turno (HH:MM)
+  fecha: string; 
+  horario?: string; 
   veterinario?: string;
   notas?: string;
-  proximaDosis: string; // Fecha de próxima dosis (YYYY-MM-DD)
+  proximaDosis: string; 
   petName: string;
-  esAplicada?: boolean; // true si es una vacuna ya aplicada, false si es un turno pendiente
+  esAplicada?: boolean; 
 }
 
 export default function Vaccines({
@@ -77,7 +77,7 @@ export default function Vaccines({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccine | null>(null);
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
-  const [isVaccineApplied, setIsVaccineApplied] = useState(false); // true = vacuna aplicada, false = turno
+  const [isVaccineApplied, setIsVaccineApplied] = useState(false); 
   const [showAddMenu, setShowAddMenu] = useState(false);
   const addMenuRef = useRef<HTMLDivElement>(null);
   const [vaccineForm, setVaccineForm] = useState({
@@ -223,7 +223,6 @@ export default function Vaccines({
     loadAllPets();
   }, [petData]);
 
-  // Cerrar menú cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -458,19 +457,15 @@ export default function Vaccines({
     }
   };
 
-  // Función para formatear fecha de YYYY-MM-DD o ISO a DD.MM.YYYY
   const formatDate = (dateString: string | undefined | null): string => {
     if (!dateString) return "";
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)
       let dateOnly = dateString;
       if (dateString.includes('T')) {
         dateOnly = dateString.split('T')[0];
       }
-      
-      // Si ya está en formato YYYY-MM-DD, usarlo directamente
+
       const date = new Date(dateOnly + "T00:00:00");
-      // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
         return "";
       }
@@ -484,13 +479,11 @@ export default function Vaccines({
     }
   };
 
-  // Función para formatear horario de HH:MM a formato legible
   const formatTime = (timeString: string): string => {
     if (!timeString) return "";
     return timeString;
   };
 
-  // Función para obtener el año de una fecha
   const getYear = (dateString: string | undefined | null): number => {
     if (!dateString) return new Date().getFullYear();
     try {
@@ -504,16 +497,14 @@ export default function Vaccines({
     }
   };
 
-  // Función para determinar si una vacuna está pendiente
   const isPending = (vaccine: Vaccine): boolean => {
     // Si es una vacuna ya aplicada, nunca está pendiente
     if (vaccine.esAplicada === true) return false;
-    
+  
     // Si es un turno (no aplicado), verificar si la fecha es futura o es hoy
     if (!vaccine.fecha) return false;
     
     try {
-      // Extraer solo la parte de la fecha si viene en formato ISO
       let dateOnly = vaccine.fecha;
       if (vaccine.fecha.includes('T')) {
         dateOnly = vaccine.fecha.split('T')[0];
@@ -523,7 +514,6 @@ export default function Vaccines({
       today.setHours(0, 0, 0, 0);
       const turnoDate = new Date(dateOnly + "T00:00:00");
       
-      // Verificar si la fecha es válida
       if (isNaN(turnoDate.getTime())) return false;
       
       // Está pendiente si la fecha es hoy o futura
@@ -534,7 +524,6 @@ export default function Vaccines({
     }
   };
 
-  // Función para obtener el nombre completo del tipo de vacuna
   const getVaccineTypeName = (tipo: string): string => {
     const typeMap: { [key: string]: string } = {
       antirrabica: "Antirrábica",
@@ -588,7 +577,7 @@ export default function Vaccines({
     return (
       <MobileFrame>
         <div className="vaccines-container">
-          {/* Header */}
+ 
           <div className="vaccines-header">
             <div className="vaccines-header-left">
               <button
@@ -604,17 +593,14 @@ export default function Vaccines({
             </div>
           </div>
 
-          {/* Line separator */}
           <div className="vaccines-header-line">
             <Image src={lineSvg} alt="Line separator" width={336} height={2} />
           </div>
 
-          {/* Vaccine Icon */}
           <div className="vaccine-form-icon-wrapper">
             <Image src={vacunaIcon} alt="Vacuna" width={84} height={84} />
           </div>
 
-          {/* Form */}
           <div className="vaccine-form-container">
             <div className="vaccine-form-field">
               <label className="vaccine-form-label">Tipo de vacuna</label>
@@ -694,7 +680,6 @@ export default function Vaccines({
               />
             </div>
 
-            {/* Save Button */}
             <div className="vaccine-form-button-section">
               <Button
                 onClick={handleSaveVaccine}
@@ -710,7 +695,6 @@ export default function Vaccines({
             </div>
           </div>
 
-          {/* Success Modal */}
           {showSuccessModal && (
             <div className="vaccine-success-modal-overlay">
               <div className="vaccine-success-modal">
@@ -740,7 +724,7 @@ export default function Vaccines({
   return (
     <MobileFrame>
       <div className="vaccines-container">
-        {/* Header */}
+   
         <div className="vaccines-header">
           <div className="vaccines-header-left">
             <button onClick={onBack} className="vaccines-back-button" aria-label="Volver">
@@ -778,7 +762,7 @@ export default function Vaccines({
                   <ChevronDown className={`vaccines-selector-chevron ${isDropdownOpen ? 'open' : ''}`} />
                 </div>
               </div>
-              {/* Menú desplegable */}
+             
               {isDropdownOpen && (
                 <div className="vaccines-dropdown">
                   {allPets.map((petOption, index) => (
@@ -818,12 +802,12 @@ export default function Vaccines({
           </div>
         </div>
         
-        {/* Line separator */}
+      
         <div className="vaccines-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-        {/* Content */}
+   
         <div className="vaccines-content">
           {/* Search and Add Button */}
           <div className="vaccines-search-section">
@@ -874,17 +858,17 @@ export default function Vaccines({
             </div>
           </div>
 
-          {/* Information Banner */}
+      
           <div className="vaccines-info-banner">
             <Info className="vaccines-info-icon" />
             <span className="vaccines-info-text">Información sobre vacunas</span>
           </div>
-          {/* Line separator */}
+       
         <div className="vaccines-header-line">
           <Image src={lineSvg} alt="Line separator" width={336} height={2} />
         </div>
 
-          {/* Vaccines List by Year */}
+       
           {sortedYears.length > 0 ? (
             sortedYears.map((year) => (
               <div key={year} className="vaccines-year-section">
@@ -935,7 +919,7 @@ export default function Vaccines({
           )}
         </div>
 
-        {/* Vaccine Details Modal */}
+
         {selectedVaccine && (
           <div className="vaccine-details-modal-overlay" onClick={handleCloseVaccineDetails}>
             <div className="vaccine-details-modal" onClick={(e) => e.stopPropagation()}>
