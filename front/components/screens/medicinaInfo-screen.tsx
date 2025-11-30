@@ -4,7 +4,7 @@ import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
-import logoPastilla from "../images/logo_pastilla.png";
+import logoMedicina from "../images/event-icons/medicina.svg";
 import "../styles/info-screen-styles.css";
 
 interface InfoScreenProps {
@@ -22,11 +22,11 @@ export default function MedicinaInfoScreen({
   const handleNext = () => onNext();
   const handleSkip = () => onSkip();
 
-  // Clase para el botón de guía (se pone azul al hacer click)
+  // Abrir guía de medicinas
   const GUIDE_BUTTON_CLASS =
     "info-main-button info-main-button-primary info-main-button-blue";
 
-  // Clase para el botón omitir (es el estilo de texto gris)
+  // Omitir
   const SKIP_BUTTON_CLASS = "info-skip-button";
 
   return (
@@ -37,17 +37,17 @@ export default function MedicinaInfoScreen({
         </button>
 
         <div className="info-content">
-          {/* Icono de Medicina */}
+ 
           <div style={{ marginBottom: '2.5rem' }}>
             <Image 
-              src={logoPastilla} 
+              src={logoMedicina} 
               alt="Medicina" 
               width={112}
               height={112}
             />
           </div>
 
-          <h2 className="info-title">
+          <h2 className="info-title-medicine">
             ¿Te gustaría recibir información sobre medicinas?
           </h2>
         </div>

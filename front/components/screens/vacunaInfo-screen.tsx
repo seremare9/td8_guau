@@ -2,7 +2,9 @@
 
 import MobileFrame from "./mobile-frame";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Syringe } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import logoVacuna from "../images/event-icons/vacuna.svg";
 import "../styles/info-screen-styles.css";
 
 interface InfoScreenProps {
@@ -16,24 +18,21 @@ export default function VacunaInfoScreen({
   onSkip,
   onBack,
 }: InfoScreenProps) {
-  // Las funciones onNext y onSkip en page.tsx ahora llevan a la misma función: navigateToMedicinaInfo
 
-  // Función para manejar el botón principal (guía de vacunas)
+  // Guía de vacunas
   const handleNext = () => {
-    // Al presionar la guía, se pone azuly va a la info sobre vacunas
   };
 
-  // Función para manejar el botón Omitir
+  // Omitir
   const handleSkip = () => {
-    // Omitir lleva a la siguiente pregunta (medicinaInfo) 🛑
     onNext();
   };
 
-  // Clase para el botón de guía (se pone azul al hacer click)
+  // Guía de vacunas
   const NEXT_BUTTON_CLASS =
     "info-main-button info-main-button-primary info-main-button-blue";
 
-  // Clase para el botón omitir (es el estilo de texto gris)
+  // Omitir
   const SKIP_BUTTON_CLASS = "info-skip-button";
 
   return (
@@ -44,9 +43,13 @@ export default function VacunaInfoScreen({
         </button>
 
         <div className="info-content">
-          {/* Icono de Vacuna (Verde) */}
-          <div className="info-icon-wrapper info-icon-vaccine-bg">
-            <Syringe className="info-icon info-icon-vaccine-fg" />
+          <div style={{ marginBottom: '2.5rem' }}>
+            <Image 
+              src={logoVacuna} 
+              alt="Vacuna" 
+              width={112}
+              height={112}
+            />
           </div>
 
           <h2 className="info-title">
