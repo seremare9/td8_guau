@@ -177,7 +177,19 @@ export default function RegisterScreen({
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Para el campo de fecha, asegurarse de que el valor se guarde correctamente
+    if (field === "birthDate") {
+      // El input de tipo "date" siempre devuelve YYYY-MM-DD, guardarlo tal cual
+      // No hacer ninguna transformación, guardar exactamente como viene del input
+      console.log("Fecha recibida del input:", value);
+      setFormData((prev) => {
+        const newData = { ...prev, [field]: value };
+        console.log("Fecha guardada en estado:", newData.birthDate);
+        return newData;
+      });
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
     // Limpiar errores cuando el usuario empieza a escribir
     if (errors[field as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -243,6 +255,33 @@ export default function RegisterScreen({
     // Si todo está bien y acepta términos, proceder
     if (acceptTerms) {
       try {
+        // LIMPIAR TODOS LOS DATOS DE LA CUENTA ANTERIOR ANTES DE CREAR NUEVA
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (
+            key.startsWith("pet_data_") || 
+            key.startsWith("vaccines_") || 
+            key.startsWith("higiene_") || 
+            key.startsWith("medicina_") || 
+            key.startsWith("antiparasitario_") || 
+            key.startsWith("veterinario_") || 
+            key.startsWith("otro_") || 
+            key.startsWith("peso_") ||
+            key.startsWith("pet_photos_") ||
+            key.startsWith("notifications_") ||
+            key === "pets_order" ||
+            key === "event_reminders"
+          )) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => {
+          if (key) {
+            localStorage.removeItem(key);
+          }
+        });
+        
         // Crear el dueño en la API
         const nombreCompleto = `${formData.firstName} ${formData.lastName}`.trim();
         // Obtener el tipo de padre desde localStorage o usar valor por defecto
@@ -255,15 +294,17 @@ export default function RegisterScreen({
         });
 
         // Guardar todos los datos del usuario en localStorage incluyendo el id_dueño
+        console.log("Fecha antes de guardar en localStorage:", formData.birthDate);
         const userData = {
           id_dueño: nuevoDueño.id_dueño,
           firstName: formData.firstName,
           lastName: formData.lastName,
           nombre: nuevoDueño.nombre,
           email: formData.email,
-          birthDate: formData.birthDate,
+          birthDate: formData.birthDate, // Guardar exactamente como está en el estado
           phone: formData.phone,
         };
+        console.log("Fecha guardada en localStorage:", userData.birthDate);
         localStorage.setItem("user_data", JSON.stringify(userData));
         
         // También guardar el email por separado para compatibilidad
@@ -344,15 +385,29 @@ export default function RegisterScreen({
                 )}
               </div>
 
-              <div className="register-input-container">
+              <div className="register-field-wrapper">
+                <label 
+                  htmlFor="birthDate"
+                  style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    color: '#39434F',
+                    fontWeight: '500',
+                  }}
+                >
+                  Fecha de nacimiento
+                </label>
                 <Input
+                  id="birthDate"
                   type="date"
-                  placeholder="Fecha de nacimiento"
-                  value={formData.birthDate}
-                  onChange={(e) =>
-                    handleInputChange("birthDate", e.target.value)
-                  }
-                  className="register-input-with-icon"
+                  value={formData.birthDate || ""}
+                  onChange={(e) => {
+                    const dateValue = e.target.value;
+                    // Asegurarse de que el valor se guarde exactamente como lo devuelve el input
+                    handleInputChange("birthDate", dateValue);
+                  }}
+                  className="register-input-full"
                 />
               </div>
 

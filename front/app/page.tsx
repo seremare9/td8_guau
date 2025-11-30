@@ -29,6 +29,42 @@ import VacunaInfoScreen from "@/components/screens/vacunaInfo-screen";
 // Forzar renderizado dinámico para evitar errores de pre-renderizado
 export const dynamic = 'force-dynamic';
 
+// Función para limpiar TODOS los datos de usuario y mascotas de localStorage
+function clearAllUserData() {
+  // Limpiar datos del usuario
+  localStorage.removeItem("user_data");
+  localStorage.removeItem("user_email");
+  localStorage.removeItem("user_type");
+  localStorage.removeItem("user_experience");
+  
+  // Limpiar todas las mascotas y eventos relacionados
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (
+      key.startsWith("pet_data_") || 
+      key.startsWith("vaccines_") || 
+      key.startsWith("higiene_") || 
+      key.startsWith("medicina_") || 
+      key.startsWith("antiparasitario_") || 
+      key.startsWith("veterinario_") || 
+      key.startsWith("otro_") || 
+      key.startsWith("peso_") ||
+      key.startsWith("pet_photos_") ||
+      key.startsWith("notifications_") ||
+      key === "pets_order" ||
+      key === "event_reminders"
+    )) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(key => {
+    if (key) {
+      localStorage.removeItem(key);
+    }
+  });
+}
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<
     | "onboarding"
@@ -285,10 +321,25 @@ export default function App() {
       )}
       {currentScreen === "login" && (
         <LoginScreen
+          key="login-screen" // Forzar remontaje del componente
           onCreateAccount={navigateToRegister}
           onBack={navigateBack}
           onLogin={() => {
-            setUserName("User");
+            // Los datos del usuario ya fueron guardados en localStorage por handleEmailLogin
+            // No necesitamos limpiar aquí porque ya se limpian en el logout
+            setPetData(null);
+            // Obtener el nombre del usuario desde localStorage
+            const userDataStr = localStorage.getItem("user_data");
+            if (userDataStr) {
+              try {
+                const userData = JSON.parse(userDataStr);
+                setUserName(userData.firstName || userData.nombre?.split(' ')[0] || "User");
+              } catch (e) {
+                setUserName("User");
+              }
+            } else {
+              setUserName("User");
+            }
             // Si hay mascotas registradas, ir directamente a home
             if (hasRegisteredPets()) {
               loadFirstPet();
@@ -298,6 +349,9 @@ export default function App() {
             }
           }}
           onSocialLogin={(provider, userData) => {
+            // Los datos del usuario ya fueron guardados en localStorage por handleSocialLogin
+            // No necesitamos limpiar aquí porque ya se limpian en el logout
+            setPetData(null);
             setUserName(userData.firstName || "User");
             // Si hay mascotas registradas, ir directamente a home
             if (hasRegisteredPets()) {
@@ -313,7 +367,21 @@ export default function App() {
         <RegisterScreen
           onBack={navigateBack}
           onRegister={(name: string) => {
-            setUserName(name || "User");
+            // Los datos del usuario ya fueron guardados en localStorage por handleRegister
+            // No necesitamos limpiar aquí porque los datos de la cuenta anterior ya se limpiaron en register-screen
+            setPetData(null);
+            // Obtener el nombre del usuario desde localStorage
+            const userDataStr = localStorage.getItem("user_data");
+            if (userDataStr) {
+              try {
+                const userData = JSON.parse(userDataStr);
+                setUserName(userData.firstName || userData.nombre?.split(' ')[0] || name || "User");
+              } catch (e) {
+                setUserName(name || "User");
+              }
+            } else {
+              setUserName(name || "User");
+            }
             // Si hay mascotas registradas, ir directamente a home
             if (hasRegisteredPets()) {
               loadFirstPet();
@@ -323,6 +391,9 @@ export default function App() {
             }
           }}
           onSocialRegister={(provider, userData) => {
+            // Los datos del usuario ya fueron guardados en localStorage por handleSocialRegister
+            // No necesitamos limpiar aquí porque los datos de la cuenta anterior ya se limpiaron en register-screen
+            setPetData(null);
             setUserName(userData.firstName || "User");
             // Si hay mascotas registradas, ir directamente a home
             if (hasRegisteredPets()) {
@@ -823,7 +894,10 @@ export default function App() {
             }
           }}
           onLogout={() => {
-            // Limpiar datos de sesión si es necesario
+            // Limpiar TODOS los datos de localStorage
+            clearAllUserData();
+            setPetData(null);
+            setUserName("User");
             setCurrentScreen("login");
           }}
           onDeleteAccount={() => {

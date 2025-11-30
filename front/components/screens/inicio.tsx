@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import MobileFrame from "@/components/screens/mobile-frame";
 import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 import iconUser from "../images/Icon.png";
 import appleLogo from "../images/apple.svg";
@@ -35,6 +36,15 @@ export default function LoginScreen({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Limpiar el estado cuando el componente se monta (por ejemplo, después de logout)
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setLoginError(null);
+    setShowPassword(false);
+  }, []);
 
   // Función para manejar el login con proveedores sociales
   const handleSocialLogin = async (provider: "google" | "apple" | "facebook") => {
@@ -201,9 +211,24 @@ export default function LoginScreen({
       localStorage.setItem("user_email", userDataToSave.email);
       
       onLogin();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
-      setLoginError("Error al conectar con el servidor. Intenta de nuevo.");
+      // Mostrar error como notificación toast
+      let errorMessage = "Error al conectar con el servidor. Intenta de nuevo.";
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = "Error de conexión. Verifica que el servidor esté corriendo.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        variant: "destructive",
+        title: "Error al iniciar sesión",
+        description: errorMessage,
+      });
+      
+      // También mantener el error en el estado para limpiar cuando el usuario escriba
+      setLoginError(errorMessage);
     }
   };
 
@@ -263,11 +288,6 @@ export default function LoginScreen({
               )}
             </button>
           </div>
-          {loginError && (
-            <p className="login-error-message" style={{ color: 'red', fontSize: '14px', marginTop: '8px' }}>
-              {loginError}
-            </p>
-          )}
         </div>
 
         {/* Botón principal */}

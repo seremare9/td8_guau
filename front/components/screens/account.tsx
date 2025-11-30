@@ -83,7 +83,16 @@ export default function Account({
   const formatBirthDate = (dateString: string): string => {
     if (!dateString) return "";
     try {
+      // Si la fecha está en formato YYYY-MM-DD, parsearla directamente
+      if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+      }
+      // Si es otro formato, intentar con Date
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
       const day = date.getDate().toString().padStart(2, "0");
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const year = date.getFullYear();

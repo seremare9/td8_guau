@@ -76,21 +76,30 @@ async function fetchApi<T>(
     },
   };
 
-  const response = await fetch(url, {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options?.headers,
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      ...defaultOptions,
+      ...options,
+      headers: {
+        ...defaultOptions.headers,
+        ...options?.headers,
+      },
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Error en la petición' }));
-    throw new Error(error.message || `Error ${response.status}: ${response.statusText}`);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error en la petición' }));
+      throw new Error(error.message || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error: any) {
+    // Si es un error de red (fetch falló), lanzar un error más descriptivo
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el servidor en ${url}. Verifica que el servidor backend esté corriendo.`);
+    }
+    // Re-lanzar otros errores
+    throw error;
   }
-
-  return response.json();
 }
 
 // ========== API de Dueños ==========

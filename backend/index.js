@@ -7,7 +7,7 @@ require("dotenv").config();
 require("./config/db.config.js");
 
 const app = express();
-const PORT = process.env.PORT || 4000; // Usamos el puerto de .env
+const PORT = process.env.PORT || 4001; // Usamos el puerto de .env (debe coincidir con el frontend)
 
 // === Middlewares ===
 // cors: Permite que tu app React (en otro puerto) haga peticiones a este servidor
