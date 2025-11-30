@@ -441,10 +441,6 @@ export default function MenuScreen({
             <ShoppingBag className="menu-item-icon" />
             <span className="menu-item-text">Tienda Guau</span>
           </button>
-          <button className="menu-item">
-            <Users className="menu-item-icon" />
-            <span className="menu-item-text">Contactos</span>
-          </button>
           <button className="menu-item" onClick={onOpenCalendar}>
             <Calendar className="menu-item-icon" />
             <span className="menu-item-text">Calendario</span>
