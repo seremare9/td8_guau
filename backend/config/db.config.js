@@ -1,10 +1,8 @@
 // Importamos la librería 'pg' (node-postgres)
 const { Pool } = require("pg");
 
-// Importamos 'dotenv' para cargar las variables de entorno
 require("dotenv").config();
 
-// Creamos un "pool" de conexiones a la base de datos
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -22,5 +20,4 @@ pool.query("SELECT NOW()", (err, res) => {
   }
 });
 
-// Exportamos el 'pool' para poder usarlo en otros archivos (como los controladores)
 module.exports = pool;

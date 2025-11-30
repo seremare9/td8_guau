@@ -1,17 +1,15 @@
-// controllers/dueno.controller.js
 
-// 1. Importamos el 'pool' (la conexión a la BD)
+// Importamos el 'pool' (la conexión a la BD)
 const pool = require("../config/db.config.js");
 
-// 2. Función para obtener todos los duenos
+// Función para obtener todos los duenos
 const getDuenos = async (req, res) => {
   try {
-    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Busca en tabla 'dueño' (con ñ)
     const result = await pool.query(
       "SELECT id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueño ORDER BY creado_en DESC"
     );
 
-    // 4. Respondemos al frontend con los resultados
+    // Respondemos al frontend con los resultados
     res.json(result.rows);
   } catch (err) {
     console.error(err.message);
@@ -19,11 +17,11 @@ const getDuenos = async (req, res) => {
   }
 };
 
-// 3. Función para obtener un dueno por ID
+// Función para obtener un dueno por ID
 const getDuenoById = async (req, res) => {
   try {
     const { id } = req.params;
-    // ⚠️ CAMBIO: Busca por 'id_dueño' (con ñ)
+   
     const result = await pool.query(
       "SELECT id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas FROM dueño WHERE id_dueño = $1",
       [id]
@@ -40,10 +38,10 @@ const getDuenoById = async (req, res) => {
   }
 };
 
-// 4. Función para crear un nuevo dueno
+// Función para crear un nuevo dueno
 const createDueno = async (req, res) => {
   console.log(
-    "✅ ¡ENTRÓ AL CONTROLADOR! Intentando guardar en tabla 'dueño'..."
+    "¡ENTRÓ AL CONTROLADOR! Intentando guardar en tabla 'dueño'..."
   );
 
   try {
@@ -63,7 +61,6 @@ const createDueno = async (req, res) => {
       });
     }
 
-    // ⚠️ CAMBIO: Busca 'id_dueño' en tabla 'dueño'
     const existingDueno = await pool.query(
       "SELECT id_dueño FROM dueño WHERE correo = $1",
       [correo]
@@ -73,7 +70,6 @@ const createDueno = async (req, res) => {
       return res.status(400).json({ message: "El correo ya está registrado" });
     }
 
-    // ⚠️ CAMBIO: Insertar en tabla 'dueño'
     const result = await pool.query(
       `INSERT INTO dueño (nombre, correo, contraseña, tipo_padre, foto_url, notificaciones_activas) 
        VALUES ($1, $2, $3, $4, $5, $6) 
@@ -103,7 +99,7 @@ const createDueno = async (req, res) => {
   }
 };
 
-// 5. Función para actualizar un dueno
+// Función para actualizar un dueno
 const updateDueno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -174,7 +170,7 @@ const updateDueno = async (req, res) => {
     }
 
     valores.push(id);
-    // ⚠️ CAMBIO: Update en tabla 'dueño'
+   
     const query = `UPDATE dueño SET ${campos.join(
       ", "
     )} WHERE id_dueño = $${paramIndex} RETURNING id_dueño, nombre, correo, creado_en, tipo_padre, foto_url, notificaciones_activas`;
@@ -196,7 +192,7 @@ const updateDueno = async (req, res) => {
   }
 };
 
-// 6. Función para eliminar un dueno
+// Función para eliminar un dueno
 const deleteDueno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -210,8 +206,6 @@ const deleteDueno = async (req, res) => {
       return res.status(404).json({ message: "Dueno no encontrado" });
     }
 
-    // ⚠️ CAMBIO: Delete en tabla 'dueño'
-    await pool.query("DELETE FROM dueño WHERE id_dueño = $1", [id]);
 
     res.json({ message: "Dueno eliminado correctamente" });
   } catch (err) {
@@ -220,7 +214,7 @@ const deleteDueno = async (req, res) => {
   }
 };
 
-// 7. Exportamos todas las funciones
+// Exportamos todas las funciones
 module.exports = {
   getDuenos,
   getDuenoById,

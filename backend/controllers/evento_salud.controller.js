@@ -1,4 +1,3 @@
-// controllers/evento_salud.controller.js
 
 const pool = require("../config/db.config.js");
 
@@ -33,7 +32,7 @@ const mapFrecuencia = (frecuencia) => {
   return mapping[frecuencia?.toLowerCase()] || "nunca";
 };
 
-// 1. Función para obtener todos los eventos de salud
+// Función para obtener todos los eventos de salud
 const getEventosSalud = async (req, res) => {
   try {
     const { id_animal, tipo } = req.query;
@@ -61,7 +60,7 @@ const getEventosSalud = async (req, res) => {
   }
 };
 
-// 2. Función para obtener eventos de un animal específico
+// Función para obtener eventos de un animal específico
 const getEventosByAnimal = async (req, res) => {
   try {
     const { id_animal } = req.params;
@@ -88,7 +87,7 @@ const getEventosByAnimal = async (req, res) => {
   }
 };
 
-// 3. Función para obtener un evento por ID
+// Función para obtener un evento por ID
 const getEventoById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -105,26 +104,26 @@ const getEventoById = async (req, res) => {
   }
 };
 
-// 4. Función para crear un nuevo evento de salud
+// Función para crear un nuevo evento de salud
 const createEventoSalud = async (req, res) => {
   try {
     const {
       id_animal,
       nombre,
       fecha,
-      hora, // Campo del backend
-      horario, // Campo del frontend (se mapea a hora)
-      notas, // Campo del backend
-      descripcion, // Campo del frontend (se mapea a notas)
-      veterinario, // Campo del frontend (se puede incluir en notas)
+      hora, 
+      horario, 
+      notas, 
+      descripcion, 
+      veterinario, 
       foto_url,
-      tipo_componente, // Tipo del componente frontend (vacunas, medicina, etc.)
-      tipo, // Tipo directo del enum (opcional, si se proporciona tiene prioridad)
-      repetir, // Campo del backend
-      es_recurrente, // Campo del frontend
-      frecuencia_dias, // Campo del frontend
+      tipo_componente, 
+      tipo, 
+      repetir, 
+      es_recurrente, 
+      frecuencia_dias, 
       proxima_fecha,
-      es_aplicada, // Campo del frontend (no se guarda directamente, pero se puede usar para lógica)
+      es_aplicada, 
     } = req.body;
 
     // Validaciones básicas
@@ -200,12 +199,11 @@ const createEventoSalud = async (req, res) => {
       ]
     );
 
-    // Mapear la respuesta para incluir campos del frontend
     const eventoResponse = {
       ...result.rows[0],
       horario: result.rows[0].hora || null,
       descripcion: result.rows[0].notas || null,
-      es_aplicada: es_aplicada || false, // Incluir el campo es_aplicada en la respuesta
+      es_aplicada: es_aplicada || false, 
     };
 
     res.status(201).json(eventoResponse);
@@ -224,7 +222,7 @@ const createEventoSalud = async (req, res) => {
   }
 };
 
-// 5. Función para actualizar un evento de salud
+// Función para actualizar un evento de salud
 const updateEventoSalud = async (req, res) => {
   try {
     const { id } = req.params;
@@ -232,16 +230,16 @@ const updateEventoSalud = async (req, res) => {
       nombre, 
       fecha, 
       hora, 
-      horario, // Campo del frontend
+      horario, 
       notas, 
-      descripcion, // Campo del frontend
-      veterinario, // Campo del frontend
+      descripcion, 
+      veterinario, 
       foto_url, 
       tipo_componente, 
       tipo, 
       repetir,
-      es_recurrente, // Campo del frontend
-      frecuencia_dias, // Campo del frontend
+      es_recurrente, 
+      frecuencia_dias, 
       proxima_fecha 
     } = req.body;
 
@@ -252,7 +250,6 @@ const updateEventoSalud = async (req, res) => {
       return res.status(404).json({ message: "Evento no encontrado" });
     }
 
-    // Construir la consulta dinámicamente
     const campos = [];
     const valores = [];
     let paramIndex = 1;
@@ -347,7 +344,7 @@ const updateEventoSalud = async (req, res) => {
   }
 };
 
-// 6. Función para eliminar un evento de salud
+// Función para eliminar un evento de salud
 const deleteEventoSalud = async (req, res) => {
   try {
     const { id } = req.params;

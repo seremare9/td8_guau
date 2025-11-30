@@ -2,7 +2,7 @@
 
 const pool = require("../config/db.config.js");
 
-// 1. Función para obtener todas las fotos de un animal
+// Función para obtener todas las fotos de un animal
 const getFotosByAnimal = async (req, res) => {
   try {
     const { id_animal } = req.params;
@@ -17,7 +17,7 @@ const getFotosByAnimal = async (req, res) => {
   }
 };
 
-// 2. Función para obtener una foto por ID
+// Función para obtener una foto por ID
 const getFotoById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -34,7 +34,7 @@ const getFotoById = async (req, res) => {
   }
 };
 
-// 3. Función para crear una nueva foto
+// Función para crear una nueva foto
 const createFoto = async (req, res) => {
   try {
     const { id_animal, foto_url } = req.body;
@@ -80,7 +80,7 @@ const createFoto = async (req, res) => {
 // 4. Función para crear múltiples fotos a la vez
 const createMultipleFotos = async (req, res) => {
   try {
-    const { id_animal, fotos } = req.body; // fotos es un array de foto_url
+    const { id_animal, fotos } = req.body; 
 
     // Validaciones básicas
     if (!id_animal || !fotos || !Array.isArray(fotos) || fotos.length === 0) {
@@ -123,7 +123,7 @@ const createMultipleFotos = async (req, res) => {
   }
 };
 
-// 5. Función para eliminar una foto
+// Función para eliminar una foto
 const deleteFoto = async (req, res) => {
   try {
     const { id } = req.params;
@@ -148,7 +148,7 @@ const deleteFoto = async (req, res) => {
   }
 };
 
-// 6. Función para eliminar todas las fotos de un animal
+// Función para eliminar todas las fotos de un animal
 const deleteFotosByAnimal = async (req, res) => {
   try {
     const { id_animal } = req.params;

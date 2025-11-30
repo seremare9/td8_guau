@@ -2,7 +2,7 @@
 
 const pool = require("../config/db.config.js");
 
-// 1. Función para obtener todos los animales
+// Función para obtener todos los animales
 const getAnimales = async (req, res) => {
   try {
     const result = await pool.query(
@@ -18,12 +18,11 @@ const getAnimales = async (req, res) => {
   }
 };
 
-// 2. Función para obtener animales de un dueno específico
+// Función para obtener animales de un dueno específico
 const getAnimalesByDueno = async (req, res) => {
   try {
     const { id_dueno } = req.params;
 
-    // Mantenemos dueño_animal con ñ como arreglamos antes
     const result = await pool.query(
       `SELECT a.*, r.nombre as raza_nombre, da.es_principal, da.desde
        FROM animal a
@@ -40,7 +39,7 @@ const getAnimalesByDueno = async (req, res) => {
   }
 };
 
-// 3. Función para obtener un animal por ID
+// Función para obtener un animal por ID
 const getAnimalById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -63,7 +62,7 @@ const getAnimalById = async (req, res) => {
   }
 };
 
-// 4. Función auxiliar para obtener o crear una raza por nombre
+// Función auxiliar para obtener o crear una raza por nombre
 const getOrCreateRaza = async (nombreRaza) => {
   try {
     let result = await pool.query(
@@ -86,7 +85,7 @@ const getOrCreateRaza = async (nombreRaza) => {
   }
 };
 
-// 5. Función para mapear tamano (del inglés/frontend al español de BD)
+// Función para mapear tamaño
 const mapTamano = (gender) => {
   const mapping = {
     small: "chico",
@@ -99,10 +98,10 @@ const mapTamano = (gender) => {
   return mapping[gender?.toLowerCase()] || "mediano";
 };
 
-// 6. Función para crear un nuevo animal
+// Función para crear un nuevo animal
 const createAnimal = async (req, res) => {
   try {
-    // 1. Recibir datos: Aceptamos 'tamano' o 'tamaño' para evitar errores
+    // Recibir datos: Aceptamos 'tamano' o 'tamaño' para evitar errores
     let {
       nombre,
       raza_nombre,
@@ -233,7 +232,7 @@ const createAnimal = async (req, res) => {
   }
 };
 
-// 7. Función para actualizar un animal
+// Función para actualizar un animal
 const updateAnimal = async (req, res) => {
   try {
     const { id } = req.params;
@@ -364,7 +363,7 @@ const updateAnimal = async (req, res) => {
   }
 };
 
-// 8. Función para eliminar un animal
+// Función para eliminar un animal
 const deleteAnimal = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,11 +1,9 @@
-// controllers/peso.controller.js
 
 const pool = require("../config/db.config.js");
 
-// Función helper para mapear la respuesta (kg -> peso para compatibilidad con frontend)
 const mapPesoResponse = (row) => {
   if (!row) return row;
-  // Si la respuesta tiene 'kg', también agregamos 'peso' para compatibilidad
+ 
   if (row.kg !== undefined && row.peso === undefined) {
     return { ...row, peso: row.kg };
   }
@@ -17,7 +15,7 @@ const mapPesoResponses = (rows) => {
   return rows.map(mapPesoResponse);
 };
 
-// 1. Función para obtener todos los registros de peso
+// Función para obtener todos los registros de peso
 const getPesos = async (req, res) => {
   try {
     const { id_animal } = req.query;
@@ -40,7 +38,7 @@ const getPesos = async (req, res) => {
   }
 };
 
-// 2. Función para obtener registros de peso de un animal específico
+// Función para obtener registros de peso de un animal específico
 const getPesosByAnimal = async (req, res) => {
   try {
     const { id_animal } = req.params;
@@ -55,7 +53,7 @@ const getPesosByAnimal = async (req, res) => {
   }
 };
 
-// 3. Función para obtener el último peso registrado de un animal
+// Función para obtener el último peso registrado de un animal
 const getUltimoPesoByAnimal = async (req, res) => {
   try {
     const { id_animal } = req.params;
@@ -77,7 +75,7 @@ const getUltimoPesoByAnimal = async (req, res) => {
   }
 };
 
-// 4. Función para obtener un registro de peso por ID
+// Función para obtener un registro de peso por ID
 const getPesoById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -98,13 +96,13 @@ const getPesoById = async (req, res) => {
   }
 };
 
-// 5. Función para crear un nuevo registro de peso
+// Función para crear un nuevo registro de peso
 const createPeso = async (req, res) => {
   try {
     // Aceptamos tanto 'peso' como 'kg' para compatibilidad
     const { id_animal, kg, peso, fecha, notas } = req.body;
 
-    // Unificamos el peso (priorizamos 'peso' si viene del frontend, sino 'kg')
+    // Unificamos el peso
     const pesoValue = peso || kg;
 
     // Validaciones básicas
@@ -153,8 +151,7 @@ const createPeso = async (req, res) => {
         .status(400)
         .json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
     } else if (err.code === "42703") {
-      // Error de columna no existente (posiblemente notas no existe en la tabla)
-      // Intentamos sin notas
+ 
       try {
         const { id_animal, kg, peso, fecha } = req.body;
         const pesoValue = peso || kg;
@@ -174,11 +171,11 @@ const createPeso = async (req, res) => {
   }
 };
 
-// 6. Función para actualizar un registro de peso
+// Función para actualizar un registro de peso
 const updatePeso = async (req, res) => {
   try {
     const { id } = req.params;
-    // Aceptamos tanto 'peso' como 'kg' para compatibilidad
+   
     const { kg, peso, fecha, notas } = req.body;
 
     // Unificamos el peso
@@ -196,13 +193,12 @@ const updatePeso = async (req, res) => {
         .json({ message: "Registro de peso no encontrado" });
     }
 
-    // Construir la consulta dinámicamente
     const campos = [];
     const valores = [];
     let paramIndex = 1;
 
     if (pesoValue !== undefined) {
-      // Validar que el peso sea positivo
+
       if (parseFloat(pesoValue) <= 0) {
         return res.status(400).json({
           message: "El peso debe ser mayor a 0",
@@ -241,8 +237,7 @@ const updatePeso = async (req, res) => {
         .status(400)
         .json({ message: "Datos inválidos: el peso debe ser mayor a 0" });
     } else if (err.code === "42703") {
-      // Error de columna no existente (posiblemente notas)
-      // Reintentamos sin notas
+
       try {
         const { kg, peso, fecha } = req.body;
         const pesoValue = peso !== undefined ? peso : kg;
@@ -286,7 +281,7 @@ const updatePeso = async (req, res) => {
   }
 };
 
-// 7. Función para eliminar un registro de peso
+// Función para eliminar un registro de peso
 const deletePeso = async (req, res) => {
   try {
     const { id } = req.params;

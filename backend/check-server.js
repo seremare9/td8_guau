@@ -21,7 +21,7 @@ const req = http.request(options, (res) => {
 
   res.on('end', () => {
     if (res.statusCode === 200) {
-      console.log(`✅ Servidor backend está corriendo en http://${HOST}:${PORT}`);
+      console.log(`Servidor backend está corriendo en http://${HOST}:${PORT}`);
       console.log(`Respuesta: ${data}`);
       process.exit(0);
     } else {
@@ -32,14 +32,14 @@ const req = http.request(options, (res) => {
 });
 
 req.on('error', (error) => {
-  console.error(`❌ Error: El servidor NO está corriendo en el puerto ${PORT}`);
+  console.error(`Error: El servidor NO está corriendo en el puerto ${PORT}`);
   console.error(`   Detalles: ${error.message}`);
   console.error(`\n💡 Solución: Ejecuta "npm start" en la carpeta backend`);
   process.exit(1);
 });
 
 req.on('timeout', () => {
-  console.error(`❌ Timeout: El servidor no respondió en el puerto ${PORT}`);
+  console.error(`Timeout: El servidor no respondió en el puerto ${PORT}`);
   req.destroy();
   process.exit(1);
 });

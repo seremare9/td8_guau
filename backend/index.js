@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 4001; // Usamos el puerto de .env (debe coincidir con el frontend)
 
 // === Middlewares ===
-// cors: Permite que tu app React (en otro puerto) haga peticiones a este servidor
+// cors: Permite que la app haga peticiones a este servidor
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -21,19 +21,16 @@ app.use(
 );
 
 // express.json: Permite que el servidor entienda datos JSON enviados en peticiones (ej. POST, PUT)
-// Aumentamos el límite a 50MB para permitir imágenes en base64
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Este código imprimirá en la terminal cada vez que alguien toque la puerta
 app.use((req, res, next) => {
-  console.log(`\n📢 PETICIÓN RECIBIDA: ${req.method} ${req.url}`);
-  console.log("📦 Datos recibidos (body):", req.body);
+  console.log(`\n PETICIÓN RECIBIDA: ${req.method} ${req.url}`);
+  console.log("Datos recibidos (body):", req.body);
   console.log("------------------------------------------------");
-  next(); // Importante: deja pasar la petición a las rutas
+  next();
 });
 
-// === Rutas ===
 // Ruta de prueba para verificar que el servidor funciona
 app.get("/", (req, res) => {
   res.send("Servidor backend funcionando correctamente!");
